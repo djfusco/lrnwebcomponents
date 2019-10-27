@@ -317,7 +317,7 @@ class SelfCheck extends SchemaBehaviors(A11yBehaviors(SimpleColors)) {
     let eventData = {
       activityDisplay: "answered",
       //objectName: this.quizName,
-      objectName: "Quiz1",
+      objectName: "self-check",
       //resultSuccess: gotRight
       resultSuccess: "1"
     };

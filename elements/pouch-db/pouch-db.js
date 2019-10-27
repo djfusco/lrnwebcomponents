@@ -30,33 +30,33 @@ window.PouchDb.requestAvailability = () => {
  * @demo demo/index.html
  */
 class PouchDb extends PolymerElement {
-  
   // render function
   static get template() {
     return html`
-<style>:host {
-  display: block;
-}
+      <style>
+        :host {
+          display: block;
+        }
 
-:host([hidden]) {
-  display: none;
-}
-</style>
-<slot></slot>`;
+        :host([hidden]) {
+          display: none;
+        }
+      </style>
+      <slot></slot>
+    `;
   }
 
   // properties available to the custom element for data binding
   static get properties() {
     return {
-  "title": {
-    "name": "title",
-    "type": "String",
-    "value": "pouch-db-default-value",
-    "reflectToAttribute": false,
-    "observer": false
-  }
-}
-;
+      title: {
+        name: "title",
+        type: "String",
+        value: "pouch-db-default-value",
+        reflectToAttribute: false,
+        observer: false
+      }
+    };
   }
 
   /**
@@ -84,6 +84,23 @@ class PouchDb extends PolymerElement {
 
     switch (whatEvent) {
       case "SELF-CHECK":
+        var dbType = "xapistatements";
+        var activityDisplay = eventData.activityDisplay;
+        var activityId = "http://adlnet.gov/expapi/verbs/" + activityDisplay; //this may need to be changed in the future for more verbs
+        var objectId = "http://haxcms.psu.edu/haxSelfCheck";
+        var objectName = eventData.objectName;
+        var objectDescription = "HAX SelfCheck";
+        //hard-coded for now for results, future tracking change to pull data from eventData.x
+        var resultScoreScaled = 1;
+        var resultScoreMin = 0;
+        var resultScoreMax = 100;
+        var resultScoreRaw = 100;
+        var resultSuccess = eventData.resultSuccess;
+        var resultCompletion = true;
+        var resultResponse = "sample";
+        var resultDuration = "sample";
+        //hard-coded for now for results, future tracking change to pull data from eventData.x
+        break;
       case "MULTIPLE-CHOICE":
         var dbType = "xapistatements";
         var activityDisplay = eventData.activityDisplay;
