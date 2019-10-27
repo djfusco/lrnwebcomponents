@@ -1,7 +1,5 @@
 import { html } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
 import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 import { A11yBehaviors } from "@lrnwebcomponents/a11y-behaviors/a11y-behaviors.js";
 /**
@@ -27,7 +25,7 @@ class SelfCheck extends SchemaBehaviors(A11yBehaviors(SimpleColors)) {
   }
   static get template() {
     return html`
-      <style>
+      <style include="simple-colors-shared-styles">
         :host {
           display: block;
           margin: 15px 0;
@@ -97,14 +95,14 @@ class SelfCheck extends SchemaBehaviors(A11yBehaviors(SimpleColors)) {
           width: 35px;
           height: 35px;
           padding: 5px;
-          color: #ffffff;
+          color: var(--simple-colors-default-theme-grey-1, #fff);
         }
 
         .heading {
           text-transform: uppercase;
           font-size: 22px;
           margin: 10px;
-          color: #ffffff;
+          color: var(--simple-colors-default-theme-grey-1, #fff);
         }
 
         #header_wrap {
@@ -205,22 +203,28 @@ class SelfCheck extends SchemaBehaviors(A11yBehaviors(SimpleColors)) {
                 icon="icons:check-circle"
                 on-click="openAnswer"
                 noink
-              >
-              </user-action>
+              ></paper-icon-button>
               <paper-tooltip aria-hidden="true" for="checkBtn" position="left">
                 Reveal Answer
               </paper-tooltip>
             </div>
           </div>
-
           <div id="answer_wrap" aria-hidden$="[[!correct]]" aria-live="polite">
             <div class="answer">
               <user-action track="visibility">
                 <slot></slot>
               </user-action>
-              <div class="more_info" hidden$="[[!link]]">
-                <user-action track="click" every><a href$="[[link]]" target="_blank">More info...</a></user-action>
-              </div>
+              <dom-if if="[[link]]">
+                <template>
+                  <div class="more_info" hidden$="[[!link]]">
+                    <user-action track="click" every
+                      ><a href$="[[link]]" target="_blank"
+                        >More info...</a
+                      ></user-action
+                    >
+                  </div>
+                </template>
+              </dom-if>
               <div class="close_button">
                 <paper-icon-button
                   aria-label="Close"
@@ -308,6 +312,23 @@ class SelfCheck extends SchemaBehaviors(A11yBehaviors(SimpleColors)) {
 
   openAnswer(e) {
     this.correct = !this.correct;
+
+    // start of data passing, this is a prototype atm
+    let eventData = {
+      activityDisplay: "answered",
+      //objectName: this.quizName,
+      objectName: "Quiz1",
+      //resultSuccess: gotRight
+      resultSuccess: "1"
+    };
+    this.dispatchEvent(
+      new CustomEvent("user-engagement", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: eventData
+      })
+    );
   }
   static get haxProperties() {
     return {
@@ -422,11 +443,7 @@ class SelfCheck extends SchemaBehaviors(A11yBehaviors(SimpleColors)) {
 
   connectedCallback() {
     super.connectedCallback();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(SelfCheck.haxProperties, SelfCheck.tag, this);
-      import("@lrnwebcomponents/user-action/user-action.js");
-    });
+    import("@lrnwebcomponents/user-action/user-action.js");
   }
 }
 window.customElements.define(SelfCheck.tag, SelfCheck);

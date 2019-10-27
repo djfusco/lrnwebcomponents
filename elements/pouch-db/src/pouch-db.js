@@ -56,6 +56,7 @@ class PouchDb extends PolymerElement {
     var whatEvent = event.target.tagName;
 
     switch (whatEvent) {
+      case "SELF-CHECK":
       case "MULTIPLE-CHOICE":
         var dbType = "xapistatements";
         var activityDisplay = eventData.activityDisplay;

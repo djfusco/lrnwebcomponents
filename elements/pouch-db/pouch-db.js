@@ -30,33 +30,33 @@ window.PouchDb.requestAvailability = () => {
  * @demo demo/index.html
  */
 class PouchDb extends PolymerElement {
+  
   // render function
   static get template() {
     return html`
-      <style>
-        :host {
-          display: block;
-        }
+<style>:host {
+  display: block;
+}
 
-        :host([hidden]) {
-          display: none;
-        }
-      </style>
-      <slot></slot>
-    `;
+:host([hidden]) {
+  display: none;
+}
+</style>
+<slot></slot>`;
   }
 
   // properties available to the custom element for data binding
   static get properties() {
     return {
-      title: {
-        name: "title",
-        type: "String",
-        value: "pouch-db-default-value",
-        reflectToAttribute: false,
-        observer: false
-      }
-    };
+  "title": {
+    "name": "title",
+    "type": "String",
+    "value": "pouch-db-default-value",
+    "reflectToAttribute": false,
+    "observer": false
+  }
+}
+;
   }
 
   /**
@@ -83,6 +83,7 @@ class PouchDb extends PolymerElement {
     var whatEvent = event.target.tagName;
 
     switch (whatEvent) {
+      case "SELF-CHECK":
       case "MULTIPLE-CHOICE":
         var dbType = "xapistatements";
         var activityDisplay = eventData.activityDisplay;
