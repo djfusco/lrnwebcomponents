@@ -2,39 +2,41 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { microTask } from "@polymer/polymer/lib/utils/async.js";
+import { LitElement, html } from "lit-element/lit-element.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
-import { autorun, toJS } from "mobx";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 import "@lrnwebcomponents/jwt-login/jwt-login.js";
 import "@lrnwebcomponents/h-a-x/h-a-x.js";
+import "@lrnwebcomponents/mdi-iconset-svg/lib/mdi-action-iconset-svg.js";
 import "@lrnwebcomponents/simple-toast/simple-toast.js";
 import "@lrnwebcomponents/simple-modal/simple-modal.js";
-
+import "@polymer/paper-button/paper-button.js";
+import "@lrnwebcomponents/simple-fields/lib/simple-fields-form.js";
+import "./haxcms-site-dashboard.js";
 /**
  * `haxcms-site-editor`
  * `haxcms editor element that provides all editing capabilities`
  *
  * @demo demo/index.html
  */
-class HAXCMSSiteEditor extends PolymerElement {
+
+class HAXCMSSiteEditor extends LitElement {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "haxcms-site-editor";
   }
+
   constructor() {
     super();
     this.__disposer = [];
+    this.method = "POST";
+    this.editMode = false;
   }
   // render function
-  static get template() {
+  render() {
     return html`
       <style>
         :host {
@@ -78,7 +80,6 @@ class HAXCMSSiteEditor extends PolymerElement {
           background-color: var(--paper-blue-500) !important;
         }
         h-a-x {
-          padding: 80px 40px;
           margin: auto;
           display: none;
         }
@@ -87,402 +88,441 @@ class HAXCMSSiteEditor extends PolymerElement {
         }
       </style>
       <iron-ajax
-        headers='{"Authorization": "Bearer [[jwt]]"}'
+        reject-with-request
+        .headers='{"Authorization": "Bearer ${this.jwt}"}'
         id="nodeupdateajax"
-        url="[[saveNodePath]]"
-        method="[[method]]"
-        body="[[updateNodeData]]"
+        .url="${this.saveNodePath}"
+        .method="${this.method}"
         content-type="application/json"
         handle-as="json"
-        on-response="_handleNodeResponse"
-        last-error="{{lastError}}"
+        @response="${this._handleNodeResponse}"
+        @last-error-changed="${this.lastErrorChanged}"
       ></iron-ajax>
       <iron-ajax
-        headers='{"Authorization": "Bearer [[jwt]]"}'
+        reject-with-request
+        .headers='{"Authorization": "Bearer ${this.jwt}"}'
         id="outlineupdateajax"
-        url="[[saveOutlinePath]]"
-        method="[[method]]"
-        body="[[updateOutlineData]]"
+        .url="${this.saveOutlinePath}"
+        .method="${this.method}"
         content-type="application/json"
         handle-as="json"
-        on-response="_handleOutlineResponse"
-        last-error="{{lastError}}"
+        @response="${this._handleOutlineResponse}"
+        @last-error-changed="${this.lastErrorChanged}"
       ></iron-ajax>
       <iron-ajax
-        headers='{"Authorization": "Bearer [[jwt]]"}'
-        id="getfieldsajax"
-        url="[[getNodeFieldsPath]]"
-        method="[[method]]"
-        body="[[getFieldsData]]"
-        content-type="application/json"
-        handle-as="json"
-        on-response="_handleGetFieldsResponse"
-        last-error="{{lastError}}"
-      ></iron-ajax>
-      <iron-ajax
-        headers='{"Authorization": "Bearer [[jwt]]"}'
-        id="getsitefieldsajax"
-        url="[[getSiteFieldsPath]]"
-        method="[[method]]"
-        body="[[getSiteFieldsData]]"
-        content-type="application/json"
-        handle-as="json"
-        on-response="_handleGetSiteFieldsResponse"
-        last-error="{{lastError}}"
-      ></iron-ajax>
-      <iron-ajax
-        headers='{"Authorization": "Bearer [[jwt]]"}'
+        reject-with-request
+        .headers='{"Authorization": "Bearer ${this.jwt}"}'
         id="manifestupdateajax"
-        url="[[saveManifestPath]]"
-        method="[[method]]"
-        body="[[updateManifestData]]"
+        .url="${this.saveManifestPath}"
+        .method="${this.method}"
         content-type="application/json"
         handle-as="json"
-        on-response="_handleManifestResponse"
-        last-error="{{lastError}}"
+        @response="${this._handleManifestResponse}"
+        @last-error-changed="${this.lastErrorChanged}"
       ></iron-ajax>
       <iron-ajax
-        headers='{"Authorization": "Bearer [[jwt]]"}'
+        reject-with-request
+        .headers='{"Authorization": "Bearer ${this.jwt}"}'
         id="publishajax"
-        loading="{{publishing}}"
-        url="[[publishSitePath]]"
-        method="[[method]]"
-        body="[[publishSiteData]]"
+        .loading="${this.publishing}"
+        @loading-changed="${this.loadingChanged}"
+        .url="${this.publishSitePath}"
+        .method="${this.method}"
         content-type="application/json"
         handle-as="json"
-        on-response="_handlePublishResponse"
-        last-error="{{lastError}}"
+        @response="${this._handlePublishResponse}"
+        @last-error-changed="${this.lastErrorChanged}"
       ></iron-ajax>
       <iron-ajax
-        headers='{"Authorization": "Bearer [[jwt]]"}'
+        reject-with-request
+        .headers='{"Authorization": "Bearer ${this.jwt}"}'
         id="revertajax"
-        url="[[revertSitePath]]"
-        method="[[method]]"
-        body="[[revertSiteData]]"
+        .url="${this.revertSitePath}"
+        .method="${this.method}"
         content-type="application/json"
         handle-as="json"
-        on-response="_handleRevertResponse"
-        last-error="{{lastError}}"
+        @response="${this._handleRevertResponse}"
+        @last-error-changed="${this.lastErrorChanged}"
       ></iron-ajax>
       <iron-ajax
-        headers='{"Authorization": "Bearer [[jwt]]"}'
+        reject-with-request
+        .headers='{"Authorization": "Bearer ${this.jwt}"}'
+        id="syncajax"
+        .url="${this.syncSitePath}"
+        .method="${this.method}"
+        content-type="application/json"
+        handle-as="json"
+        @response="${this._handleSyncResponse}"
+        @last-error-changed="${this.lastErrorChanged}"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        .headers='{"Authorization": "Bearer ${this.jwt}"}'
         id="createajax"
-        url="[[createNodePath]]"
-        method="[[method]]"
-        body="[[createData]]"
+        .url="${this.createNodePath}"
+        .method="${this.method}"
         content-type="application/json"
         handle-as="json"
-        on-response="_handleCreateResponse"
-        last-response="{{__createNodeResponse}}"
-        last-error="{{lastError}}"
+        @response="${this._handleCreateResponse}"
+        @last-error-changed="${this.lastErrorChanged}"
+        @last-response-changed="${this.__createNodeResponseChanged}"
       ></iron-ajax>
       <iron-ajax
-        headers='{"Authorization": "Bearer [[jwt]]"}'
+        reject-with-request
+        .headers='{"Authorization": "Bearer ${this.jwt}"}'
         id="deleteajax"
-        url="[[deleteNodePath]]"
-        method="[[method]]"
-        body="[[deleteData]]"
+        .url="${this.deleteNodePath}"
+        .method="${this.method}"
         content-type="application/json"
         handle-as="json"
-        on-response="_handleDeleteResponse"
-        last-response="{{__deleteNodeResponse}}"
-        last-error="{{lastError}}"
+        @response="${this._handleDeleteResponse}"
+        @last-error-changed="${this.lastErrorChanged}"
+        @last-response-changed="${this.__deleteNodeResponseChanged}"
       ></iron-ajax>
-      <h-a-x app-store$="[[appStore]]" hide-panel-ops></h-a-x>
+      <iron-ajax
+        reject-with-request
+        headers='{"Authorization": "Bearer ${this.jwt}"}'
+        id="getuserdata"
+        url="${this.getUserDataPath}"
+        method="${this.method}"
+        content-type="application/json"
+        handle-as="json"
+        @response="${this._handleUserDataResponse}"
+        @last-error-changed="${this.lastErrorChanged}"
+      ></iron-ajax>
+      <h-a-x
+        id="hax"
+        element-align="left"
+        offset-margin="0 0 0 48px"
+        hide-panel-ops="hide-panel-ops"
+      ></h-a-x>
     `;
   }
+
   static get properties() {
     return {
-      /**
-       * Singular error reporter / visual based on requests erroring
-       */
-      lastError: {
-        type: Object,
-        observer: "_lastErrorChanged"
+      getUserDataPath: {
+        type: String,
+        attribute: "get-user-data-path"
       },
+
       /**
        * Allow method to be overridden, useful in local testing
        */
       method: {
-        type: String,
-        value: "POST"
+        type: String
       },
+
       /**
        * JSON Web token, it'll come from a global call if it's available
        */
       jwt: {
         type: String
       },
+
       /**
        * end point for saving nodes
        */
       saveNodePath: {
-        type: String
+        type: String,
+        attribute: "save-node-path"
       },
+
       /**
        * end point for create new nodes
        */
       createNodePath: {
-        type: String
+        type: String,
+        attribute: "create-node-path"
       },
+
       /**
        * end point for delete nodes
        */
       deleteNodePath: {
-        type: String
+        type: String,
+        attribute: "delete-node-path"
       },
+
       /**
        * end point for saving manifest
        */
       saveManifestPath: {
-        type: String
+        type: String,
+        attribute: "save-manifest-path"
       },
       /**
        * end point for publishing
        */
       publishSitePath: {
-        type: String
+        type: String,
+        attribute: "publish-site-path"
       },
       /**
        * end point for revert
        */
       revertSitePath: {
-        type: String
+        type: String,
+        attribute: "revert-site-path"
       },
+      appendTarget: {
+        type: Object
+      },
+      appElement: {
+        type: Object
+      },
+
+      /**
+       * end point for sync
+       */
+      syncSitePath: {
+        type: String,
+        attribute: "sync-site-path"
+      },
+
       /**
        * Publishing end point, this has CDN implications so show message
        */
       publishing: {
-        type: Boolean,
-        observer: "_publishingChanged"
+        type: Boolean
       },
+
       /**
        * end point for saving outline
        */
       saveOutlinePath: {
-        type: String
+        type: String,
+        attribute: "save-outline-path"
       },
+
       /**
        * appStore object from backend
        */
       appStore: {
         type: Object
       },
+
       /**
        * if the node is in an edit state or not
        */
       editMode: {
         type: Boolean,
-        reflectToAttribute: true,
-        value: false
-      },
-      /**
-       * data as part of the POST to the backend
-       */
-      updateNodeData: {
-        type: Object,
-        value: {}
-      },
-      /**
-       * delete node data
-       */
-      deleteData: {
-        type: Object,
-        value: {}
-      },
-      /**
-       * create new node data
-       */
-      createData: {
-        type: Object,
-        value: {}
-      },
-      /**
-       * create new node data
-       */
-      publishSiteData: {
-        type: Object,
-        value: {}
-      },
-      /**
-       * revert site data
-       */
-      revertSiteData: {
-        type: Object,
-        value: {}
-      },
-      /**
-       * data as part of the POST to the backend
-       */
-      updateManifestData: {
-        type: Object,
-        value: {}
-      },
-      /**
-       * data as part of the POST to the backend
-       */
-      updateOutlineData: {
-        type: Object,
-        value: {}
-      },
-      /**
-       * data as part of the POST to the backend
-       */
-      updateManifestData: {
-        type: Object,
-        value: {}
-      },
-      /**
-       * data as part of the POST to the for field data
-       */
-      getFieldsData: {
-        type: Object,
-        value: {}
-      },
-      /**
-       * data as part of the POST to the for field data
-       */
-      getSiteFieldsData: {
-        type: Object,
-        value: {}
+        reflect: true,
+        attribute: "edit-mode"
       },
       /**
        * Active item of the node being worked on, JSON outline schema item format
        */
       activeItem: {
-        type: Object,
-        notify: true,
-        observer: "_activeItemChanged"
+        type: Object
       },
+
       /**
        * Outline of items in json outline schema format
        */
       manifest: {
-        type: Object,
-        notify: true,
-        observer: "_manifestChanged"
+        type: Object
       },
       getNodeFieldsPath: {
-        type: String
+        type: String,
+        attribute: "get-node-fields-path"
       },
       getSiteFieldsPath: {
-        type: String
+        type: String,
+        attribute: "save-site-fields-path"
       },
-      getFieldsToken: {
-        type: String
+      getFormToken: {
+        type: String,
+        attribute: "get-form-token"
+      },
+
+      /**
+       * Site dashboard element reference
+       */
+      siteDashboard: {
+        type: Object
       }
     };
   }
-  _lastErrorChanged(newValue) {
-    if (newValue) {
-      console.error(newValue);
-      const evt = new CustomEvent("simple-toast-show", {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {
-          text: newValue.error
-        }
-      });
-      window.dispatchEvent(evt);
+
+  __deleteNodeResponseChanged(e) {
+    this.__deleteNodeResponse = e.detail.value;
+  }
+
+  __createNodeResponseChanged(e) {
+    this.__createNodeResponse = e.detail.value;
+  }
+
+  _handleUserDataResponse(e) {
+    if (e.detail.response && e.detail.response.data) {
+      store.userData = e.detail.response.data;
     }
+  }
+
+  /**
+   * Handle the last error rolling in
+   */
+  lastErrorChanged(e) {
+    if (e.detail.value) {
+      console.error(e);
+      let target = null;
+      if (e.path && e.path[0]) {
+        target = e.path[0];
+      } else if (e.originalTarget) {
+        target = e.originalTarget;
+      } else {
+        target = e.target;
+      }
+      // check for JWT needing refreshed vs busted but must be 403
+      switch (parseInt(e.detail.value.status)) {
+        // cookie data not found, need to go get it
+        // @notice this currently isn't possible but we could modify
+        // the backend in the future to support throwing 401s dynamically
+        // if we KNOW an event must expire the timing token
+        case 401:
+          this.dispatchEvent(
+            new CustomEvent("jwt-login-logout", {
+              composed: true,
+              bubbles: true,
+              cancelable: false,
+              detail: {
+                redirect: true
+              }
+            })
+          );
+          break;
+        case 403:
+          // if this was a 403 it should be because of a bad jwt
+          // or out of date one. This hopefully gets a new one if not
+          // other listeners will ensure we redirect appropriately
+          this.dispatchEvent(
+            new CustomEvent("jwt-login-refresh-token", {
+              composed: true,
+              bubbles: true,
+              cancelable: false,
+              detail: {
+                element: {
+                  obj: this,
+                  callback: "refreshRequest",
+                  params: [target]
+                }
+              }
+            })
+          );
+          break;
+        default:
+          const evt = new CustomEvent("simple-toast-show", {
+            bubbles: true,
+            composed: true,
+            cancelable: true,
+            detail: {
+              text: e.detail.value.status + " " + e.detail.value.statusText
+            }
+          });
+          window.dispatchEvent(evt);
+          break;
+      }
+    }
+  }
+  /**
+   * Attempt to salvage the request that was kicked off
+   * when our JWT needed refreshed
+   */
+  refreshRequest(jwt, element) {
+    // force the jwt to be the updated jwt
+    // this helps avoid any possible event timing issue
+    this.jwt = jwt;
+    element.body.jwt = jwt;
+    element.headers = {
+      Authorization: `Bearer ${this.jwt}`
+    };
+    // again, sanity check on delay
+    setTimeout(() => {
+      element.generateRequest();
+    }, 0);
+  }
+  loadingChanged(e) {
+    this.loading = e.detail.value;
   }
   /**
    * Break the shadow root for this element (by design)
    */
-  _attachDom(dom) {
-    this.appendChild(dom);
+  createRenderRoot() {
+    return this;
   }
   /**
    * ready life cycle
    */
-  ready() {
-    super.ready();
-    afterNextRender(this, function() {
-      import("@polymer/paper-button/paper-button.js");
-      import("@lrnwebcomponents/hax-body/lib/hax-schema-form.js");
-      autorun(reaction => {
-        this.editMode = toJS(store.editMode);
-        this.__disposer.push(reaction);
-      });
-      autorun(reaction => {
-        this.manifest = toJS(store.manifest);
-        this.__disposer.push(reaction);
-      });
-      autorun(reaction => {
-        this.activeItem = toJS(store.activeItem);
-        this.__disposer.push(reaction);
-      });
-      window.SimpleToast.requestAvailability();
-      window.SimpleModal.requestAvailability();
-      window.addEventListener(
-        "hax-store-ready",
-        this._storeReadyToGo.bind(this)
-      );
-      window.addEventListener(
-        "json-outline-schema-active-item-changed",
-        this._newActiveItem.bind(this)
-      );
-      window.addEventListener(
-        "json-outline-schema-active-body-changed",
-        this._bodyChanged.bind(this)
-      );
-      window.addEventListener(
-        "haxcms-save-outline",
-        this.saveOutline.bind(this)
-      );
-      window.addEventListener("haxcms-save-node", this.saveNode.bind(this));
-      window.addEventListener(
-        "haxcms-save-node-details",
-        this.saveNodeDetails.bind(this)
-      );
-      window.addEventListener(
-        "haxcms-save-site-data",
-        this.saveManifest.bind(this)
-      );
-      window.addEventListener(
-        "haxcms-load-node-fields",
-        this.loadNodeFields.bind(this)
-      );
-      window.addEventListener(
-        "haxcms-load-site-fields",
-        this.loadSiteFields.bind(this)
-      );
-      window.addEventListener("haxcms-create-node", this.createNode.bind(this));
-      window.addEventListener("haxcms-delete-node", this.deleteNode.bind(this));
-      window.addEventListener(
-        "haxcms-publish-site",
-        this.publishSite.bind(this)
-      );
-      window.addEventListener(
-        "haxcms-git-revert-last-commit",
-        this.revertCommit.bind(this)
-      );
-      microTask.run(() => {
-        this.updateStyles();
-        if (window.HaxStore.ready) {
-          let detail = {
-            detail: true
-          };
-          this._storeReadyToGo(detail);
-        }
-      });
-      const evt = new CustomEvent("simple-toast-show", {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {
-          text: "You are logged in, edit tools shown."
-        }
-      });
-      window.dispatchEvent(evt);
+  firstUpdated(changedProperties) {
+    autorun(reaction => {
+      this.editMode = toJS(store.editMode);
+      this.__disposer.push(reaction);
     });
-  }
-  connectedCallback() {
-    super.connectedCallback();
+    autorun(reaction => {
+      this.manifest = toJS(store.manifest);
+      this.__disposer.push(reaction);
+    });
+    autorun(reaction => {
+      this.activeItem = toJS(store.activeItem);
+      this.__disposer.push(reaction);
+    });
+    window.SimpleToast.requestAvailability();
+    window.SimpleModal.requestAvailability();
+    window.addEventListener(
+      "jwt-login-refresh-error",
+      this._tokenRefreshFailed.bind(this)
+    );
+    window.addEventListener("hax-store-ready", this._storeReadyToGo.bind(this));
+    window.addEventListener(
+      "json-outline-schema-active-item-changed",
+      this._newActiveItem.bind(this)
+    );
+    window.addEventListener(
+      "json-outline-schema-active-body-changed",
+      this._bodyChanged.bind(this)
+    );
+    window.addEventListener("haxcms-save-outline", this.saveOutline.bind(this));
+    window.addEventListener("haxcms-save-node", this.saveNode.bind(this));
+    window.addEventListener(
+      "haxcms-save-node-details",
+      this.saveNodeDetails.bind(this)
+    );
+    window.addEventListener(
+      "haxcms-save-site-data",
+      this.saveManifest.bind(this)
+    );
+    window.addEventListener(
+      "haxcms-load-node-fields",
+      this.loadNodeFields.bind(this)
+    );
+    window.addEventListener(
+      "haxcms-load-site-dashboard",
+      this.loadSiteDashboard.bind(this)
+    );
+    window.addEventListener(
+      "haxcms-load-user-data",
+      this.loadUserData.bind(this)
+    );
+    window.addEventListener("haxcms-publish-site", this.publishSite.bind(this));
+    window.addEventListener("haxcms-sync-site", this.syncSite.bind(this));
+    window.addEventListener(
+      "haxcms-git-revert-last-commit",
+      this.revertCommit.bind(this)
+    );
+    window.addEventListener("haxcms-create-node", this.createNode.bind(this));
+    window.addEventListener("haxcms-delete-node", this.deleteNode.bind(this));
+
+    if (window.HaxStore.ready) {
+      let detail = {
+        detail: true
+      };
+
+      this._storeReadyToGo(detail);
+    }
     // fire event suggesting that we were authorized to have a site editor
     // so the UI and other pieces can react to this news
     // this tag is going to be added by a backend if it has determined we have a valid one
+
     window.dispatchEvent(
       new CustomEvent("haxcms-site-editor-loaded", {
         bubbles: true,
@@ -492,13 +532,69 @@ class HAXCMSSiteEditor extends PolymerElement {
       })
     );
   }
+
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "appStore") {
+        this.querySelector("#hax").setAttribute(
+          "app-store",
+          JSON.stringify(this[propName])
+        );
+      }
+      if (propName == "publishing") {
+        this._publishingChanged(this[propName], oldValue);
+      } else if (propName == "activeItem") {
+        this.dispatchEvent(
+          new CustomEvent("manifest-changed", {
+            detail: this[propName]
+          })
+        );
+
+        this._activeItemChanged(this[propName], oldValue);
+      } else if (propName == "manifest") {
+        this.dispatchEvent(
+          new CustomEvent("manifest-changed", {
+            detail: this[propName]
+          })
+        );
+
+        this._manifestChanged(this[propName], oldValue);
+      }
+    });
+  }
+  /**
+   * Respond to a failed request to refresh the token by killing the logout process
+   */
+  _tokenRefreshFailed(e) {
+    if (e.detail.value.status == 401)
+      this.dispatchEvent(
+        new CustomEvent("jwt-login-logout", {
+          composed: true,
+          bubbles: true,
+          cancelable: false,
+          detail: {
+            redirect: true
+          }
+        })
+      );
+  }
   /**
    * Detatched life cycle
    */
+
   disconnectedCallback() {
+    if (this.siteDashboard) {
+      this.siteDashboard.remove();
+      delete this.siteDashboard;
+    }
+
     for (var i in this.__disposer) {
       this.__disposer[i].dispose();
     }
+    window.removeEventListener(
+      "jwt-login-refresh-error",
+      this._tokenRefreshFailed.bind(this)
+    );
     window.removeEventListener(
       "hax-store-ready",
       this._storeReadyToGo.bind(this)
@@ -520,6 +616,7 @@ class HAXCMSSiteEditor extends PolymerElement {
       "haxcms-publish-site",
       this.publishSite.bind(this)
     );
+    window.removeEventListener("haxcms-sync-site", this.syncSite.bind(this));
     window.removeEventListener(
       "haxcms-git-revert-last-commit",
       this.revertCommit.bind(this)
@@ -537,8 +634,12 @@ class HAXCMSSiteEditor extends PolymerElement {
       this.loadNodeFields.bind(this)
     );
     window.removeEventListener(
-      "haxcms-load-site-fields",
-      this.loadSiteFields.bind(this)
+      "haxcms-load-site-dashboard",
+      this.loadSiteDashboard.bind(this)
+    );
+    window.removeEventListener(
+      "haxcms-load-user-data",
+      this.loadUserData.bind(this)
     );
     window.removeEventListener(
       "haxcms-create-node",
@@ -551,65 +652,51 @@ class HAXCMSSiteEditor extends PolymerElement {
     super.disconnectedCallback();
   }
   /**
+   * Load user data from backend
+   */
+
+  loadUserData(e) {
+    this.querySelector("#getuserdata").body = {
+      jwt: this.jwt
+    };
+    this.querySelector("#getuserdata").generateRequest();
+  }
+  /**
    * Load and display node fields
    */
+
   loadNodeFields(e) {
     this.__nodeFieldsInvoked = e.detail;
-    // pass along the jwt for user "session" purposes
-    this.set("getFieldsData.jwt", this.jwt);
-    this.notifyPath("getFieldsData.jwt");
-    this.set("getFieldsData.token", this.getFieldsToken);
-    this.notifyPath("getFieldsData.token");
-    this.set("getFieldsData.siteName", this.manifest.metadata.siteName);
-    this.notifyPath("getFieldsData.siteName");
-    this.set("getFieldsData.nodeId", this.activeItem.id);
-    this.notifyPath("getFieldsData.nodeId");
-    this.$.getfieldsajax.generateRequest();
-  }
-  /**
-   * Load site fields
-   */
-  loadSiteFields(e) {
-    this.__siteFieldsInvoked = e.detail;
-    // pass along the jwt for user "session" purposes
-    this.set("getSiteFieldsData.jwt", this.jwt);
-    this.notifyPath("getSiteFieldsData.jwt");
-    this.set("getSiteFieldsData.token", this.getFieldsToken);
-    this.notifyPath("getSiteFieldsData.token");
-    this.set("getSiteFieldsData.siteName", this.manifest.metadata.siteName);
-    this.notifyPath("getSiteFieldsData.siteName");
-    this.$.getsitefieldsajax.generateRequest();
-  }
-  /**
-   * Handle getting fields response
-   */
-  _handleGetFieldsResponse(e) {
-    // we get back HAXSchema from the server
-    let wiring = new HAXWiring();
-    this._haxSchema = wiring.prototypeHaxProperties();
-    this._haxSchema.settings = e.detail.response.haxSchema;
-    let values = e.detail.response.values;
-    let c = document.createElement("hax-schema-form");
-    // set a min width of 50 viewable
-    c.style.minWidth = "50vw";
-    for (var key in this._haxSchema.settings) {
-      let schema = wiring.getHaxJSONSchema(key, this._haxSchema);
-      for (var i in schema.properties) {
-        if (values[i]) {
-          schema.properties[i].value = values[i];
-        }
+    let form = document.createElement("simple-fields-form");
+    form.style.margin = "0 0 50px 0";
+    form.setAttribute("autoload", "autoload");
+    form.method = this.method;
+    form.headers = {
+      Authorization: `Bearer ${this.jwt}`,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    };
+    form.body = {
+      jwt: this.jwt,
+      token: this.getFormToken,
+      site: {
+        name: this.manifest.metadata.site.name
+      },
+      node: {
+        id: this.activeItem.id
       }
-      c.set(key + "Schema", schema);
-    }
-    this.__fieldsForm = c;
+    };
+    form.loadEndpoint = this.getNodeFieldsPath;
+    this.__fieldsForm = form;
     let b1 = document.createElement("paper-button");
-    b1.raised = true;
     let icon = document.createElement("iron-icon");
     icon.icon = "icons:save";
     b1.appendChild(icon);
     b1.appendChild(document.createTextNode("Save fields"));
+    b1.style.color = "white";
+    b1.style.backgroundColor = "#2196f3";
     b1.setAttribute("dialog-confirm", "dialog-confirm");
-    b1.addEventListener("click", this._saveFieldsTap.bind(this));
+    b1.addEventListener("click", this._saveNodeFieldsTap.bind(this));
     let b2 = document.createElement("paper-button");
     b2.appendChild(document.createTextNode("cancel"));
     b2.setAttribute("dialog-dismiss", "dialog-dismiss");
@@ -619,22 +706,22 @@ class HAXCMSSiteEditor extends PolymerElement {
     b.style.left = 0;
     b.style.right = 0;
     b.style.zIndex = 1000000;
-    b.style.backgroundColor = "#ddd";
     b.appendChild(b1);
     b.appendChild(b2);
     const evt = new CustomEvent("simple-modal-show", {
       bubbles: true,
       composed: true,
       cancelable: false,
-      styles: {
-        "--simple-modal-width": "70vw",
-        "--simple-modal-height": "70vh",
-        "--simple-modal-max-width": "70vw",
-        "--simple-modal-max-height": "70vh"
-      },
       detail: {
         title: "Edit " + store.activeTitle + " fields",
-        elements: { content: c, buttons: b },
+        styles: {
+          "--simple-modal-width": "70vw",
+          "--simple-modal-max-width": "70vw"
+        },
+        elements: {
+          content: form,
+          buttons: b
+        },
         invokedBy: this.__nodeFieldsInvoked,
         clone: false,
         modal: true
@@ -643,100 +730,39 @@ class HAXCMSSiteEditor extends PolymerElement {
     window.dispatchEvent(evt);
   }
   /**
-   * Handle getting fields response
+   * Load site fields
    */
-  _handleGetSiteFieldsResponse(e) {
-    // we get back HAXSchema from the server
-    let wiring = new HAXWiring();
-    this._haxSchema = wiring.prototypeHaxProperties();
-    this._haxSchema.settings = e.detail.response.haxSchema;
-    let values = e.detail.response.values;
-    let h = "";
-    if (this.manifest.metadata.publishedLocation) {
-      h = document.createElement("a");
-      h.setAttribute("tabindex", "-1");
-      h.setAttribute("href", this.manifest.metadata.publishedLocation);
-      h.setAttribute("target", "_blank");
-      h.innerHTML =
-        '<paper-button raised style="text-transform:none;">Access published version</paper-button>';
-    }
-    let c = document.createElement("hax-schema-form");
-    c.addEventListener(
-      "value-changed",
-      this._schemaFormValueChanged.bind(this)
-    );
-    // set a min width of 50 viewable
-    c.style.minWidth = "50vw";
-    for (var key in this._haxSchema.settings) {
-      let schema = wiring.getHaxJSONSchema(key, this._haxSchema);
-      for (var i in schema.properties) {
-        if (values[i]) {
-          schema.properties[i].value = values[i];
-        }
-      }
-      c.set(key + "Schema", schema);
-    }
-    this.__siteFieldsForm = c;
-    // build a save button
-    let b1 = document.createElement("paper-button");
-    b1.raised = true;
-    let icon = document.createElement("iron-icon");
-    icon.icon = "icons:save";
-    b1.appendChild(icon);
-    b1.appendChild(document.createTextNode("Save fields"));
-    b1.setAttribute("dialog-confirm", "dialog-confirm");
-    b1.addEventListener("click", this._saveSiteFieldsTap.bind(this));
-    // cancel
-    let b2 = document.createElement("paper-button");
-    b2.appendChild(document.createTextNode("cancel"));
-    b2.setAttribute("dialog-dismiss", "dialog-dismiss");
-    // publish button
-    let icon2 = document.createElement("iron-icon");
-    icon2.icon = "icons:cloud-upload";
-    let b3 = document.createElement("paper-button");
-    b3.raised = true;
-    b3.appendChild(icon2);
-    b3.appendChild(document.createTextNode("Publish"));
-    b3.setAttribute("dialog-confirm", "dialog-confirm");
-    b3.addEventListener("click", this._publishTap.bind(this));
-    b3.style.minWidth = "100px";
-    b3.style.backgroundColor = "var(--haxcms-color)";
-    let b4 = document.createElement("paper-button");
-    b4.raised = true;
-    b4.appendChild(document.createTextNode("Roll site back"));
-    b4.setAttribute("dialog-confirm", "dialog-confirm");
-    b4.addEventListener("click", this._revertCommit.bind(this));
-    b4.style.minWidth = "100px";
-    b4.style.marginLeft = "50px";
-    b4.style.backgroundColor = "var(--simple-colors-default-theme-red-8)";
-    b4.style.color = "white";
 
-    let b = document.createElement("div");
-    b.style.position = "absolute";
-    b.style.bottom = 0;
-    b.style.left = 0;
-    b.style.right = 0;
-    b.style.zIndex = 1000000;
-    b.style.backgroundColor = "#ddd";
-    b.appendChild(b1);
-    b.appendChild(b2);
-    b.appendChild(b3);
-    b.appendChild(b4);
-    window.dispatchEvent(
-      new CustomEvent("simple-modal-show", {
-        bubbles: true,
-        composed: true,
-        cancelable: false,
-        detail: {
-          title: "Edit site fields",
-          elements: { header: h, content: c, buttons: b },
-          invokedBy: this.__siteFieldsInvoked,
-          clone: false,
-          modal: true
-        }
-      })
-    );
+  loadSiteDashboard(e) {
+    this.__siteFieldsInvoked = e.detail; // ensure it exists as we do this on the fly and clean up constantly
+
+    if (!this.siteDashboard) {
+      let builder = document.getElementsByTagName("haxcms-site-builder")[0];
+      this.siteDashboard = document.createElement("haxcms-site-dashboard");
+      this.siteDashboard.headers = {
+        Authorization: `Bearer ${this.jwt}`
+      };
+      this.siteDashboard.loadEndpoint = this.getSiteFieldsPath;
+      this.siteDashboard.method = this.method; // insert right before the builder, you sneaky thing you
+
+      builder.parentNode.insertBefore(this.siteDashboard, builder);
+    }
+
+    this.siteDashboard.body = {
+      jwt: this.jwt,
+      token: this.getFormToken,
+      site: {
+        name: this.manifest.metadata.site.name
+      }
+    };
+    this.siteDashboard.headers = {
+      Authorization: `Bearer ${this.jwt}`
+    };
+    setTimeout(() => {
+      store.dashboardOpened = !store.dashboardOpened;
+    }, 300);
   }
+
   _schemaFormValueChanged(e) {
     let customTag = {
       property: "custom-theme-tag",
@@ -745,8 +771,8 @@ class HAXCMSSiteEditor extends PolymerElement {
       inputMethod: "textfield",
       required: true,
       validationType: "text"
-    };
-    // @todo figure out why this isn't adding a field in on the fly
+    }; // @todo figure out why this isn't adding a field in on the fly
+
     /*if (e.target.value.theme === "haxcms-custom-theme") {
       e.target.addField(customTag.property, customTag);
       e.target.value[customTag.property] = customTag.property;
@@ -756,38 +782,13 @@ class HAXCMSSiteEditor extends PolymerElement {
     }*/
   }
   /**
-   * Publish request send to backend from button
-   */
-  _publishTap(e) {
-    this.dispatchEvent(
-      new CustomEvent("haxcms-publish-site", {
-        bubbles: true,
-        composed: true,
-        cancelable: false,
-        detail: true
-      })
-    );
-  }
-  /**
-   * Revert Commit pressed
-   */
-  _revertCommit(e) {
-    this.dispatchEvent(
-      new CustomEvent("haxcms-git-revert-last-commit", {
-        bubbles: true,
-        composed: true,
-        cancelable: false,
-        detail: true
-      })
-    );
-  }
-  /**
    * Save the fields as we get tapped
    */
-  _saveFieldsTap(e) {
-    let values = this.__fieldsForm.value;
-    values.id = this.activeItem.id;
-    // fire event with details for saving
+
+  _saveNodeFieldsTap(e) {
+    let values = this.__fieldsForm.submit();
+    values.id = this.activeItem.id; // fire event with details for saving
+
     window.dispatchEvent(
       new CustomEvent("haxcms-save-node-details", {
         bubbles: true,
@@ -795,8 +796,8 @@ class HAXCMSSiteEditor extends PolymerElement {
         cancelable: true,
         detail: values
       })
-    );
-    // fire event to close the modal
+    ); // fire event to close the modal
+
     window.dispatchEvent(
       new CustomEvent("simple-modal-hide", {
         bubbles: true,
@@ -809,18 +810,18 @@ class HAXCMSSiteEditor extends PolymerElement {
   /**
    * Save the fields as we get tapped
    */
+
   _saveSiteFieldsTap(e) {
-    let values = this.__siteFieldsForm.value;
     // fire event with details for saving
     window.dispatchEvent(
       new CustomEvent("haxcms-save-site-data", {
         bubbles: true,
         composed: true,
         cancelable: true,
-        detail: values
+        detail: this.querySelector("#siteform").submit()
       })
-    );
-    // fire event to close the modal
+    ); // fire event to close the modal
+
     window.dispatchEvent(
       new CustomEvent("simple-modal-hide", {
         bubbles: true,
@@ -833,16 +834,17 @@ class HAXCMSSiteEditor extends PolymerElement {
   /**
    * create node event
    */
+
   createNode(e) {
     if (e.detail.values) {
-      this.set("createData", {});
-      this.set("createData", e.detail.values);
-      this.notifyPath("createData.*");
-      this.set("createData.siteName", this.manifest.metadata.siteName);
-      this.notifyPath("createData.siteName");
-      this.set("createData.jwt", this.jwt);
-      this.notifyPath("createData.jwt");
-      this.$.createajax.generateRequest();
+      this.querySelector("#createajax").body = {
+        jwt: this.jwt,
+        site: {
+          name: this.manifest.metadata.site.name
+        },
+        node: e.detail.values
+      };
+      this.querySelector("#createajax").generateRequest();
       const evt = new CustomEvent("simple-modal-hide", {
         bubbles: true,
         composed: true,
@@ -852,6 +854,7 @@ class HAXCMSSiteEditor extends PolymerElement {
       window.dispatchEvent(evt);
     }
   }
+
   _handleCreateResponse(response) {
     const evt = new CustomEvent("simple-toast-show", {
       bubbles: true,
@@ -859,7 +862,7 @@ class HAXCMSSiteEditor extends PolymerElement {
       cancelable: true,
       detail: {
         text: `Created ${this.__createNodeResponse.title}!`,
-        duration: 3000
+        duration: 2000
       }
     });
     window.dispatchEvent(evt);
@@ -875,15 +878,18 @@ class HAXCMSSiteEditor extends PolymerElement {
   /**
    * delete the node we just got
    */
+
   deleteNode(e) {
-    this.set("deleteData", {});
-    this.set("deleteData.nodeId", e.detail.item.id);
-    this.notifyPath("deleteData.nodeId");
-    this.set("deleteData.siteName", this.manifest.metadata.siteName);
-    this.notifyPath("deleteData.siteName");
-    this.set("deleteData.jwt", this.jwt);
-    this.notifyPath("deleteData.jwt");
-    this.$.deleteajax.generateRequest();
+    this.querySelector("#deleteajax").body = {
+      jwt: this.jwt,
+      site: {
+        name: this.manifest.metadata.site.name
+      },
+      node: {
+        id: e.detail.item.id
+      }
+    };
+    this.querySelector("#deleteajax").generateRequest();
     const evt = new CustomEvent("simple-modal-hide", {
       bubbles: true,
       composed: true,
@@ -895,6 +901,7 @@ class HAXCMSSiteEditor extends PolymerElement {
   /**
    * node deleted response
    */
+
   _handleDeleteResponse(response) {
     const evt = new CustomEvent("simple-toast-show", {
       bubbles: true,
@@ -902,7 +909,7 @@ class HAXCMSSiteEditor extends PolymerElement {
       cancelable: true,
       detail: {
         text: `Deleted ${this.__deleteNodeResponse.title}`,
-        duration: 3000
+        duration: 2000
       }
     });
     this.dispatchEvent(evt);
@@ -918,16 +925,16 @@ class HAXCMSSiteEditor extends PolymerElement {
   /**
    * Establish certain global settings in HAX once it claims to be ready to go
    */
+
   _storeReadyToGo(event) {
     if (event.detail) {
       window.HaxStore.instance.connectionRewrites.appendJwt = "jwt";
-      window.HaxStore.instance.haxPanel.align = "left";
-      window.HaxStore.instance.haxPanel.hidePanelOps = true;
     }
   }
   /**
    * notice publishing callback changing state
    */
+
   _publishingChanged(newValue, oldValue) {
     if (newValue) {
       const evt = new CustomEvent("simple-toast-show", {
@@ -947,7 +954,7 @@ class HAXCMSSiteEditor extends PolymerElement {
         cancelable: true,
         detail: {
           text: "Publishing...",
-          duration: 3000
+          duration: 2000
         }
       });
       window.dispatchEvent(evt);
@@ -956,12 +963,13 @@ class HAXCMSSiteEditor extends PolymerElement {
   /**
    * react to manifest being changed
    */
+
   _manifestChanged(newValue) {
     if (this.activeItem && newValue.metadata) {
       // set upload manager to point to this location in a more dynamic fashion
       window.HaxStore.instance.connectionRewrites.appendUploadEndPoint =
         "siteName=" +
-        newValue.metadata.siteName +
+        newValue.metadata.site.name +
         "&nodeId=" +
         this.activeItem.id;
     }
@@ -969,19 +977,20 @@ class HAXCMSSiteEditor extends PolymerElement {
   /**
    * update the internal active item
    */
+
   _newActiveItem(e) {
-    this.set("activeItem", e.detail);
-    this.notifyPath("activeItem.*");
+    this.activeItem = e.detail;
   }
   /**
    * active item changed
    */
+
   _activeItemChanged(newValue, oldValue) {
     if (newValue && this.manifest) {
       // set upload manager to point to this location in a more dynamic fashion
       window.HaxStore.instance.connectionRewrites.appendUploadEndPoint =
         "siteName=" +
-        this.manifest.metadata.siteName +
+        this.manifest.metadata.site.name +
         "&nodeId=" +
         newValue.id;
     }
@@ -989,15 +998,16 @@ class HAXCMSSiteEditor extends PolymerElement {
   /**
    * handle update responses for nodes and outlines
    */
+
   _handleNodeResponse(e) {
     // node response may include the item that got updated
     // it also may be a new path so let's ensure that's reflected
     if (
-      typeof e.detail.location !== "undefined" &&
-      this.activeItem.location !== e.detail.location
+      typeof e.detail.slug !== "undefined" &&
+      this.activeItem.slug !== e.detail.slug
     ) {
-      window.location(e.detail.location);
-      window.history.pushState({}, null, e.detail.location);
+      window.location(e.detail.slug);
+      window.history.pushState({}, null, e.detail.slug);
       window.dispatchEvent(new PopStateEvent("popstate"));
       const active = this.manifest.items.find(i => {
         return i.id === e.detail.id;
@@ -1012,17 +1022,18 @@ class HAXCMSSiteEditor extends PolymerElement {
         })
       );
     }
+
     const evt = new CustomEvent("simple-toast-show", {
       bubbles: true,
       composed: true,
       cancelable: true,
       detail: {
         text: "Page saved!",
-        duration: 4000
+        duration: 2000
       }
     });
-    window.dispatchEvent(evt);
-    // updates the manifest
+    window.dispatchEvent(evt); // updates the manifest
+
     this.dispatchEvent(
       new CustomEvent("haxcms-trigger-update", {
         bubbles: true,
@@ -1030,8 +1041,8 @@ class HAXCMSSiteEditor extends PolymerElement {
         cancelable: false,
         detail: true
       })
-    );
-    // updates the node contents itself
+    ); // updates the node contents itself
+
     this.dispatchEvent(
       new CustomEvent("haxcms-trigger-update-node", {
         bubbles: true,
@@ -1041,6 +1052,7 @@ class HAXCMSSiteEditor extends PolymerElement {
       })
     );
   }
+
   _handleOutlineResponse(e) {
     // trigger a refresh of the data in node
     const evt = new CustomEvent("simple-toast-show", {
@@ -1049,10 +1061,36 @@ class HAXCMSSiteEditor extends PolymerElement {
       cancelable: true,
       detail: {
         text: "Outline saved!",
-        duration: 3000
+        duration: 2000
       }
     });
-    window.dispatchEvent(evt);
+    setTimeout(() => {
+      window.dispatchEvent(evt);
+      this.dispatchEvent(
+        new CustomEvent("haxcms-trigger-update", {
+          bubbles: true,
+          composed: true,
+          cancelable: false,
+          detail: true
+        })
+      );
+    }, 100);
+  }
+
+  _handleManifestResponse(e) {
+    // trigger a refresh of the data in node
+    this.dispatchEvent(
+      new CustomEvent("simple-toast-show", {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail: {
+          text: "Site details saved, reloading to reflect changes!",
+          duration: 3000
+        }
+      })
+    );
+    store.dashboardOpened = false;
     this.dispatchEvent(
       new CustomEvent("haxcms-trigger-update", {
         bubbles: true,
@@ -1061,16 +1099,24 @@ class HAXCMSSiteEditor extends PolymerElement {
         detail: true
       })
     );
+    setTimeout(() => {
+      window.location.reload();
+    }, 3000);
   }
-  _handleManifestResponse(e) {
+  /**
+   * Tell the user we undid their last state of the site and trigger
+   * everything to update to reflect this
+   */
+
+  _handleRevertResponse(e) {
     // trigger a refresh of the data in node
     const evt = new CustomEvent("simple-toast-show", {
       bubbles: true,
       composed: true,
       cancelable: true,
       detail: {
-        text: "Site details saved!",
-        duration: 3000
+        text: "Last save undone",
+        duration: 2000
       }
     });
     this.dispatchEvent(evt);
@@ -1084,18 +1130,18 @@ class HAXCMSSiteEditor extends PolymerElement {
     );
   }
   /**
-   * Tell the user we undid their last state of the site and trigger
-   * everything to update to reflect this
+   * Handle sync response that site may have changed or been updated
    */
-  _handleRevertResponse(e) {
+
+  _handleSyncResponse(e) {
     // trigger a refresh of the data in node
     const evt = new CustomEvent("simple-toast-show", {
       bubbles: true,
       composed: true,
       cancelable: true,
       detail: {
-        text: "Last save undone",
-        duration: 3000
+        text: "Site synced",
+        duration: 2000
       }
     });
     this.dispatchEvent(evt);
@@ -1107,10 +1153,15 @@ class HAXCMSSiteEditor extends PolymerElement {
         detail: true
       })
     );
+    store.dashboardOpened = false;
   }
+  /**
+   * Publish response
+   */
+
   _handlePublishResponse(e) {
-    let data = e.detail.response;
-    // show the published response
+    let data = e.detail.response; // show the published response
+
     let content = document.createElement("span");
     content.innerHTML = `
     <a href="${data.url}" target="_blank">
@@ -1129,70 +1180,74 @@ class HAXCMSSiteEditor extends PolymerElement {
       }
     });
     window.dispatchEvent(evt);
+    store.dashboardOpened = false;
   }
   /**
    * Save node event
    */
+
   saveNode(e) {
-    this.set("updateNodeData", {});
-    this.set("updateNodeData.siteName", this.manifest.metadata.siteName);
-    this.notifyPath("updateNodeData.siteName");
-    // get the body from what's there currently
-    let body = window.HaxStore.instance.activeHaxBody.haxToContent();
-    this.set("updateNodeData.body", body);
-    this.notifyPath("updateNodeData.body");
-    // convert to schema so we can ship that too if we want to process
-    this.set("updateNodeData.schema", window.HaxStore.htmlToHaxElements(body));
-    this.notifyPath("updateNodeData.schema");
-    this.set("updateNodeData.nodeId", this.activeItem.id);
-    this.notifyPath("updateNodeData.nodeId");
-    this.set("updateNodeData.jwt", this.jwt);
-    this.notifyPath("updateNodeData.jwt");
     // send the request
     if (this.saveNodePath) {
-      this.$.nodeupdateajax.generateRequest();
+      let body = window.HaxStore.instance.activeHaxBody.haxToContent();
+      this.querySelector("#nodeupdateajax").body = {
+        jwt: this.jwt,
+        site: {
+          name: this.manifest.metadata.site.name
+        },
+        node: {
+          id: this.activeItem.id,
+          body: body,
+          schema: window.HaxStore.htmlToHaxElements(body)
+        }
+      };
+      this.querySelector("#nodeupdateajax").generateRequest();
     }
   }
   /**
    * Save node event
    */
+
   saveNodeDetails(e) {
-    this.set("updateNodeData", {});
-    this.set("updateNodeData.siteName", this.manifest.metadata.siteName);
-    this.notifyPath("updateNodeData.siteName");
-    this.set("updateNodeData.nodeId", e.detail.id);
-    this.notifyPath("updateNodeData.nodeId");
-    this.set("updateNodeData.details", e.detail);
-    this.notifyPath("updateNodeData.details");
-    this.set("updateNodeData.jwt", this.jwt);
-    this.notifyPath("updateNodeData.jwt");
     // send the request
     if (this.saveNodePath) {
-      this.$.nodeupdateajax.generateRequest();
+      this.querySelector("#nodeupdateajax").body = {
+        jwt: this.jwt,
+        site: {
+          name: this.manifest.metadata.site.name
+        },
+        node: {
+          id: e.detail.id,
+          details: e.detail
+        }
+      };
+      this.querySelector("#nodeupdateajax").generateRequest();
     }
   }
   /**
    * Save the outline based on an event firing.
    */
+
   saveOutline(e) {
-    // now let's work on the outline
-    this.set("updateOutlineData.siteName", this.manifest.metadata.siteName);
-    this.notifyPath("updateOutlineData.siteName");
-    this.set("updateOutlineData.items", e.detail);
-    this.notifyPath("updateOutlineData.items");
-    this.set("updateOutlineData.jwt", this.jwt);
-    this.notifyPath("updateOutlineData.jwt");
     if (this.saveOutlinePath) {
-      this.$.outlineupdateajax.generateRequest();
+      this.querySelector("#outlineupdateajax").body = {
+        jwt: this.jwt,
+        site: {
+          name: this.manifest.metadata.site.name
+        },
+        items: e.detail
+      };
+      this.querySelector("#outlineupdateajax").generateRequest();
     }
   }
   /**
    * Save the outline based on an event firing.
    */
+
   saveManifest(e) {
     // now let's work on the outline
-    let values = e.detail;
-    // if we have a cssVariable selected then generate a hexCode off of it
+    let values = e.detail; // if we have a cssVariable selected then generate a hexCode off of it
+
     if (values.cssVariable) {
       values.hexCode =
         window.SimpleColorsStyles.colors[
@@ -1200,47 +1255,77 @@ class HAXCMSSiteEditor extends PolymerElement {
             .replace("--simple-colors-default-theme-", "")
             .replace("-7", "")
         ][6];
+    } // add in our standard pieces
+
+    values.jwt = this.jwt;
+
+    if (values.site) {
+      values.site.name = this.manifest.metadata.site.name;
+    } else {
+      values.site = {
+        name: this.manifest.metadata.site.name
+      };
     }
-    this.set("updateManifestData.siteName", this.manifest.metadata.siteName);
-    this.notifyPath("updateManifestData.siteName");
-    this.set("updateManifestData.manifest", values);
-    this.notifyPath("updateManifestData.manifest");
-    this.set("updateManifestData.jwt", this.jwt);
-    this.notifyPath("updateManifestData.jwt");
     if (this.saveManifestPath) {
-      this.$.manifestupdateajax.generateRequest();
-    }
-  }
-  /**
-   * Save the outline based on an event firing.
-   */
-  publishSite(e) {
-    this.set("publishSiteData.siteName", this.manifest.metadata.siteName);
-    this.notifyPath("publishSiteData.siteName");
-    this.set("publishSiteData.jwt", this.jwt);
-    this.notifyPath("publishSiteData.jwt");
-    if (this.publishSitePath) {
-      this.$.publishajax.generateRequest();
-    }
-  }
-  /**
-   * Revert last commit
-   */
-  revertCommit(e) {
-    this.set("revertSiteData.siteName", this.manifest.metadata.siteName);
-    this.notifyPath("revertSiteData.siteName");
-    this.set("revertSiteData.jwt", this.jwt);
-    this.notifyPath("revertSiteData.jwt");
-    if (this.revertSitePath) {
-      this.$.revertajax.generateRequest();
+      this.querySelector("#manifestupdateajax").body = values;
+      this.querySelector("#manifestupdateajax").generateRequest();
     }
   }
   /**
    * Notice body of content has changed and import into HAX
    */
+
   _bodyChanged(e) {
-    window.HaxStore.instance.activeHaxBody.importContent(e.detail);
+    if (window.HaxStore.instance.activeHaxBody) {
+      window.HaxStore.instance.activeHaxBody.importContent(e.detail);
+    }
+  }
+  /**
+   * Save the outline based on an event firing.
+   */
+
+  publishSite(e) {
+    if (this.publishSitePath) {
+      this.querySelector("#publishajax").body = {
+        jwt: this.jwt,
+        site: {
+          name: this.manifest.metadata.site.name
+        }
+      };
+      this.querySelector("#publishajax").generateRequest();
+    }
+  }
+  /**
+   * Revert last commit
+   */
+
+  syncSite(e) {
+    if (this.syncSitePath) {
+      this.querySelector("#syncajax").body = {
+        jwt: this.jwt,
+        site: {
+          name: store.manifest.metadata.site.name
+        }
+      };
+      this.querySelector("#syncajax").generateRequest();
+    }
+  }
+  /**
+   * Revert last commit
+   */
+
+  revertCommit(e) {
+    if (this.revertSitePath) {
+      this.querySelector("#revertajax").body = {
+        jwt: this.jwt,
+        site: {
+          name: store.manifest.metadata.site.name
+        }
+      };
+      this.querySelector("#revertajax").generateRequest();
+    }
   }
 }
+
 window.customElements.define(HAXCMSSiteEditor.tag, HAXCMSSiteEditor);
 export { HAXCMSSiteEditor };

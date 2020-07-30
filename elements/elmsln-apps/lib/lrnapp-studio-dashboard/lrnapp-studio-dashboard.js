@@ -127,6 +127,12 @@ class LrnappStudioDashboard extends PolymerElement {
       }
     };
   }
+  connectedCallback() {
+    super.connectedCallback();
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 2000);
+  }
   _getEndPoint(basePath) {
     return basePath + "lrnapp-studio-dashboard/blocks";
   }

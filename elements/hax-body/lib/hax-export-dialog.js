@@ -1,15 +1,20 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { MtzFileDownloadBehaviors } from "@lrnwebcomponents/dl-behavior/dl-behavior.js";
-import "./hax-shared-styles.js";
+import {
+  winEventsElement,
+  stripMSWord
+} from "@lrnwebcomponents/utils/utils.js";
 /**
  * `hax-export-dialog`
+ * @element hax-export-dialog
  * `Export dialog with all export options and settings provided.`
  */
-class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
-  static get template() {
-    return html`
-      <style include="hax-shared-styles">
+class HaxExportDialog extends winEventsElement(
+  MtzFileDownloadBehaviors(LitElement)
+) {
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
         }
@@ -28,32 +33,15 @@ class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
           font-weight: 600;
           text-align: left;
           margin: 0;
-          background-color: var(--hax-color-menu-heading-bg);
           font-size: 18px;
           line-height: 18px;
           font-family: "Noto Serif", serif;
-          color: var(--hax-color-text);
+          background-color: var(--hax-color-menu-heading-bg, #eeeeee);
+          color: var(--hax-color-menu-heading-color, black);
         }
         .pref-container {
           text-align: left;
           padding: 16px;
-        }
-        .buttons paper-button:focus,
-        .buttons paper-button:hover {
-          outline: 1px solid var(--hax-color-border-outline);
-        }
-        .buttons paper-button {
-          color: var(--hax-color-text);
-          text-transform: none;
-          margin: 0;
-          background-color: var(--hax-color-bg-accent);
-          display: inline-flex;
-          border-radius: 0px;
-          border-style: solid;
-          border-width: 1px;
-          min-width: unset;
-          font-size: 12px;
-          font-weight: bold;
         }
         #closedialog {
           float: right;
@@ -62,8 +50,8 @@ class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
           position: absolute;
           padding: 4px;
           margin: 0;
-          color: var(--hax-color-text);
-          background-color: transparent;
+          background-color: var(--hax-color-menu-heading-bg, #eeeeee);
+          color: var(--hax-color-menu-heading-color, black);
           width: 40px;
           height: 40px;
           min-width: unset;
@@ -84,51 +72,89 @@ class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
           min-width: 70vw;
           min-height: 60vh;
           background-color: #ffffff;
-          color: var(--hax-color-text);
-        }
-        #import {
-          margin-right: 50px;
-          color: var(--hax-color-accent1-text);
-          background-color: var(--hax-color-accent1);
+          color: black;
         }
         #loading {
           position: absolute;
           margin: 0 auto;
           width: 100%;
         }
-      </style>
-      <paper-dialog id="dialog">
-        <h3 class="title">[[title]]</h3>
+      `
+    ];
+  }
+
+  render() {
+    return html`
+      <paper-dialog
+        id="dialog"
+        ?opened="${this.opened}"
+        @opened-changed="${this.openedChanged}"
+      >
+        <h3 class="title">
+          <iron-icon icon="icons:code"></iron-icon> ${this.title}
+        </h3>
         <div style="height: 100%; overflow: auto;" class="pref-container">
           <div id="wrapper">
             <textarea id="hiddentextarea" hidden></textarea>
             <hexagon-loader
               size="small"
               id="loading"
+              item-count="4"
               color="#0085ba"
               aria-roledescription="Loading"
             ></hexagon-loader>
-            <code-editor id="textarea" title="" theme="hc-black"></code-editor>
+            <code-editor id="textarea" title="" theme="vs"></code-editor>
           </div>
           <div id="buttons" class="buttons">
-            <paper-button id="import" raised>Update body area</paper-button>
-            <paper-button id="copy">Copy to clipboard</paper-button>
-            <paper-button id="downloadfull">Download full file</paper-button>
-            <paper-button id="download">Download body area</paper-button>
-            <paper-button
-              id="elementexport"
-              hidden\$="[[!globalPreferences.haxDeveloperMode]]"
-              >Copy as HAX schema to clipboard</paper-button
+            <hax-tray-button
+              label="Update source"
+              color="red"
+              ?color-meaning="${true}"
+              icon="icons:code"
+              @click="${this.importContent}"
             >
+            </hax-tray-button>
+            <hax-tray-button
+              @click="${this.scrubContent}"
+              icon="editor:format-clear"
+              label="Word / GDoc clean up"
+            >
+            </hax-tray-button>
+            <hax-tray-button
+              @click="${this.selectBody}"
+              icon="icons:content-copy"
+              label="Copy source"
+            >
+            </hax-tray-button>
+            <hax-tray-button
+              label="Download"
+              icon="icons:file-download"
+              @click="${this.download}"
+            >
+            </hax-tray-button>
+            <hax-tray-button
+              @click="${this.htmlToHaxElements}"
+              label="HAXSchema"
+              icon="hax:code-json"
+            >
+            </hax-tray-button>
           </div>
         </div>
-        <paper-button id="closedialog" on-click="close">
+        <paper-button id="closedialog" @click="${this.closeEvent}">
           <iron-icon icon="icons:cancel" title="Close dialog"></iron-icon>
         </paper-button>
       </paper-dialog>
     `;
   }
-
+  openedChanged(e) {
+    // force close event to align data model if clicking away
+    if (!e.detail.value && window.HaxStore.instance.openDrawer === this) {
+      window.HaxStore.write("openDrawer", false, this);
+    }
+  }
+  closeEvent(e) {
+    this.opened = false;
+  }
   static get tag() {
     return "hax-export-dialog";
   }
@@ -139,85 +165,35 @@ class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
        * Title when open.
        */
       title: {
-        type: String,
-        value: "Source view"
+        type: String
+      },
+      opened: {
+        type: Boolean
       },
       /**
        * Access to the global properties object.
        */
       globalPreferences: {
-        type: Object,
-        value: {}
+        type: Object
       }
     };
   }
   /**
    * Attached to the DOM, now fire that we exist.
    */
-  connectedCallback() {
-    super.connectedCallback();
-    // fire an event that this is the manager
+  firstUpdated() {
+    // fire an event that this is a core piece of the system
     this.dispatchEvent(
-      new CustomEvent("hax-register-export", {
+      new CustomEvent("hax-register-core-piece", {
         bubbles: true,
         cancelable: true,
         composed: true,
-        detail: this
+        detail: {
+          piece: "haxExport",
+          object: this
+        }
       })
     );
-    afterNextRender(this, function() {
-      // add event listeners
-      document.body.addEventListener(
-        "hax-store-property-updated",
-        this._haxStorePropertyUpdated.bind(this)
-      );
-      this.shadowRoot
-        .querySelector("#download")
-        .addEventListener("click", this.download.bind(this));
-      this.shadowRoot
-        .querySelector("#downloadfull")
-        .addEventListener("click", this.downloadfull.bind(this));
-      this.shadowRoot
-        .querySelector("#import")
-        .addEventListener("click", this.importContent.bind(this));
-      this.shadowRoot
-        .querySelector("#copy")
-        .addEventListener("click", this.selectBody.bind(this));
-      this.shadowRoot
-        .querySelector("#closedialog")
-        .addEventListener("click", this.close.bind(this));
-      this.shadowRoot
-        .querySelector("#elementexport")
-        .addEventListener("click", this.htmlToHaxElements.bind(this));
-    });
-  }
-  /**
-   * Detached life cycle
-   */
-  disconnectedCallback() {
-    document.body.removeEventListener(
-      "hax-store-property-updated",
-      this._haxStorePropertyUpdated.bind(this)
-    );
-    this.shadowRoot
-      .querySelector("#download")
-      .removeEventListener("click", this.download.bind(this));
-    this.shadowRoot
-      .querySelector("#downloadfull")
-      .removeEventListener("click", this.downloadfull.bind(this));
-    this.shadowRoot
-      .querySelector("#import")
-      .removeEventListener("click", this.importContent.bind(this));
-    this.shadowRoot
-      .querySelector("#copy")
-      .removeEventListener("click", this.selectBody.bind(this));
-    this.shadowRoot
-      .querySelector("#closedialog")
-      .removeEventListener("click", this.close.bind(this));
-    this.shadowRoot
-      .querySelector("#elementexport")
-      .removeEventListener("click", this.htmlToHaxElements.bind(this));
-    super.disconnectedCallback();
   }
   /**
    * Store updated, sync.
@@ -229,9 +205,10 @@ class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
       e.detail.property
     ) {
       if (typeof e.detail.value === "object") {
-        this.set(e.detail.property, null);
+        this[e.detail.property] = { ...e.detail.value };
+      } else {
+        this[e.detail.property] = e.detail.value;
       }
-      this.set(e.detail.property, e.detail.value);
     }
   }
 
@@ -254,13 +231,25 @@ class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
   }
 
   /**
-   * Download file.
+   * Import content into body area.
    */
   importContent(e) {
     // import contents of this text area into the activeHaxBody
     const htmlBody = this.shadowRoot.querySelector("#textarea").value;
     window.HaxStore.toast("Content updated");
-    return window.HaxStore.instance.activeHaxBody.importContent(htmlBody);
+    window.HaxStore.instance.activeHaxBody.importContent(htmlBody);
+    this.close();
+  }
+
+  /**
+   * Scrub and then import content as if pasted from Word / GDocs
+   */
+  scrubContent(e) {
+    // import contents of this text area into the activeHaxBody
+    const htmlBody = this.shadowRoot.querySelector("#textarea").value;
+    window.HaxStore.toast("Scrubbed, Content updated");
+    window.HaxStore.instance.activeHaxBody.importContent(stripMSWord(htmlBody));
+    this.close();
   }
 
   /**
@@ -301,25 +290,31 @@ class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
    * Output entire thing as a file.
    */
   contentToFile(full) {
-    var content = "";
+    let body = window.HaxStore.instance.activeHaxBody.haxToContent();
+    var content = body;
     // if you want full HTML headers or not
     if (full) {
       let elementList = window.HaxStore.instance.elementList;
       // @todo obviously not sustainable
       let url = "https://lrnwebcomponents.github.io/hax-body/components";
       content = `
-      <!doctype html>
-      <html lang="en">
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-          <title>hax-body demo</title>
-          <script src="${url}/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-          <style>
-          body {
-            padding: 32px;
-          }
-          </style>
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8" />
+            <meta
+              name="viewport"
+              content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes"
+            />
+            <title>hax-body demo</title>
+            <script src="${url}/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+            <style>
+              body {
+                padding: 32px;
+              }
+            </style>
+          </head>
+        </html>
       `;
       var ignoreList = ["iframe", "a", "img", "hr", "p"];
       for (var index in elementList) {
@@ -336,29 +331,27 @@ class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
         }
       }
       content += "</head><body>";
-      content += window.HaxStore.instance.activeHaxBody.haxToContent();
+      content += body;
       content += "</body></html>";
-    } else {
-      content = window.HaxStore.instance.activeHaxBody.haxToContent();
     }
     return content;
   }
 
-  /**
-   * Toggle ourselves.
-   */
-  toggleDialog() {
-    if (this.shadowRoot.querySelector("#dialog").opened) {
-      this.close();
-    } else {
-      this.shadowRoot.querySelector(
-        "#textarea"
-      ).editorValue = this.contentToFile(false);
-      window.HaxStore.instance.closeAllDrawers(this);
-    }
-  }
   constructor() {
     super();
+    this.__winEvents = {
+      "hax-store-property-updated": "_haxStorePropertyUpdated"
+    };
+    this.title = "View page source";
+    this.fileTypes = {
+      CSV: "text/csv",
+      JSON: "text/json",
+      PDF: "application/pdf",
+      TXT: "text/plain",
+      HTML: "text/html"
+    };
+    this.opened = false;
+    this.globalPreferences = {};
     import("@polymer/paper-dialog/paper-dialog.js");
   }
   /**
@@ -366,13 +359,14 @@ class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
    */
   open() {
     import("@polymer/iron-icon/iron-icon.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/paper-input/paper-input.js");
     import("@polymer/paper-button/paper-button.js");
     import("@lrnwebcomponents/code-editor/code-editor.js");
     import("@lrnwebcomponents/hexagon-loader/hexagon-loader.js");
 
-    this.shadowRoot.querySelector("#dialog").open();
+    this.opened = true;
+    this.shadowRoot.querySelector("#textarea").editorValue = this.contentToFile(
+      false
+    );
     this.shadowRoot.querySelector("#buttons").style.display = "none";
     this.shadowRoot
       .querySelector("#loading")
@@ -391,7 +385,7 @@ class HaxExportDialog extends MtzFileDownloadBehaviors(PolymerElement) {
    * close the dialog
    */
   close() {
-    this.shadowRoot.querySelector("#dialog").close();
+    this.opened = false;
   }
 }
 window.customElements.define(HaxExportDialog.tag, HaxExportDialog);

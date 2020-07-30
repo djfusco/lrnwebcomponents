@@ -1,8 +1,5 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
-import "@polymer/polymer/lib/elements/dom-repeat.js";
 /**
  * `task-list`
  * Visual listing of tasks with different design components that is
@@ -10,27 +7,41 @@ import "@polymer/polymer/lib/elements/dom-repeat.js";
  * @demo demo/index.html
  * @microcopy - the mental model for this element
  * - task - a singular thing to accomplish
+ * @element task-list
  */
-class TaskList extends SchemaBehaviors(PolymerElement) {
-  constructor() {
-    super();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(TaskList.haxProperties, TaskList.tag, this);
-    });
-  }
-  static get template() {
-    return html`
-      <style>
+class TaskList extends SchemaBehaviors(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
+          border: var(--task-list-border, 1px solid #eeeeee);
+          font-size: var(--task-list-font-size, 18px);
+          padding: var(--task-list-padding, 16px);
         }
-      </style>
-      <h3><span property="oer:name">[[name]]</span></h3>
+      `
+    ];
+  }
+  render() {
+    return html`
+      <h3><span property="oer:name">${this.name}</span></h3>
       <ol>
-        <template is="dom-repeat" items="[[tasks]]" as="task">
-          <li><span property="oer:task">[[task.name]]</span></li>
-        </template>
+        ${this.tasks.map(
+          task => html`
+            <li>
+              ${task.link
+                ? html`
+                    <a href="${task.link}" property="oer:task">${task.name}</a>
+                  `
+                : html`
+                    <span property="oer:task">${task.name}</span>
+                  `}
+            </li>
+          `
+        )}
       </ol>
     `;
   }
@@ -38,41 +49,58 @@ class TaskList extends SchemaBehaviors(PolymerElement) {
   static get tag() {
     return "task-list";
   }
-  static get observers() {
-    return ["_valueChanged(tasks.*)"];
-  }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
       /**
        * Name of this task list
        */
       name: {
-        type: String,
-        value: "Steps to completion"
+        type: String
       },
       /**
        * Related Resource ID
        */
       relatedResource: {
-        type: String
+        type: String,
+        attribute: "related-resource"
       },
       /**
        * Task list
        */
       tasks: {
-        type: Array,
-        value: [],
-        notify: true
+        type: Array
       },
       _resourceLink: {
-        type: Object,
-        computed: "_generateResourceLink(relatedResource)"
+        type: Object
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
+  }
+  constructor() {
+    super();
+    this.tasks = [];
+    this.name = "Steps to completion";
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      let notifiedProps = ["tasks"];
+      if (notifiedProps.includes(propName)) {
+        // notify
+        let eventName = `${propName
+          .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, "$1-$2")
+          .toLowerCase()}-changed`;
+        this.dispatchEvent(
+          new CustomEvent(eventName, {
+            detail: {
+              value: this[propName]
+            }
+          })
+        );
+      }
+      if (propName == "relatedResource") {
+        this._resourceLink = this._generateResourceLink(this[propName]);
+      }
+    });
   }
   _generateResourceLink(relatedResource) {
     if (this._resourceLink) {
@@ -84,22 +112,10 @@ class TaskList extends SchemaBehaviors(PolymerElement) {
     document.head.appendChild(link);
     return link;
   }
-  /**
-   * Ensure the values change.
-   */
-  _valueChanged(e) {
-    for (var i in e.base) {
-      for (var j in e.base[i]) {
-        this.notifyPath("tasks." + i + "." + j);
-      }
-    }
-  }
-  /**
-   * Attached to the DOM, now fire.
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    this.setAttribute("typeof", "oer:SupportingMaterial");
+  firstUpdated() {
+    setTimeout(() => {
+      this.setAttribute("typeof", "oer:SupportingMaterial");
+    }, 0);
   }
   static get haxProperties() {
     return {
@@ -114,7 +130,7 @@ class TaskList extends SchemaBehaviors(PolymerElement) {
         groups: ["Content", "Instructional"],
         handles: [],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -154,6 +170,7 @@ class TaskList extends SchemaBehaviors(PolymerElement) {
             title: "Tasks",
             description: "The tasks to be completed",
             inputMethod: "array",
+            itemLabel: "label",
             properties: [
               {
                 property: "name",
@@ -172,6 +189,9 @@ class TaskList extends SchemaBehaviors(PolymerElement) {
           }
         ],
         advanced: []
+      },
+      saveOptions: {
+        unsetAttributes: ["_resource-link"]
       }
     };
   }

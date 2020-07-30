@@ -75,18 +75,7 @@ class PaperSearchBar extends mixinBehaviors(
   }
 
   focus() {
-    this.$.input.focus();
-  }
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      this.addEventListener("keypress", this._search.bind(this));
-    });
-  }
-
-  disconnectedCallback() {
-    this.removeEventListener("keypress", this._search.bind(this));
-    super.disconnectedCallback();
+    this.shadowRoot.querySelector("#input").focus();
   }
   // Private methods
   _filter(e) {
@@ -99,9 +88,15 @@ class PaperSearchBar extends mixinBehaviors(
       })
     );
   }
+  constructor() {
+    super();
+    setTimeout(() => {
+      this.addEventListener("keypress", this._search.bind(this));
+    }, 0);
+  }
   _clear() {
     this.query = "";
-    this.$.input.focus();
+    this.shadowRoot.querySelector("#input").focus();
     this.dispatchEvent(
       new CustomEvent("paper-search-clear", {
         bubbles: true,

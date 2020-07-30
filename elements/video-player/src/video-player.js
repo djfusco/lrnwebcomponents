@@ -2,117 +2,99 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import { A11yBehaviors } from "@lrnwebcomponents/a11y-behaviors/a11y-behaviors.js";
-import "@polymer/polymer/lib/elements/dom-repeat.js";
-import "@polymer/polymer/lib/elements/dom-if.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 import { MediaBehaviorsVideo } from "@lrnwebcomponents/media-behaviors/media-behaviors.js";
+import "@lrnwebcomponents/a11y-media-player/a11y-media-player.js";
 /**
  * `video-player`
  * `A simple responsive video player with ridiculously powerful backing`
  *
  * @microcopy - language worth noting:
- * - `video source` - url / link to the video file
- * ```
-<video-player 
-  accent-color$="[[accentColor]]"                 // Optional accent color for controls, 
-                                                  // using the following materialize colors: 
-                                                  // red, pink, purple, deep-purple, indigo, blue, 
-                                                  // light blue, cyan, teal, green, light green, lime, 
-                                                  // yellow, amber, orange, deep-orange, and brown. 
-                                                  // Default is null. 
-  dark$="[[dark]]"                                // Is the color scheme dark? Default is light. 
-  dark-transcript$="[[darkTranscript]]"           // Use dark theme on transcript? Default is false, even when player is dark.   
-  disable-interactive$="[[disableInteractive]]"   // Disable interactive cues?
-  height$="[[height]]"                            // The height of player
-  hide-timestamps$="[[hideTimestamps]]"           // Hide cue timestamps?
-  lang$="[[lang]]"                                // The language of the media
-  media-title$="[[mediaTitle]]"                   // The title of the media
-  source$="[[source]]"                            // The source URL of the media
-  sticky-corner$="[[stickyCorner]]"               // When user scrolls a playing video off-screen, 
-                                                      which corner will it stick to? Values are: 
-                                                      top-right (default), top-left, bottom-left, bottom-right, 
-                                                      and none (to turn sticky off)
-  thumbnail-src$="[[thumbnailSrc]]"               // Optional thumbanil/cover image url
-  width$="[[width]]">                              // The width of the media             
-  <div slot="caption">Optional caption info.</div>
-</video-player>```
+ * - `video source` - url / link to video file
  *
- * @customElement
- * @polymer
  * @demo demo/index.html
+ * @element video-player
  */
-class VideoPlayer extends MediaBehaviorsVideo(
-  A11yBehaviors(SchemaBehaviors(SimpleColors))
-) {
+class VideoPlayer extends MediaBehaviorsVideo(SchemaBehaviors(SimpleColors)) {
   /* REQUIRED FOR TOOLING DO NOT TOUCH */
-  constructor() {
-    super();
-    import("@lrnwebcomponents/a11y-media-player/a11y-media-player.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(VideoPlayer.haxProperties, VideoPlayer.tag, this);
-    });
-  }
   /**
-   * Store the tag name to make it easier to obtain directly.
+   * Store tag name to make it easier to obtain directly.
    * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "video-player";
   }
+  constructor() {
+    super();
+    this.crossorigin = "anonymous";
+    this.dark = false;
+    this.darkTranscript = false;
+    this.disableInteractive = false;
+    this.hideTimestamps = false;
+    this.hideTranscript = false;
+    this.lang = "en";
+    this.linkable = false;
+    this.preload = "metadata";
+    this.sources = [];
+    this.stickyCorner = "top-right";
+    this.tracks = [];
+    this.setSourceData();
+    this.observer.observe(this, {
+      childList: true,
+      subtree: false
+    });
+  }
   /**
-   * life cycle, element is afixed to the DOM
+   * life cycle, element is removed from the DOM
    */
-  connectedCallback() {
-    super.connectedCallback();
+  disconnectedCallback() {
+    if (this.observer && this.observer.disconnect) this.observer.disconnect();
+    super.disconnectedCallback();
+  }
+  /**
+   * gets the HTML5 `audio` or `video` children
+   * @readonly
+   * @returns {object} HTML template
+   */
+  get html5() {
+    return html`
+      ${this.sourceData
+        .filter(item => item.type !== "youtube")
+        .map(sd => {
+          html`
+            <source
+              .src="${sd.src || undefined}"
+              .type="${sd.type || undefined}"
+            />
+          `;
+        })}
+      ${this.trackData.map(track => {
+        `<track
+          .src="${track.src || undefined}"
+          .kind="${track.kind || undefined}"
+          .label="${track.label || undefined}"
+          .srclang="${track.lang || undefined}"
+        />`;
+      })}
+    `;
   }
 
   /**
-   * Get Youtube ID
+   * Computes whether uses iframe
+   * @readonly
+   * @returns {Boolean}
    */
-  _computeYoutubeId(source, sourceType) {
-    if (source !== undefined && sourceType === "youtube") {
-      return this._computeSRC(source).replace(
-        /(https?:\/\/)?(www.)?youtube(-nocookie)?.com\/embed\//,
-        ""
-      );
-    }
-    return false;
-  }
-
-  /**
-   * Determine if it is youtube
-   */
-  _computeYoutube(sourceType) {
-    return sourceType === "youtube";
-  }
-
-  /**
-   * Determine if it is compatible with a11y-media-player
-   */
-  _computeA11yMedia(sourceType, sandboxed) {
-    if (!sandboxed && (sourceType == "youtube" || sourceType == "local")) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Compute iframed status
-   */
-  _computeIframed(sourceData, sandboxed) {
+  get iframed() {
     // make sure we take into account sandboxing as well
-    // so that we can manage the state effectively
+    // so that we can manage state effectively
     if (
-      sourceData.length > 0 &&
-      sourceData[0] !== undefined &&
-      window.MediaBehaviors.Video._sourceIsIframe(sourceData[0].src) &&
-      !sandboxed
+      this.sourceData &&
+      this.sourceData.length > 0 &&
+      this.sourceData[0] !== undefined &&
+      window.MediaBehaviors.Video._sourceIsIframe(this.sourceData[0].src) &&
+      !this.sandboxed
     ) {
       return true;
     }
@@ -120,85 +102,46 @@ class VideoPlayer extends MediaBehaviorsVideo(
   }
 
   /**
-   * Gets cleaned track list
+   * Determines if compatible with `a11y-media-player`
+   * @readonly
+   * @returns {Boolean}
    */
-  _getTrackData(track, tracks) {
-    let temp =
-      typeof tracks === "string" ? JSON.parse(tracks).slice() : tracks.slice();
-    if (track !== undefined && track !== null)
-      temp.push({
-        src: track,
-        srclang: this.lang,
-        label: this.lang === "en" ? "English" : this.lang,
-        kind: "subtitles"
-      });
-    return temp;
-  }
-
-  /**
-   * Gets source and added to sources list
-   */
-  _getSourceData(source, sources, trackData) {
-    if (typeof sources === "string") sources = JSON.parse(sources);
-    let root = this,
-      temp = sources.slice();
-    for (let i = 0; i < temp.length; i++) {
-      temp[i].type =
-        temp[i].type !== undefined && temp[i].type !== null
-          ? temp[i].type
-          : this._computeMediaType(temp[i].src);
-      temp[i].src = this._computeSRC(temp[i].src);
+  get isA11yMedia() {
+    if (
+      !this.sandboxed &&
+      (this.sourceType == "youtube" ||
+        this.sourceType == "local" ||
+        this.sourceData.length < 1)
+    ) {
+      return true;
     }
-    if (source !== null) {
-      let src = this._computeSRC(source);
-      this.sourceType = this._computeSourceType(src);
-      if (this.sourceType !== "youtube") {
-        temp.unshift({ src: src, type: this._computeMediaType(src) });
-      }
-    }
-    this.__standAlone =
-      trackData === undefined || trackData === null || trackData.length < 1;
-    return temp;
+    return false;
   }
-
   /**
-   * Compute media type based on source, i.e. 'audio/wav' for '.wav'
+   * mutation observer for tabs
+   * @readonly
+   * @returns {object}
    */
-  _computeMediaType(source) {
-    let root = this,
-      audio = ["aac", "flac", "mp3", "oga", "wav"],
-      video = ["mov", "mp4", "ogv", "webm"],
-      type = "",
-      findType = function(text, data) {
-        for (let i = 0; i < data.length; i++) {
-          if (
-            type === "" &&
-            source !== undefined &&
-            source !== null &&
-            source.toLowerCase().indexOf("." + data[i]) > -1
-          ) {
-            if (text === "audio") root.audioOnly = true;
-            type = text + "/" + data[i];
-          }
-        }
-      };
-    findType("audio", audio);
-    findType("video", video);
-    return type;
+  get observer() {
+    let callback = () => this.setSourceData();
+    return new MutationObserver(callback);
   }
 
   /**
    * Compute sandboxed status
+   * @readonly
+   * @returns {Boolean}
    */
-  _computeSandboxed(sourceData) {
+  get sandboxed() {
     // we have something that would require an iframe
     // see if we have a local system that would want to sandbox instead
     if (
-      sourceData.length > 0 &&
-      sourceData[0] !== undefined &&
-      window.MediaBehaviors.Video._sourceIsIframe(sourceData[0].src)
+      this.sourceData &&
+      this.sourceData.length > 0 &&
+      typeof this.sourceData[0] !== undefined &&
+      window.MediaBehaviors.Video._sourceIsIframe(this.sourceData[0].src)
     ) {
-      // fake the creation of a webview element to see if it's valid
+      // fake creation of a webview element to see if it's valid
       // or not.
       let test = document.createElement("webview");
       // if this function exists it means that our deploy target
@@ -215,19 +158,173 @@ class VideoPlayer extends MediaBehaviorsVideo(
   }
 
   /**
-   * Compute video type based on source
+   * Gets cleaned source list from source and sources properties
+   * @readonly
+   * @returns {Array} Eg. `[{ "src": "path/to/media.mp3", "type": "audio/mp3"}]`
    */
-  _computeSourceType(sourceData) {
-    let root = this;
+  get sourceProperties() {
+    let temp =
+      typeof this.sources === "string"
+        ? JSON.parse(this.sources)
+        : this.sources.slice();
+    if (this.source) temp.unshift({ src: this.source });
+    if (temp && temp.length > 0)
+      temp.forEach(item => {
+        item.type = item.type || this._computeMediaType(item.src);
+        item.src = this._computeSRC(item.src, item.type);
+      });
+    return temp;
+  }
+
+  /**
+   * Gets cleaned track list from track and tracks properties
+   * @readonly
+   * @returns {Array} Eg. `[{ "src": "path/to/track.vtt", "label": "English", "srclang": "en", "kind": "subtitles"}]`
+   */
+  get trackProperties() {
+    let temp =
+      typeof this.tracks === "string"
+        ? JSON.parse(this.tracks)
+        : this.tracks.slice();
+    if (this.track) temp.unshift({ src: this.track });
+    if (temp && temp.length > 0)
+      temp.forEach(item => {
+        item.srclang = item.srclang || this.lang;
+        item.kind = item.kind || "subtitles";
+        item.label = item.label || item.kind || item.lang;
+      });
+    return temp;
+  }
+
+  /**
+   * Source properties and slotted sources
+   * @readonly
+   * @returns {Array} List of source objects
+   */
+  get sourceData() {
+    let temp = this.sourceProperties.slice(),
+      slotted = this.querySelectorAll("video source, audio source, iframe");
+    slotted.forEach(slot => {
+      this.sources.unshift({
+        src: slot.src,
+        type: slot.type || this._computeMediaType(slot.src)
+      });
+    });
+    return temp;
+  }
+
+  get audioOnly() {
+    let videos = this.sourceData.filter(
+      item => item.type.indexOf("audio") > -1
+    );
+    return videos.length > 1;
+  }
+
+  get standAlone() {
+    return (
+      this.trackData === undefined ||
+      this.trackData === null ||
+      this.trackData.length < 1
+    );
+  }
+
+  /**
+   * Gets type of source based on src attribute
+   * @returns {String} `local`, `vimeo`, `youtube`, etc.
+   */
+  get sourceType() {
     if (
-      sourceData.length > 0 &&
-      sourceData[0] !== undefined &&
-      typeof sourceData[0].src !== typeof undefined
+      this.sourceData &&
+      this.sourceData.length > 0 &&
+      this.sourceData[0] !== undefined &&
+      typeof this.sourceData[0].src !== typeof undefined
     ) {
-      return window.MediaBehaviors.Video.getVideoType(sourceData[0].src);
+      return window.MediaBehaviors.Video.getVideoType(this.sourceData[0].src);
     } else {
       return null;
     }
+  }
+
+  /**
+   * Gets cleaned track list
+   * @readonly
+   * @returns {Array} Eg. `[{ "src": "path/to/track.vtt", "label": "English", "srclang": "en", "kind": "subtitles",}]`
+   */
+  get trackData() {
+    let temp =
+        typeof this.tracks === "string"
+          ? JSON.parse(this.tracks).slice()
+          : this.tracks.slice(),
+      slotted = this.querySelectorAll("video track, audio track");
+    slotted.forEach(slot => {
+      let track = { src: slot.src };
+      if (slot.lang) track.lang = slot.lang;
+      if (slot.srclang) track.srclang = slot.srclang;
+      if (slot.label) track.label = slot.label;
+      if (slot.kind) track.kind = slot.kind;
+      this.tracks.unshift(track);
+      slot.remove();
+    });
+    if (this.track !== undefined && this.track !== null && this.track !== "")
+      temp.push({
+        src: this.track,
+        srclang: this.lang,
+        label: this.lang === "en" ? "English" : this.lang,
+        kind: "subtitles"
+      });
+    return temp;
+  }
+
+  /**
+   * Gets Youtube ID from source string
+   * @readonly
+   * @returns {String}
+   */
+  get youtubeId() {
+    if (
+      this.sourceData &&
+      this.sourceData[0] &&
+      this.sourceType === "youtube"
+    ) {
+      return this._computeSRC(this.sourceData[0].src).replace(
+        /.*\/embed\//,
+        ""
+      );
+    }
+    return;
+  }
+
+  /**
+   * gets an id for a11y-media-player
+   * @readonly
+   * @returns {string} an id for player
+   */
+  get playerId() {
+    return `${this.id || this.schemaResourceID}-media`;
+  }
+
+  /**
+   * Compute media type based on source, i.e. 'audio/wav' for '.wav'
+   */
+  _computeMediaType(source) {
+    let audio = ["aac", "flac", "mp3", "oga", "wav"],
+      video = ["mov", "mp4", "ogv", "webm"],
+      type = "",
+      findType = (text, data) => {
+        data.forEach(item => {
+          if (
+            type === "" &&
+            typeof source !== undefined &&
+            source !== null &&
+            source.toLowerCase().indexOf("." + item) > -1
+          ) {
+            type = text + "/" + item;
+          }
+        });
+      };
+    findType("audio", audio);
+    findType("video", video);
+    return type;
   }
 
   /**
@@ -235,13 +332,10 @@ class VideoPlayer extends MediaBehaviorsVideo(
    * Type is set by source so this ensures a waterfall
    * of valid values.
    */
-  _computeSRC(source) {
+  _computeSRC(source, type) {
     if (source !== null && typeof source !== undefined) {
-      let type =
-        this.sourceType !== undefined
-          ? this.sourceType
-          : window.MediaBehaviors.Video.getVideoType(source);
       // ensure that this is a valid url / cleaned up a bit
+      type = type || window.MediaBehaviors.Video.getVideoType(source);
       source = window.MediaBehaviors.Video.cleanVideoSource(source, type);
       if (type == "vimeo") {
         if (this.vimeoTitle) {
@@ -259,20 +353,32 @@ class VideoPlayer extends MediaBehaviorsVideo(
         } else {
           source += "&portrait=0";
         }
-        if (typeof this.videoColor !== typeof undefined) {
-          source += "&color=" + this.videoColor;
-        }
       } else if (type == "dailymotion") {
         source += "&ui-start-screen-info=false";
         source += "&ui-logo=false";
         source += "&sharing-enable=false";
         source += "&endscreen-enable=false";
-        if (typeof this.videoColor !== typeof undefined) {
-          source += "&ui-highlight=" + this.videoColor;
-        }
       }
     }
     return source;
+  }
+  /**
+   * postProcesshaxNodeToContent - clean up so we don't have empty array data
+   */
+  postProcesshaxNodeToContent(content) {
+    content = content.replace(' sources="[]",', "");
+    content = content.replace(' tracks="[]",', "");
+    return content;
+  }
+  /**
+   * triggers an update of sourceData property when slot changes
+   *
+   * @memberof VideoPlayer
+   */
+  setSourceData() {
+    let temp = this.source;
+    this.source = "";
+    this.source = temp;
   }
 }
 window.customElements.define(VideoPlayer.tag, VideoPlayer);

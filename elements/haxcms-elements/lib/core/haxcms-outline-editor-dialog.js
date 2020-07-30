@@ -1,11 +1,11 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
-import { autorun, toJS } from "mobx";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
 import "@lrnwebcomponents/json-outline-schema/json-outline-schema.js";
-import "@lrnwebcomponents/json-editor/json-editor.js";
 import "@lrnwebcomponents/editable-outline/editable-outline.js";
-
+import "@polymer/paper-button/paper-button.js";
+import "@polymer/iron-icon/iron-icon.js";
+import "@polymer/iron-icons/iron-icons.js";
 /**
  * `haxcms-outline-editor-dialog`
  * `Dialog for presenting an editable outline`
@@ -14,24 +14,13 @@ import "@lrnwebcomponents/editable-outline/editable-outline.js";
  *
  * @microcopy - the mental model for this element
  */
-class HAXCMSOutlineEditorDialog extends PolymerElement {
+class HAXCMSOutlineEditorDialog extends LitElement {
   /**
-   * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
+   * LitElement constructable styles enhancement
    */
-  static get tag() {
-    return "haxcms-outline-editor-dialog";
-  }
-  constructor() {
-    super();
-    import("@polymer/paper-button/paper-button.js");
-    import("@polymer/iron-icon/iron-icon.js");
-    import("@polymer/iron-icons/iron-icons.js");
-  }
-  // render function
-  static get template() {
-    return html`
-      <style>
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           height: 60vh;
@@ -41,12 +30,16 @@ class HAXCMSOutlineEditorDialog extends PolymerElement {
           position: absolute;
           bottom: 0;
           z-index: 1000000;
-          background-color: var(--simple-modal-titlebar-background, #ddd);
+          background-color: var(--simple-modal-titlebar-background, #000000);
+          color: var(--simple-modal-titlebar-color, #ffffff);
           left: 0;
           right: 0;
         }
+        .buttons paper-button {
+          color: #ffffff;
+          background-color: var(--simple-modal-button-background, #000000);
+        }
         editable-outline:not(:defined),
-        json-editor:not(:defined),
         paper-button:not(:defined) {
           display: none;
         }
@@ -54,72 +47,107 @@ class HAXCMSOutlineEditorDialog extends PolymerElement {
           float: right;
           text-transform: unset;
         }
-        editable-outline,
-        json-editor {
+        #savebtn {
+          color: white;
+          background-color: var(--haxcms-color, #2196f3);
+        }
+        editable-outline {
           margin-bottom: 32px;
         }
-      </style>
+      `
+    ];
+  }
+  /**
+   * Store the tag name to make it easier to obtain directly.
+   */
+  static get tag() {
+    return "haxcms-outline-editor-dialog";
+  }
+  // render function
+  render() {
+    return html`
       <editable-outline
         id="outline"
         edit-mode
-        hidden$="[[viewMode]]"
-        items="[[manifestItems]]"
+        .hidden="${this.viewMode}"
+        .items="${this.manifestItems}"
       ></editable-outline>
-      <json-editor
-        id="editor"
-        label="JSON Outline Schema items"
-        value="[[manifestItemsStatic]]"
-        hidden$="[[!viewMode]]"
-      ></json-editor>
       <div class="buttons">
-        <paper-button dialog-confirm on-click="_saveTap">Save</paper-button>
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button id="toggle" on-click="toggleView"
-          ><iron-icon icon="[[_viewIcon]]"></iron-icon
-          >[[viewLabel]]</paper-button
+        <paper-button id="savebtn" dialog-confirm @click="${this._saveTap}"
+          ><iron-icon icon="icons:save"></iron-icon>Save</paper-button
+        >
+        <paper-button dialog-dismiss
+          ><iron-icon icon="icons:cancel"></iron-icon>Cancel</paper-button
         >
       </div>
     `;
   }
-
+  constructor() {
+    super();
+    this.__disposer = [];
+    this.viewMode = false;
+  }
   static get properties() {
     return {
       /**
        * opened state of the dialog inside here
        */
       opened: {
-        type: Boolean,
-        notify: true
+        type: Boolean
       },
       /**
        * Outline of items in json outline schema format
        */
       manifestItems: {
-        type: Array,
-        observer: "_manifestItemsChanged"
+        type: Array
       },
       /**
        * Stringify'ed representation of items
        */
       manifestItemsStatic: {
-        type: String
+        type: String,
+        attribute: "manifest-items-static"
       },
       /**
        * Display label, switch when hitting the toggle button
        */
       viewLabel: {
         type: String,
-        computed: "_getViewLabel(viewMode)"
+        attribute: "view-label"
       },
       /**
        * Which edit mode to display
        */
       viewMode: {
         type: Boolean,
-        value: false,
-        observer: "_viewModeChanged"
+        attribute: "view-mode"
       }
     };
+  }
+  /**
+   * LitElement property change life cycle
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "opened") {
+        // notify
+        this.dispatchEvent(
+          new CustomEvent("opened-changed", {
+            detail: this[propName]
+          })
+        );
+      }
+      if (propName == "manifestItems") {
+        // observer
+        this._manifestItemsChanged(this[propName], oldValue);
+        // notify
+        this.dispatchEvent(
+          new CustomEvent("manifest-edit-mode-changed", {
+            detail: this[propName]
+          })
+        );
+      }
+    });
   }
   _manifestItemsChanged(newValue) {
     if (newValue) {
@@ -127,28 +155,14 @@ class HAXCMSOutlineEditorDialog extends PolymerElement {
       this.manifestItemsStatic = JSON.stringify(newValue, null, 2);
     }
   }
-  ready() {
-    super.ready();
-    afterNextRender(this, function() {
-      this.$.editor.addEventListener("current-data-changed", e => {
-        if (e.detail.value) {
-          this.set("manifestItems", e.detail.value);
-          this.$.outline.importJsonOutlineSchemaItems();
-        }
-      });
-    });
+  firstUpdated() {
+    this.shadowRoot.querySelector("#outline").importJsonOutlineSchemaItems();
   }
-  /**
-   * attached life cycle
-   */
   connectedCallback() {
     super.connectedCallback();
-    this.__disposer = [];
     autorun(reaction => {
-      setTimeout(() => {
-        this.manifestItems = Object.assign([], toJS(store.manifest.items));
-        this.__disposer.push(reaction);
-      }, 500);
+      this.manifestItems = [...toJS(store.manifest.items)];
+      this.__disposer.push(reaction);
     });
   }
   /**
@@ -158,43 +172,7 @@ class HAXCMSOutlineEditorDialog extends PolymerElement {
     for (var i in this.__disposer) {
       this.__disposer[i].dispose();
     }
-    this.$.editor.removeEventListener("current-data-changed", e => {
-      if (e.detail.value) {
-        this.set("manifestItems", e.detail.value);
-        this.$.outline.importJsonOutlineSchemaItems();
-      }
-    });
     super.disconnectedCallback();
-  }
-  /**
-   * Switch view
-   */
-  toggleView(e) {
-    this.viewMode = !this.viewMode;
-  }
-  /**
-   * Get the active label
-   */
-  _getViewLabel(mode) {
-    if (mode) {
-      this._viewIcon = "icons:view-list";
-      return "Outline mode";
-    } else {
-      this._viewIcon = "icons:code";
-      return "Developer mode";
-    }
-  }
-  /**
-   * Ensure that data is correct between the outline and advanced view
-   */
-  _viewModeChanged(newValue, oldValue) {
-    // odd I know, but this is the default outline view
-    if (!newValue) {
-      this.$.outline.importJsonOutlineSchemaItems();
-    } else {
-      const items = this.$.outline.exportJsonOutlineSchemaItems(true);
-      this.set("manifestItems", items);
-    }
   }
 
   /**
@@ -205,7 +183,9 @@ class HAXCMSOutlineEditorDialog extends PolymerElement {
       new CustomEvent("haxcms-save-outline", {
         bubbles: true,
         composed: true,
-        detail: this.$.outline.exportJsonOutlineSchemaItems(true)
+        detail: this.shadowRoot
+          .querySelector("#outline")
+          .exportJsonOutlineSchemaItems(true)
       })
     );
   }

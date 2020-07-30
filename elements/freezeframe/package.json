@@ -1,11 +1,12 @@
 {
   "name": "@lrnwebcomponents/freezeframe",
-  "version": "2.0.9",
+  "version": "2.6.16",
   "description": "Ported over from freezeframe.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/elmsln/lrnwebcomponents.git"
   },
+  "type": "module",
   "main": "build/js/freezeframe.js",
   "author": {
     "name": "Christopher Antonellis"

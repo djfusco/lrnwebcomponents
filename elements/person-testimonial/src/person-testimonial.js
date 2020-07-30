@@ -1,31 +1,22 @@
 import { html } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
+import { SimpleColorsPolymer } from "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 /**
  * `person-testimonial`
+ * @element person-testimonial
  * `Leaving a testimonial from a person to say your company rocks!`
  * @demo demo/index.html
  */
-class PersonTestimonial extends SimpleColors {
+class PersonTestimonial extends SimpleColorsPolymer {
   constructor() {
     super();
     import("@polymer/paper-card/paper-card.js");
     import("@polymer/iron-image/iron-image.js");
     import("@polymer/iron-icon/iron-icon.js");
     import("@lrnwebcomponents/person-testimonial/lib/person-testimonial-icon.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        PersonTestimonial.haxProperties,
-        PersonTestimonial.tag,
-        this
-      );
-    });
   }
   static get template() {
     return html`
-      <style>
+      <style include="simple-colors-shared-styles-polymer">
         :host {
           display: block;
           --person-testimonial-font-family: sans-serif;
@@ -135,6 +126,7 @@ class PersonTestimonial extends SimpleColors {
             sizing="cover"
             preload=""
             fade=""
+            aria-describedby$="[[describedBy]]"
           ></iron-image>
         </div>
         <div class="arrow_right"></div>
@@ -160,7 +152,9 @@ class PersonTestimonial extends SimpleColors {
     return "person-testimonial";
   }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Visual height of the card.
        */
@@ -168,6 +162,13 @@ class PersonTestimonial extends SimpleColors {
         type: Number,
         value: 1,
         reflectToAttribute: true
+      },
+      /**
+       * Aria-describedby data passed down to appropriate tag
+       */
+      describedBy: {
+        type: String,
+        attribute: "described-by"
       },
       /**
        * The profile image to display to the left of the quote.
@@ -188,10 +189,6 @@ class PersonTestimonial extends SimpleColors {
         type: String
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   static get haxProperties() {
     return {
@@ -209,7 +206,8 @@ class PersonTestimonial extends SimpleColors {
             type: "image",
             source: "image",
             title: "name",
-            caption: "position"
+            caption: "position",
+            ariaDescribedby: "describedBy"
           }
         ],
         meta: {
@@ -298,7 +296,15 @@ class PersonTestimonial extends SimpleColors {
             icon: "icons:work"
           }
         ],
-        advanced: []
+        advanced: [
+          {
+            property: "describedBy",
+            title: "aria-describedby",
+            description:
+              "Space-separated list of IDs for elements that describe the image.",
+            inputMethod: "textfield"
+          }
+        ]
       }
     };
   }

@@ -6,6 +6,7 @@ import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 /**
  * `lrnsys-pdf`
+ * @element lrnsys-pdf
  * @demo demo/index.html
  */
 class LrnsysPdf extends SchemaBehaviors(PolymerElement) {
@@ -35,7 +36,9 @@ class LrnsysPdf extends SchemaBehaviors(PolymerElement) {
     return "lrnsys-pdf";
   }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Title prior to the PDF
        */
@@ -70,10 +73,6 @@ class LrnsysPdf extends SchemaBehaviors(PolymerElement) {
         type: String
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   /**
    * See if we should supply a label.

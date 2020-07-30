@@ -2,30 +2,24 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import "@polymer/paper-button/paper-button.js";
-import "@polymer/paper-input/paper-input.js";
+import { css, html } from "lit-element/lit-element.js";
+import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
 import "@polymer/paper-progress/paper-progress.js";
-import "@polymer/paper-styles/shadow.js";
-import "@polymer/paper-styles/typography.js";
-import "@polymer/paper-styles/color.js";
+import "@lrnwebcomponents/simple-fields/lib/simple-fields-field.js";
+import "@material/mwc-button/mwc-button.js";
 /**
  * `simple-login`
+ * @element simple-login
  * `a simple login form`
  *
  * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @polymer
  * @demo demo/index.html
  */
-class SimpleLogin extends PolymerElement {
-  // render function
-  static get template() {
-    return html`
-      <style>
+class SimpleLogin extends SimpleColors {
+  //styles function
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
         }
@@ -35,102 +29,115 @@ class SimpleLogin extends PolymerElement {
         }
 
         #loginform {
-          width: 450px;
-          height: 450px;
-          background: var(--login-form-background-color, white);
-          @apply --shadow-elevation-12dp;
-          @apply --login-form;
+          width: var(--login-form-width, 450px);
+          height: var(--login-form-height, auto);
+          --simple-camera-snap-color: var(--login-form-color, #36bed4);
+          --simple-camera-snap-error: var(--login-form-error, red);
+          --simple-camera-snap-width: var(--login-form-image-width, 200px);
+          --simple-camera-snap-height: var(--login-form-image-height, 200px);
+          --simple-camera-snap-background: var(--login-form-background, white);
+          --simple-camera-snap-border-radius: var(
+            --login-form-image-bnorder-radius,
+            100%
+          );
+          box-shadow: 0 12px 16px 1px rgba(0, 0, 0, 0.14),
+            0 4px 22px 3px rgba(0, 0, 0, 0.12),
+            0 6px 7px -4px rgba(0, 0, 0, 0.4);
         }
 
         #loginformcontent {
-          padding: 48px;
+          padding: var(--login-form-padding, 48px);
         }
 
         #loginformcontent > * {
-          margin-top: 8px;
-          margin-bottom: 8px;
+          margin-top: var(
+            --login-form-margin-top,
+            var(--login-form-margin, 8px)
+          );
+          margin-bottom: var(
+            --login-form-margin-bottom,
+            var(--login-form-margin, 8px)
+          );
         }
 
         #loginbtn,
-        #buttons ::slotted(paper-button) {
-          margin-top: 24px;
-          background-color: var(
-            --login-btn-background-color,
-            var(--paper-indigo-500)
-          );
-          color: var(--login-btn-text-color, white);
-          --paper-button-raised-keyboard-focus: {
-            background-color: var(
-              --login-btn-raised-background-color,
-              var(--paper-pink-a200)
-            ) !important;
-            color: var(--login-btn-text-color, white) !important;
-          }
-          @apply --login-btn;
+        #buttons ::slotted(mwc-button) {
+          width: var(--login-btn-width, auto);
+          margin: var(--login-btn-margin, 24px auto 0);
+          display: var(--login-btn-display, inline-flex);
         }
 
         #loginbtn[disabled] {
           background-color: var(
             --login-btn-disabled-background-color,
-            var(--paper-indigo-100)
+            var(--simple-colors-default-theme-accent-12, #000000)
           );
         }
 
         h1 {
-          @apply --paper-font-display1;
           margin: 0;
-          @apply --login-title;
         }
 
         h2 {
-          @apply --paper-font-title;
           margin: 0;
-          @apply --login-subtitle;
         }
 
         paper-progress {
           width: 100%;
         }
 
+        ::slotted(simple-login-avatar) {
+          margin: 0 auto;
+        }
+
         #errormsg {
           margin-top: 16px;
           color: var(--login-error-label-color, var(--error-color));
-          @apply --paper-font-menu;
         }
-      </style>
+      `
+    ];
+  }
+
+  // render function
+  render() {
+    return html`
       <div id="loginform">
-        <paper-progress disabled="[[!loading]]" indeterminate></paper-progress>
+        <paper-progress
+          ?disabled="${!this.loading}"
+          indeterminate
+        ></paper-progress>
         <div id="loginformcontent">
-          <h1>[[title]]</h1>
-          <h2>[[subtitle]]</h2>
-          <div id="errormsg">[[errorMsg]]</div>
+          <h1>${this.title}</h1>
+          <h2>${this.subtitle}</h2>
+          <div id="errormsg">${this.errorMsg}</div>
           <slot></slot>
-          <paper-input
+          <simple-fields-field
             id="userinput"
-            value="{{username}}"
-            disabled="[[loading]]"
+            value="${this.username}"
+            @value-changed="${this._usernameChanged}"
             type="text"
-            label="[[userInputLabel]]"
+            ?disabled="${this.loading}"
+            label="${this.userInputLabel}"
             required
-            error-message="[[userInputErrMsg]]"
-          ></paper-input>
-          <paper-input
+            error-message="${this.userInputErrMsg}"
+          ></simple-fields-field>
+          <simple-fields-field
             id="passinput"
-            value="{{password}}"
-            disabled="[[loading]]"
-            type="password"
-            label="[[passwordInputLabel]]"
             required
-            error-message="[[passwordInputErrMsg]]"
-          ></paper-input>
-          <paper-button
-            on-click="_login"
-            disabled="[[loading]]"
+            value="${this.password}"
+            @value-changed="${this._passwordChanged}"
+            ?disabled="${this.loading}"
+            type="password"
+            label="${this.passwordInputLabel}"
+            error-message="${this.passwordInputErrMsg}"
+          ></simple-fields-field>
+          <mwc-button
+            @click="${this._login}"
+            ?disabled="${this.loading}"
             id="loginbtn"
             raised
-            class="indigo"
-            >[[loginBtnText]]
-          </paper-button>
+            >${this.loginBtnText}
+          </mwc-button>
           <span id="buttons"><slot name="buttons"></slot></span>
         </div>
       </div>
@@ -140,6 +147,8 @@ class SimpleLogin extends PolymerElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       /**
        * Title of the loginscreen
        */
@@ -156,57 +165,52 @@ class SimpleLogin extends PolymerElement {
        * Content of the username field
        */
       username: {
-        type: String,
-        notify: true
+        type: String
       },
       /**
        * Content of the password field
        */
       password: {
-        type: String,
-        notify: true
+        type: String
       },
       /**
        * When true, all fields are disabled and the progress bar is visible
        */
       loading: {
-        type: Boolean,
-        value: false
+        type: Boolean
       },
       /**
        * Placeholder of the username field
        */
       userInputLabel: {
         type: String,
-        value: "Username"
+        attribute: "user-input-label"
       },
       /**
        * Error message of the username field
        */
       userInputErrMsg: {
-        type: String,
-        value: "Username required"
+        type: String
       },
       /**
        * Placeholder of the password field
        */
       passwordInputLabel: {
         type: String,
-        value: "Password"
+        attribute: "password-input-label"
       },
       /**
        * Error message of the password field
        */
       passwordInputErrMsg: {
-        type: String,
-        value: "Password required"
+        type: String
       },
       /**
        * Login button label
        */
       loginBtnText: {
         type: String,
-        value: "Login"
+        attribute: "login-btn-text"
       }
     };
   }
@@ -223,20 +227,38 @@ class SimpleLogin extends PolymerElement {
    */
   constructor() {
     super();
-    afterNextRender(this, function() {
+    this.password = "";
+    this.username = "";
+    this.loading = false;
+    this.userInputLabel = "User name";
+    this.userInputErrMsg = "User name required";
+    this.passwordInputLabel = "Password";
+    this.passwordInputErrMsg = "Password required";
+    this.loginBtnText = "Login";
+  }
+
+  updated(changedProperties) {
+    super.updated();
+    changedProperties.forEach((oldValue, propName) => {
+      // notify
+      if (["username", "password"].includes(propName)) {
+        this.dispatchEvent(
+          new CustomEvent(`${propName}-changed`, {
+            detail: {
+              value: this[propName]
+            }
+          })
+        );
+      }
+    });
+  }
+
+  firstUpdated() {
+    setTimeout(() => {
       this.shadowRoot
         .querySelector("#loginform")
         .addEventListener("keypress", this._keyPressLogin.bind(this));
-    });
-  }
-  /**
-   * life cycle
-   */
-  disconnectedCallback() {
-    this.shadowRoot
-      .querySelector("#loginform")
-      .removeEventListener("keypress", this._keyPressLogin.bind(this));
-    super.disconnectedCallback();
+    }, 0);
   }
   /**
    * Key pressed for the login
@@ -247,6 +269,12 @@ class SimpleLogin extends PolymerElement {
       this._login();
       return false;
     }
+  }
+  _passwordChanged(e) {
+    this.password = e.detail.value;
+  }
+  _usernameChanged(e) {
+    this.username = e.detail.value;
   }
   /**
    * Login

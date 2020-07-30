@@ -8,23 +8,40 @@
       "properties": [],
       "methods": [
         {
-          "name": "_attachDom",
-          "description": "highjack shadowDom",
-          "privacy": "protected",
+          "name": "render",
+          "description": "",
+          "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 119,
+              "line": 31,
               "column": 2
             },
             "end": {
-              "line": 121,
+              "line": 44,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": []
+        },
+        {
+          "name": "updated",
+          "description": "",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 61,
+              "column": 2
+            },
+            "end": {
+              "line": 76,
               "column": 3
             }
           },
           "metadata": {},
           "params": [
             {
-              "name": "dom"
+              "name": "changedProperties"
             }
           ],
           "return": {
@@ -32,16 +49,33 @@
           }
         },
         {
+          "name": "createRenderRoot",
+          "description": "",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 137,
+              "column": 2
+            },
+            "end": {
+              "line": 139,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": []
+        },
+        {
           "name": "disconnectedCallback",
           "description": "",
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 122,
+              "line": 140,
               "column": 2
             },
             "end": {
-              "line": 128,
+              "line": 146,
               "column": 3
             }
           },
@@ -57,11 +91,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 231,
+              "line": 242,
               "column": 2
             },
             "end": {
-              "line": 241,
+              "line": 252,
               "column": 3
             }
           },
@@ -77,11 +111,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 243,
+              "line": 254,
               "column": 2
             },
             "end": {
-              "line": 250,
+              "line": 261,
               "column": 3
             }
           },
@@ -101,11 +135,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 255,
+              "line": 266,
               "column": 2
             },
             "end": {
-              "line": 261,
+              "line": 272,
               "column": 3
             }
           },
@@ -134,11 +168,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 266,
+              "line": 277,
               "column": 2
             },
             "end": {
-              "line": 269,
+              "line": 280,
               "column": 3
             }
           },
@@ -167,11 +201,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 15,
+          "line": 14,
           "column": 0
         },
         "end": {
-          "line": 270,
+          "line": 281,
           "column": 1
         }
       },

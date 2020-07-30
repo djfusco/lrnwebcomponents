@@ -1,13 +1,12 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
+import { FlattenedNodesObserver } from "@polymer/polymer/lib/utils/flattened-nodes-observer.js";
 import { microTask } from "@polymer/polymer/lib/utils/async.js";
+import { wipeSlot } from "@lrnwebcomponents/utils/utils.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 import "@polymer/paper-spinner/paper-spinner.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import { wipeSlot } from "@lrnwebcomponents/hax-body/lib/haxutils.js";
 /**
  * `cms-views`
+ * @element cms-views
  * `Render and process a  / views from a content management system.`
  */
 class CMSViews extends PolymerElement {
@@ -145,15 +144,18 @@ class CMSViews extends PolymerElement {
           newValue.editText;
       }
       // wipe our own slot here
-      wipeSlot(dom(this));
+      wipeSlot(this);
       // now inject the content we got
       microTask.run(() => {
         let frag = document.createElement("span");
         frag.innerHTML = newValue.content;
         let newNode = frag.cloneNode(true);
-        dom(this).appendChild(newNode);
+        this.appendChild(newNode);
         setTimeout(() => {
           this.loading = false;
+          if (window.WCAutoload) {
+            window.WCAutoload.process();
+          }
         }, 600);
       });
     }
@@ -178,7 +180,7 @@ class CMSViews extends PolymerElement {
       if (this.viewsEndPoint) {
         this.loading = true;
         microTask.run(() => {
-          this.$.viewsrequest.generateRequest();
+          this.shadowRoot.querySelector("#viewsrequest").generateRequest();
         });
       }
     }
@@ -193,7 +195,7 @@ class CMSViews extends PolymerElement {
       this.viewsName !== null &&
       this.viewsName !== ""
     ) {
-      let slot = dom(this).getEffectiveChildNodes();
+      let slot = FlattenedNodesObserver.getFlattenedNodes(this);
       // only kick off request if there's nothing in it
       // if it has something in it that means we did some
       // remote rendering ahead of time
@@ -208,15 +210,11 @@ class CMSViews extends PolymerElement {
         if (this.viewsEndPoint) {
           this.loading = true;
           microTask.run(() => {
-            this.$.viewsrequest.generateRequest();
+            this.shadowRoot.querySelector("#viewsrequest").generateRequest();
           });
         }
       }
     }
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(CMSViews.haxProperties, CMSViews.tag, this);
-    });
   }
   static get haxProperties() {
     return {
@@ -236,7 +234,7 @@ class CMSViews extends PolymerElement {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {

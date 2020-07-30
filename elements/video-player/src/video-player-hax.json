@@ -1,5 +1,8 @@
 {
-  "canScale": true,
+  "canScale": {
+    "min": 25,
+    "step": 12.5
+  },
   "canPosition": true,
   "canEditSource": false,
   "gizmo": {
@@ -11,6 +14,7 @@
     "handles": [
       {
         "type": "video",
+        "type_exclusive": true,
         "source": "source",
         "title": "caption",
         "caption": "caption",
@@ -43,28 +47,27 @@
       {
         "property": "source",
         "title": "Source",
-        "description": "The URL for this video.",
+        "description": "The URL for this media.",
         "inputMethod": "haxupload",
-        "icon": "link",
-        "required": true,
+        "noCamera": true,
+        "noVoiceRecord": true,
         "validationType": "url"
       },
       {
         "property": "track",
         "title": "Closed captions",
         "description": "The URL for the captions file.",
-        "inputMethod": "textfield",
-        "icon": "link",
-        "required": true,
+        "inputMethod": "haxupload",
+        "noCamera": true,
+        "noVoiceRecord": true,
         "validationType": "url"
       },
       {
         "property": "thumbnailSrc",
         "title": "Thumbnail image",
         "description": "Optional. The URL for a thumbnail/poster image.",
-        "inputMethod": "textfield",
-        "icon": "link",
-        "required": true,
+        "inputMethod": "haxupload",
+        "noVoiceRecord": true,
         "validationType": "url"
       },
       {
@@ -72,26 +75,33 @@
         "title": "Title",
         "description": "Simple title for under video",
         "inputMethod": "textfield",
-        "icon": "av:video-label",
-        "required": false,
         "validationType": "text"
       },
       {
         "property": "accentColor",
         "title": "Accent color",
         "description": "Select the accent color for the player.",
-        "inputMethod": "colorpicker",
-        "icon": "editor:format-color-fill"
+        "inputMethod": "colorpicker"
       },
       {
         "attribute": "dark",
         "title": "Dark theme",
         "description": "Enable dark theme for the player.",
-        "inputMethod": "boolean",
-        "icon": "invert-colors"
+        "inputMethod": "boolean"
       }
     ],
     "advanced": [
+      {
+        "property": "crossorigin",
+        "title": "Crossorigin",
+        "description": "Indicates whether to use CORS.",
+        "inputMethod": "select",
+        "options": {
+          "": "",
+          "anonymous": "anonymous",
+          "use-credentials": "use-credentials"
+        }
+      },
       {
         "property": "darkTranscript",
         "title": "Dark theme for transcript",
@@ -99,9 +109,41 @@
         "inputMethod": "boolean"
       },
       {
+        "property": "disableInteractive",
+        "title": "Disable Interactive",
+        "description": "Disable interactive mode that makes transcript clickable.",
+        "inputMethod": "boolean"
+      },
+      {
+        "property": "height",
+        "title": "Height",
+        "inputMethod": "textfield",
+        "required": false,
+        "validationType": "text"
+      },
+      {
         "property": "hideTimestamps",
         "title": "Hide timestamps",
         "description": "Hide the time stamps on the transcript.",
+        "inputMethod": "boolean"
+      },
+      {
+        "property": "hideTranscript",
+        "title": "Hide Transcript",
+        "description": "Hide transcript by default.",
+        "inputMethod": "boolean"
+      },
+      {
+        "property": "lang",
+        "title": "Language",
+        "description": "Language of the media.",
+        "inputMethod": "textfield",
+        "validationType": "text"
+      },
+      {
+        "property": "linkable",
+        "title": "Include a share link?",
+        "description": "Provides a link to share the video.",
         "inputMethod": "boolean"
       },
       {
@@ -137,8 +179,12 @@
           {
             "property": "src",
             "title": "Source",
-            "description": "The URL for this video.",
-            "inputMethod": "textfield"
+            "description": "The URL for this source.",
+            "inputMethod": "haxupload",
+            "required": true,
+            "noCamera": true,
+            "noVoiceRecord": true,
+            "validationType": "url"
           },
           {
             "property": "type",
@@ -172,12 +218,7 @@
             "description": "Kind of track",
             "inputMethod": "select",
             "options": {
-              "subtitles": "subtitles" /*,
-              Future Features
-              'description': 'description',
-              'thumbnails': 'thumbnails',
-              'interactive': 'interactive',
-              'annotation': 'annotation'*/
+              "subtitles": "subtitles"
             }
           },
           {
@@ -189,8 +230,12 @@
           {
             "property": "src",
             "title": "Source",
-            "description": "Source of the track",
-            "inputMethod": "textfield"
+            "description": "The source for the captions file.",
+            "inputMethod": "haxupload",
+            "required": false,
+            "noCamera": true,
+            "noVoiceRecord": true,
+            "validationType": "url"
           },
           {
             "property": "srclang",
@@ -199,7 +244,37 @@
             "inputMethod": "textfield"
           }
         ]
+      },
+      {
+        "property": "width",
+        "title": "width",
+        "inputMethod": "textfield",
+        "required": false,
+        "validationType": "text"
       }
     ]
-  }
+  },
+  "saveOptions": {
+    "unsetAttributes": ["__utils", "__stand-alone", "colors"]
+  },
+  "demoSchema": [
+    {
+      "tag": "video-player",
+      "properties": {
+        "style": "width: 100%; margin: 0px auto; display: block;",
+        "accentColor": "orange",
+        "dark": true,
+        "crossorigin": "anonymous",
+        "lang": "en",
+        "mediaTitle": "Why do I need to go anywhere?",
+        "preload": "metadata",
+        "source": "https://www.youtube.com/watch?v=LrS7dqokTLE",
+        "stickyCorner": "top-right",
+        "track": "https://haxtheweb.org/files/HAXshort.vtt",
+        "youtubeId": "LrS7dqokTLE?undefined",
+        "sourceType": "youtube"
+      },
+      "content": "    <track src=\"https://haxtheweb.org/files/HAXshort.vtt\" kind=\"subtitles\" label=\"English\" slot=\"track\">\n\n"
+    }
+  ]
 }

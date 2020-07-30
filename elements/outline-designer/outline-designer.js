@@ -15,19 +15,20 @@ import "@polymer/paper-card/paper-card.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 import "@polymer/iron-list/iron-list.js";
 import "@polymer/iron-swipeable-container/iron-swipeable-container.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
 import "@polymer/paper-progress/paper-progress.js";
 import "@polymer/app-layout/app-toolbar/app-toolbar.js";
 import "@polymer/app-layout/app-header/app-header.js";
 import "@lrnwebcomponents/item-overlay-ops/item-overlay-ops.js";
 import "@lrnwebcomponents/lrnsys-outline/lrnsys-outline.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 import "@lrnwebcomponents/simple-modal/simple-modal.js";
 import "@lrnwebcomponents/editable-list/editable-list.js";
 import "./lib/sortable-list.js";
 import { pagemap } from "./lib/pagemap.js";
 /**
  * `outline-designer`
+ * @element outline-designer
  * `tools to modify and visualize JSON Outline Schema for editing`
  *
  * @microcopy - language worth noting:
@@ -39,7 +40,7 @@ step down the hierarchy
 mode vs resolution (3 levels)
 
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
@@ -85,7 +86,10 @@ class OutlineDesigner extends PolymerElement {
           display: none;
         }
         .breadcrumb-arrow {
-          color: var(--breadcrumb-color1, rgb(67, 110, 144));
+          color: var(
+            --breadcrumb-color1,
+            var(--simple-colors-default-theme-light-blue-9, rgb(67, 110, 144))
+          );
           margin: -2px 6px 0 6px;
         }
         .breadcrumb {
@@ -94,7 +98,10 @@ class OutlineDesigner extends PolymerElement {
           background-color: transparent;
           line-height: 34px;
           font-size: 18px;
-          color: var(--breadcrumb-color1, rgb(67, 110, 144));
+          color: var(
+            --breadcrumb-color1,
+            var(--simple-colors-default-theme-light-blue-9, rgb(67, 110, 144))
+          );
           opacity: 0.8;
         }
 
@@ -109,7 +116,7 @@ class OutlineDesigner extends PolymerElement {
         }
 
         #sort .card-wrapper {
-          background: #dddddd;
+          background: var(--simple-colors-default-theme-grey-3, #ddd);
           display: inline-block;
           float: left;
           margin: 16px;
@@ -126,7 +133,7 @@ class OutlineDesigner extends PolymerElement {
 
         #addbutton {
           opacity: 0.6;
-          background-color: #dddddd;
+          background-color: var(--simple-colors-default-theme-grey-3, #ddd);
         }
         .add-button {
           width: 200px;
@@ -385,8 +392,14 @@ class OutlineDesigner extends PolymerElement {
         .node-low-detail .tf-nc {
           height: 32px;
           width: 32px;
-          background-color: dodgerblue;
-          border-color: dodgerblue;
+          background-color: var(
+            --simple-colors-default-theme-light-blue-7,
+            dodgerblue
+          );
+          border-color: var(
+            --simple-colors-default-theme-light-blue-7,
+            dodgerblue
+          );
           padding: 0;
           border-radius: 50%;
           overflow: hidden;
@@ -398,14 +411,21 @@ class OutlineDesigner extends PolymerElement {
 
         .node-low-detail .tf-nc:before,
         .node-low-detail .tf-nc:after {
-          border-left-color: dodgerblue;
+          border-left-color: var(
+            --simple-colors-default-theme-light-blue-7,
+            dodgerblue
+          );
           border-left-width: 2px;
         }
         .node-low-detail li li:before {
-          border-top-color: dodgerblue;
+          border-top-color: var(
+            --simple-colors-default-theme-light-blue-7,
+            dodgerblue
+          );
           border-top-width: 2px;
         }
       </style>
+      <style include="simple-colors-shared-styles-polymer"></style>
       <iron-ajax
         auto="[[outlineSchemaUrl]]"
         url="[[outlineSchemaUrl]]"
@@ -422,14 +442,16 @@ class OutlineDesigner extends PolymerElement {
             id="viewmode"
             icon="[[viewModeIcon]]"
           ></paper-icon-button>
-          <paper-tooltip for="viewmode">[[viewModeLabel]]</paper-tooltip>
+          <simple-tooltip for="viewmode">[[viewModeLabel]]</simple-tooltip>
           Detail: [[detailsModeLabel]]
           <paper-icon-button
             on-click="_toggleDetailsMode"
             id="detailsmode"
             icon="[[detailsModeIcon]]"
           ></paper-icon-button>
-          <paper-tooltip for="detailsmode">[[detailsModeLabel]]</paper-tooltip>
+          <simple-tooltip for="detailsmode"
+            >[[detailsModeLabel]]</simple-tooltip
+          >
           <div main-title class="flex layout breadcrumb_layout">
             <iron-icon
               class="breadcrumb-arrow"
@@ -456,13 +478,13 @@ class OutlineDesigner extends PolymerElement {
               icon="device:gps-fixed"
               title="Toggle outline mini map"
             ></paper-icon-button>
-            <paper-tooltip for="helpbutton">Toggle mini-map</paper-tooltip>
+            <simple-tooltip for="helpbutton">Toggle mini-map</simple-tooltip>
             <paper-icon-button
               id="helpbutton"
               icon="icons:help"
               title="help"
             ></paper-icon-button>
-            <paper-tooltip for="helpbutton">Help</paper-tooltip>
+            <simple-tooltip for="helpbutton">Help</simple-tooltip>
           </div>
           <paper-progress
             value="10"
@@ -541,8 +563,8 @@ class OutlineDesigner extends PolymerElement {
                     <div class="tf-label" id$="item-tip-[[item.id]]">
                       [[item.title]]
                     </div>
-                    <paper-tooltip for$="item-tip-[[item.id]]"
-                      >[[item.title]]</paper-tooltip
+                    <simple-tooltip for$="item-tip-[[item.id]]"
+                      >[[item.title]]</simple-tooltip
                     >
                     <iron-image
                       src="[[item.metadata.image]]"
@@ -596,12 +618,14 @@ class OutlineDesigner extends PolymerElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       /**
        * Which layout to the outline to display
        */
       viewMode: {
         name: "viewMode",
-        type: "String",
+        type: String,
         value: "cards",
         observer: "_viewModeChanged"
       },
@@ -610,21 +634,21 @@ class OutlineDesigner extends PolymerElement {
        */
       viewModeIcon: {
         name: "viewModeIcon",
-        type: "String"
+        type: String
       },
       /**
        * Label for the selected view mode
        */
       viewModeLabel: {
         name: "viewModeLabel",
-        type: "String"
+        type: String
       },
       /**
        * Which layout to the outline to display
        */
       detailsMode: {
         name: "detailsMode",
-        type: "String",
+        type: String,
         value: "mid",
         reflectToAttribute: true,
         observer: "_detailsModeChanged"
@@ -634,28 +658,28 @@ class OutlineDesigner extends PolymerElement {
        */
       detailsModeIcon: {
         name: "detailsModeIcon",
-        type: "String"
+        type: String
       },
       /**
        * Label for the selected view mode
        */
       detailsModeLabel: {
         name: "detailsModeLabel",
-        type: "String"
+        type: String
       },
       /**
        * Data binding to show the selected view
        */
       selectedView: {
         name: "selectedView",
-        type: "Number"
+        type: Number
       },
       /**
        * Whether or not we are in an editing state
        */
       editMode: {
         name: "editMode",
-        type: "Boolean",
+        type: Boolean,
         value: false,
         reflectToAttribute: true,
         observer: "_editModeChanged"
@@ -665,7 +689,7 @@ class OutlineDesigner extends PolymerElement {
        */
       miniMap: {
         name: "miniMap",
-        type: "Boolean",
+        type: Boolean,
         value: true,
         reflectToAttribute: true,
         observer: "_miniMapChanged"
@@ -675,7 +699,7 @@ class OutlineDesigner extends PolymerElement {
        */
       outlineSchemaUrl: {
         name: "outlineSchemaUrl",
-        type: "String",
+        type: String,
         value: false
       },
       /**
@@ -683,7 +707,7 @@ class OutlineDesigner extends PolymerElement {
        */
       manifest: {
         name: "manifest",
-        type: "Object",
+        type: Object,
         notify: true
       },
       /**
@@ -691,7 +715,7 @@ class OutlineDesigner extends PolymerElement {
        */
       outlineData: {
         name: "outlineData",
-        type: "Object",
+        type: Object,
         notify: true
       }
     };
@@ -708,15 +732,19 @@ class OutlineDesigner extends PolymerElement {
    */
   connectedCallback() {
     super.connectedCallback();
-    this.$.ironlist.addEventListener(
-      "item-overlay-op-changed",
-      this._overlayOpChanged.bind(this)
-    );
-    this.$.ironlist.addEventListener(
-      "item-overlay-option-selected",
-      this._overlayOpSelected.bind(this)
-    );
-    pagemap(this.$.minimaparea, {
+    this.shadowRoot
+      .querySelector("#ironlist")
+      .addEventListener(
+        "item-overlay-op-changed",
+        this._overlayOpChanged.bind(this)
+      );
+    this.shadowRoot
+      .querySelector("#ironlist")
+      .addEventListener(
+        "item-overlay-option-selected",
+        this._overlayOpSelected.bind(this)
+      );
+    pagemap(this.shadowRoot.querySelector("#minimaparea"), {
       viewport: null,
       styles: {
         "ul,ol,li": "rgba(0, 0, 0, 0.08)",
@@ -735,14 +763,18 @@ class OutlineDesigner extends PolymerElement {
    */
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.$.ironlist.removeEventListener(
-      "item-overlay-op-changed",
-      this._overlayOpChanged.bind(this)
-    );
-    this.$.ironlist.removeEventListener(
-      "item-overlay-option-selected",
-      this._overlayOpSelected.bind(this)
-    );
+    this.shadowRoot
+      .querySelector("#ironlist")
+      .removeEventListener(
+        "item-overlay-op-changed",
+        this._overlayOpChanged.bind(this)
+      );
+    this.shadowRoot
+      .querySelector("#ironlist")
+      .removeEventListener(
+        "item-overlay-option-selected",
+        this._overlayOpSelected.bind(this)
+      );
   }
   _toggleMiniMap(e) {
     this.miniMap = !this.miniMap;
@@ -751,11 +783,15 @@ class OutlineDesigner extends PolymerElement {
   _miniMapChanged(newValue, oldValue) {
     if (typeof newValue !== typeof undefined) {
       if (newValue) {
-        this.$.minimap.icon = "device:gps-fixed";
-        this.$.minimaparea.classList.add("show-minimap");
+        this.shadowRoot.querySelector("#minimap").icon = "device:gps-fixed";
+        this.shadowRoot
+          .querySelector("#minimaparea")
+          .classList.add("show-minimap");
       } else {
-        this.$.minimap.icon = "device:gps-off";
-        this.$.minimaparea.classList.remove("show-minimap");
+        this.shadowRoot.querySelector("#minimap").icon = "device:gps-off";
+        this.shadowRoot
+          .querySelector("#minimaparea")
+          .classList.remove("show-minimap");
       }
     }
   }
@@ -768,7 +804,7 @@ class OutlineDesigner extends PolymerElement {
         this.viewMode = "outline";
         break;
       case "outline":
-        this.outlineData = this.$.outline.getData();
+        this.outlineData = this.shadowRoot.querySelector("#outline").getData();
         this.viewMode = "tree";
         break;
       case "tree":
@@ -816,7 +852,7 @@ class OutlineDesigner extends PolymerElement {
       if (this.selectedView === 0) {
         async.microTask.run(() => {
           setTimeout(() => {
-            this.$.ironlist.dispatchEvent(
+            this.shadowRoot.querySelector("#ironlist").dispatchEvent(
               new CustomEvent("iron-resize", {
                 bubbles: true,
                 cancelable: true,
@@ -892,13 +928,13 @@ class OutlineDesigner extends PolymerElement {
     if (typeof newValue !== typeof undefined) {
       switch (newValue) {
         case "cards":
-          this.$.viewmode.classList.add("rotate-90");
+          this.shadowRoot.querySelector("#viewmode").classList.add("rotate-90");
           this.selectedView = 0;
           this.viewModeIcon = "icons:view-module";
           this.viewModeLabel = "Card view";
           async.microTask.run(() => {
             setTimeout(() => {
-              this.$.ironlist.dispatchEvent(
+              this.shadowRoot.querySelector("#ironlist").dispatchEvent(
                 new CustomEvent("iron-resize", {
                   bubbles: true,
                   cancelable: true,
@@ -911,19 +947,23 @@ class OutlineDesigner extends PolymerElement {
           });
           break;
         case "outline":
-          this.$.viewmode.classList.remove("rotate-90");
+          this.shadowRoot
+            .querySelector("#viewmode")
+            .classList.remove("rotate-90");
           this.selectedView = 1;
           this.viewModeIcon = "icons:view-list";
           this.viewModeLabel = "Outline view";
           break;
         case "tree":
-          this.$.viewmode.classList.add("rotate-90");
+          this.shadowRoot.querySelector("#viewmode").classList.add("rotate-90");
           this.selectedView = 2;
           this.viewModeIcon = "social:share";
           this.viewModeLabel = "Tree view";
           break;
         case "drag":
-          this.$.viewmode.classList.remove("rotate-90");
+          this.shadowRoot
+            .querySelector("#viewmode")
+            .classList.remove("rotate-90");
           this.selectedView = 3;
           this.viewModeIcon = "icons:touch-app";
           this.viewModeLabel = "Draggable cards";

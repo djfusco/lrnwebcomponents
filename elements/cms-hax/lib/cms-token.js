@@ -1,11 +1,10 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
+import { FlattenedNodesObserver } from "@polymer/polymer/lib/utils/flattened-nodes-observer.js";
 import { microTask } from "@polymer/polymer/lib/utils/async.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 import "@polymer/paper-spinner/paper-spinner.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import { wipeSlot } from "@lrnwebcomponents/hax-body/lib/haxutils.js";
+import { wipeSlot } from "@lrnwebcomponents/utils/utils.js";
 /**
 `cms-token`
 Render and process a shortcode / token from a content management system.
@@ -200,12 +199,17 @@ class CMSToken extends PolymerElement {
           .addEventListener("click", this.__tokenClicked.bind(this));
       }
       // wipe our own slot here
-      wipeSlot(dom(this));
+      wipeSlot(this);
       // now inject the content we got
       microTask.run(() => {
         let template = document.createElement("template");
         template.innerHTML = newValue.content;
-        dom(this).appendChild(document.importNode(template.content, true));
+        this.appendChild(document.importNode(template.content, true));
+        setTimeout(() => {
+          if (window.WCAutoload) {
+            window.WCAutoload.process();
+          }
+        }, 0);
         this.loading = false;
       });
     }
@@ -230,7 +234,7 @@ class CMSToken extends PolymerElement {
       if (this.tokenEndPoint) {
         this.loading = true;
         microTask.run(() => {
-          this.$.tokenrequest.generateRequest();
+          this.shadowRoot.querySelector("#tokenrequest").generateRequest();
         });
       }
     }
@@ -242,7 +246,7 @@ class CMSToken extends PolymerElement {
     // ensure we aren't already loading
     if (!this.loading && this._clickInvoked) {
       // generate request which will kick off "loading" state
-      this.$.tokenrequest.generateRequest();
+      this.shadowRoot.querySelector("#tokenrequest").generateRequest();
       // kill our clickInvoked handler so we aren't generating requests until the
       // user clicks to edit the thing again
       this._clickInvoked = false;
@@ -265,7 +269,7 @@ class CMSToken extends PolymerElement {
       this.token !== null &&
       this.token !== ""
     ) {
-      let slot = dom(this).getEffectiveChildNodes();
+      let slot = FlattenedNodesObserver.getFlattenedNodes(this);
       // only kick off request if there's nothing in it
       // if it has something in it that means we did some
       // remote rendering ahead of time
@@ -280,7 +284,7 @@ class CMSToken extends PolymerElement {
         if (this.tokenEndPoint) {
           this.loading = true;
           microTask.run(() => {
-            this.$.tokenrequest.generateRequest();
+            this.shadowRoot.querySelector("#tokenrequest").generateRequest();
           });
         }
       }
@@ -290,8 +294,6 @@ class CMSToken extends PolymerElement {
         "visibilitychange",
         this._windowVisibilityChanged.bind(this)
       );
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(CMSToken.haxProperties, CMSToken.tag, this);
     });
   }
   /**
@@ -322,7 +324,7 @@ class CMSToken extends PolymerElement {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {

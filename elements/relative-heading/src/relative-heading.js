@@ -2,20 +2,20 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { RelativeHeadingLite } from "./lib/relative-heading-lite.js";
+import "@lrnwebcomponents/anchor-behaviors/anchor-behaviors.js";
+
 /**
  * `relative-heading`
- * `outputs the correct heading hierarchy based on parent&#39;s heading`
+ * `outputs the correct heading hierarchy based on parent heading`
  *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @polymer
  * @demo demo/index.html
+ * @demo demo/nolinks.html Disable Links
+ * @demo demo/rightalign.html Right-Align Links
+ * @element relative-heading
  */
-class RelativeHeading extends PolymerElement {
+class RelativeHeading extends RelativeHeadingLite {
   /* REQUIRED FOR TOOLING DO NOT TOUCH */
 
   /**
@@ -25,54 +25,57 @@ class RelativeHeading extends PolymerElement {
   static get tag() {
     return "relative-heading";
   }
+
   /**
-   * life cycle, element is afixed to the DOM
+   * Makes sure there is a utility ready and listening for elements.
    */
+  constructor() {
+    super();
+    this.linkAlignRight = false;
+    this.disableLink = false;
+    this.linkIcon = "link";
+    this.linkLabel = "Get link";
+    import("@polymer/iron-icons/iron-icons.js");
+    import("@polymer/paper-icon-button/paper-icon-button.js");
+  }
+
   connectedCallback() {
     super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(
-      RelativeHeading.haxProperties,
-      RelativeHeading.tag,
-      this
-    );
+    if (!this.disableLink) this.manager.useCopyLink();
   }
+
   /**
-   * update this level when the parent id changes
+   * gets whether heading is currently anchored
+   * @readonly
+   * @returns {boolean}
    */
-  _getLevel(parentId, defaultLevel) {
-    let root = this,
-      parent = document.querySelector("#" + parentId),
-      parentLvl =
-        parent !== null && parent.level !== undefined
-          ? parent.level
-          : defaultLevel - 1,
-      level = parentLvl < 6 ? parentLvl + 1 : 6;
-    return level;
+  get anchored() {
+    return window.AnchorBehaviors && window.AnchorBehaviors.getTarget
+      ? window.AnchorBehaviors.getTarget(this)
+      : false;
   }
-  _updateChildren() {
-    document
-      .querySelectorAll('relative-heading[parent-id="' + this.id + '"]')
-      .forEach(child => {
-        child.parentId = null;
-        child.parentId = this.id;
-      });
+
+  get button() {
+    console.log(this.disableLink);
+    return this.disableLink
+      ? html``
+      : html`
+          <paper-icon-button
+            controls="relative-heading-toast"
+            .aria-describedby="${this.id}"
+            .icon="${this.linkIcon}"
+            .title="${this.linkLabel}"
+            ?hidden="${this.disableLink}"
+            ?disabled="${this.disableLink}"
+            @click="${this._handleCopyClick}"
+          >
+          </paper-icon-button>
+        `;
   }
-  /**
-   * determines if the level matches a specific level
-   *
-   * @param {number} the heading level
-   * @param {number} the level it might match
-   * @returns {boolean} whether or not they match
-   */
-  _isLevel(level, testLevel) {
-    return level === testLevel;
+  _handleCopyClick() {
+    if (!this.disableLink && this.manager && this.manager.copyLink)
+      this.manager.copyLink(this);
   }
-  /**
-   * life cycle, element is removed from the DOM
-   * /
-  disconnectedCallback() {
-  }*/
 }
 window.customElements.define(RelativeHeading.tag, RelativeHeading);
 export { RelativeHeading };

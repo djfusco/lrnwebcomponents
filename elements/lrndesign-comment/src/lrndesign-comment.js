@@ -3,6 +3,7 @@ import "@lrnwebcomponents/lrndesign-avatar/lrndesign-avatar.js";
 import "time-elements/dist/time-elements.js";
 /**
  * `lrndesign-comment`
+ * @element lrndesign-comment
  * A LRN element
  *
  * @demo demo/index.html

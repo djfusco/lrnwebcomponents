@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <title>GridPlate: grid-plate Demo</title>
-    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <script src="../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
-    <script src="../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
+    
+    <script src="../../../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
+    <script src="../../../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
     <script type="module">
       import '@polymer/iron-demo-helpers/demo-snippet.js';
       import '@lrnwebcomponents/video-player/video-player.js';
@@ -14,27 +14,11 @@
       import '../grid-plate.js';
     </script>
     <style is="custom-style" include="demo-pages-shared-styles"></style>
-    <script>
-      window.onload = function(){
-        let sel = document.getElementById('select'), 
-        grid = document.getElementById('grid'),
-        layouts = Object.keys(grid.layouts);
-        for (i = 0; i < layouts.length; i++) {
-          let option = document.createElement('OPTION');
-          option.setAttribute('value',layouts[i]);
-          option.innerHTML = grid.layouts[layouts[i]].columnLayout;
-          if (layouts[i] === grid.layout) option.setAttribute('selected',"selected");
-          sel.appendChild(option);
-        }
-        sel.onchange = function(){
-          grid.layout = sel.value;
-        };
-      };
-    </script>
   </head>
   <body>
     <div class="vertical-section-container">
       <h3>Basic grid-plate demo</h3>
+      <p draggable="true" data-draggable="true">Drag me some place</p>
       <demo-snippet>
         <p><label>Grid-Plate Layout: <select id="select" on-change="setLayout"></select></label></p>
         <template>
@@ -76,6 +60,23 @@
         </template>
       </demo-snippet>
     </div>
+    <script defer async>
+      setTimeout(() => {
+      let sel = document.getElementById('select'), 
+      grid = document.getElementById('grid'),
+      layouts = Object.keys(grid.layouts);
+      for (i = 0; i < layouts.length; i++) {
+        let option = document.createElement('OPTION');
+        option.setAttribute('value',layouts[i]);
+        option.innerHTML = grid.layouts[layouts[i]].columnLayout;
+        if (layouts[i] === grid.layout) option.setAttribute('selected',"selected");
+        sel.appendChild(option);
+      }
+      sel.onchange = function(){
+        grid.layout = sel.value;
+      };
+    }, 1000);
+    </script>
     <!--grid-plate areas="2">
       <video-player slot="area1" resource="#d158b908-dc44-6db2-8537" prefix="oer:http://oerschema.org/ schema:http://schema.org/ dc:http://purl.org/dc/terms/ foaf:http://xmlns.com/foaf/0.1/ cc:http://creativecommons.org/ns# bib:http://bib.schema.org "
         responsive="" style="width: 100%;" source="https://www.youtube.com/watch?v=pKLPQ4ufo64" src="https://www.youtube-nocookie.com/embed/pKLPQ4ufo64?showinfo=0&amp;controls=1&amp;rel=0"

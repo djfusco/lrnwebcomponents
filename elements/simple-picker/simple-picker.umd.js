@@ -1,2 +1,808 @@
-!function(e,n){"object"==typeof exports&&"undefined"!=typeof module?n(exports,require("@polymer/polymer/polymer-element.js"),require("@polymer/iron-icon/iron-icon.js"),require("@polymer/iron-icons/iron-icons.js"),require("@lrnwebcomponents/lrn-shared-styles/lrn-shared-styles.js")):"function"==typeof define&&define.amd?define(["exports","@polymer/polymer/polymer-element.js","@polymer/iron-icon/iron-icon.js","@polymer/iron-icons/iron-icons.js","@lrnwebcomponents/lrn-shared-styles/lrn-shared-styles.js"],n):n((e=e||self).SimplePicker={},e.polymerElement_js)}(this,function(e,n){"use strict";function t(e,n){if(!(e instanceof n))throw new TypeError("Cannot call a class as a function")}function i(e,n){for(var t=0;t<n.length;t++){var i=n[t];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}function o(e,n,t){return n&&i(e.prototype,n),t&&i(e,t),e}function l(e,n){if("function"!=typeof n&&null!==n)throw new TypeError("Super expression must either be null or a function");e.prototype=Object.create(n&&n.prototype,{constructor:{value:e,writable:!0,configurable:!0}}),n&&r(e,n)}function s(e){return(s=Object.setPrototypeOf?Object.getPrototypeOf:function(e){return e.__proto__||Object.getPrototypeOf(e)})(e)}function r(e,n){return(r=Object.setPrototypeOf||function(e,n){return e.__proto__=n,e})(e,n)}function a(e,n){return!n||"object"!=typeof n&&"function"!=typeof n?function(e){if(void 0===e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return e}(e):n}function p(e,n,t){return(p="undefined"!=typeof Reflect&&Reflect.get?Reflect.get:function(e,n,t){var i=function(e,n){for(;!Object.prototype.hasOwnProperty.call(e,n)&&null!==(e=s(e)););return e}(e,n);if(i){var o=Object.getOwnPropertyDescriptor(i,n);return o.get?o.get.call(t):o.value}})(e,n,t||e)}function c(e,n){return n||(n=e.slice(0)),Object.freeze(Object.defineProperties(e,{raw:{value:Object.freeze(n)}}))}function u(){var e=c(['\n      <style is="custom-style" include="lrn-shared-styles">\n        :host {\n          display: flex;\n          align-items: center;\n          justify-content: space-between;\n        }\n        :host .label {\n          padding: 2px 10px;\n          line-height: 100%;\n          @apply --simple-picker-option-label;\n        }\n      </style>\n      <iron-icon\n        aria-hidden="true"\n        hidden$="[[_hideIcon(icon)]]"\n        icon$="[[icon]]"\n      ></iron-icon>\n      <div id="title" class$="[[_getSrOnly(hideOptionLabels)]]">[[title]]</div>\n    ']);return u=function(){return e},e}var d=function(e){function i(){return t(this,i),a(this,s(i).apply(this,arguments))}return l(i,n.PolymerElement),o(i,[{key:"_hideIcon",value:function(e){return null===this.icon}},{key:"_handleFocus",value:function(){this.dispatchEvent(new CustomEvent("option-focus",{detail:this}))}},{key:"_handleHover",value:function(){this.dispatchEvent(new CustomEvent("option-focus",{detail:this}))}},{key:"_getSrOnly",value:function(e){return!1===e?"label":"label sr-only"}},{key:"_updateTitle",value:function(){var e=document.createElement("span");!1!==this.titleAsHtml&&(e.innerHTML=this.title,this.$.title.innerHTML="",this.$.title.appendChild(e))}},{key:"ready",value:function(){p(s(i.prototype),"ready",this).call(this);var e=this;this._updateTitle(),this.addEventListener("focus",function(n){e._handleFocus()}),this.addEventListener("mouseover",function(n){e._handleHover()})}},{key:"connectedCallback",value:function(){p(s(i.prototype),"connectedCallback",this).call(this)}}],[{key:"template",get:function(){return n.html(u())}},{key:"properties",get:function(){return{active:{name:"active",type:"Boolean",value:null,reflectToAttribute:!0},icon:{name:"icon",type:"String",value:null,reflectToAttribute:!1},hideOptionLabels:{name:"hideOptionLabels",type:"Boolean",value:!1,reflectToAttribute:!0},id:{name:"order",type:"String",value:null,reflectToAttribute:!0},selected:{name:"selected",type:"Boolean",value:!1,reflectToAttribute:!0},data:{name:"data",type:"Object",value:null},title:{name:"title",type:"String",value:null,reflectToAttribute:!0,observer:"_updateTitle"},titleAsHtml:{name:"titleAsHtml",type:"Boolean",value:!1,reflectToAttribute:!0},value:{name:"label",type:"String",value:null,reflectToAttribute:!0}}}},{key:"tag",get:function(){return"simple-picker-option"}}]),i}();function h(){var e=c(['\n<style>:host {\n  display: inline-flex;\n  align-items: center;\n  position: relative;\n  --simple-picker-color: black;\n  font-size: var(--paper-input-container-label_-_font-size, var(--paper-font-subhead_-_font-size, inherit));\n  max-height: calc(var(--simple-picker-option-size, 24px) + 4px);\n  @apply --simple-picker;\n}\n\n:host([disabled]) {\n  cursor: not-allowed;\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n:host label {\n  padding-right: 5px;\n  color: var(--paper-input-container-label_-_color, var(--paper-input-container-color, var(--secondary-text-color, #000)));\n  @apply --simple-picker-label;\n}\n\n:host, \n:host #sample, \n:host .rows {\n  margin: 0;\n  padding: 0;\n}\n\n:host #listbox {\n  display: flex;\n  flex: 1 0 auto;\n  max-height: calc(var(--simple-picker-option-size, 24px) + 4px);\n}\n\n:host #sample {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 2px;\n  border-radius: 2px;\n  background-color: var(--simple-picker-background-color,#ddd);\n  border: 1px solid var(--simple-picker-sample-border-color, var(--simple-picker-border-color, var(--simple-picker-color)));\n} \n\n:host #icon {\n  transform: var(--simple-picker-icon-tranform, rotate(0deg));\n  transition: transform 0.25s;\n}\n\n:host([expanded]) #icon {\n  transform: var(--simple-picker-expanded-icon-tranform, rotate(0deg));\n  transition: transform 0.25s;\n}\n\n:host #collapse {\n  display: none;\n  width: 100%;\n  position: absolute;\n  top: calc(var(--simple-picker-option-size, 24px) + 4px);\n  padding: 0 1px;\n  @apply --simple-picker-collapse;\n}\n\n:host([expanded]:not([disabled])) #collapse {\n  display: block;\n} \n\n:host .rows {\n  display: block;\n  position: absolute;\n  z-index: 1000;\n  outline: 1px solid var(--simple-picker-border-color, var(--simple-picker-color));\n  background-color: var(--simple-picker-background-color,#ddd);\n  box-shadow: 0px 0px 1px #888;\n  @apply --simple-picker-rows;\n}\n\n:host .row {\n  display: flex; \n  align-items: stretch;\n  justify-content: space-between;\n  @apply --simple-picker-row;\n}\n\n:host simple-picker-option {\n  z-index: 1;\n  flex: 1 1 auto;\n  max-height: unset;\n  min-height: var(--simple-picker-option-size, 24px);\n  min-width: var(--simple-picker-option-size, 24px);\n  line-height: var(--simple-picker-option-size, 24px);\n  color: var(--simple-picker-color);\n  background-color: var(--simple-picker-option-background-color, white);\n  outline: var(--simple-picker-option-outline, none);\n  transition: max-height 2s;\n  @apply --simple-picker-option;\n}\n\n:host(:not([value])) #sample simple-picker-option,\n:host([value="null"]) #sample simple-picker-option {\n  @apply --simple-picker-sample-null;\n  --simple-picker-option-label: {\n    @apply --simple-picker-sample-null-label;\n  };\n}\n\n:host #sample simple-picker-option {\n  @apply --simple-picker-sample-option;\n}\n\n:host simple-picker-option[selected] {\n  z-index: 50;\n  color: var(--simple-picker-color);\n  background-color: var(--simple-picker-selected-option-background-color, #e8e8e8);\n  outline: var(--simple-picker-selected-option-outline, none);\n}\n\n:host simple-picker-option[active] {\n  z-index: 100;\n  cursor: pointer;\n  color: var(--simple-picker-color);\n  background-color: var(--simple-picker-active-option-background-color, #aaddff);\n  outline: var(--simple-picker-active-option-outline, none);\n}\n\n:host #sample simple-picker-option {\n  color: var(--simple-picker-sample-color,  var(--simple-picker-color));\n  background-color: var(--simple-picker-sample-background-color, transparent);\n  border: none;\n}\n\n:host(:not([expanded])) #collapse simple-picker-option {\n  max-height: 0;\n  transition: max-height 1.5s;\n}\n\n:host #collapse simple-picker-option:not([value]),\n:host #collapse simple-picker-option[value=null] {\n  @apply --simple-picker-option-null;\n}\n\n@media screen and (max-width: 600px) {\n  :host {\n    position: static;\n  }\n  :host #collapse {\n    top: 0;\n    margin-top: 0;\n    position: relative;\n  } \n  :host .rows {\n    position: sticky;\n  }  \n}\n</style>\n<label for="listbox" hidden$="[[!hasLabel]]">[[label]]</label>\n<div id="listbox"\n  aria-activedescendant$="[[__activeDesc]]" \n  aria-labelledby$="[[ariaLabelledby]]" \n  disabled$="[[disabled]]"\n  role="listbox" \n  tabindex="0">\n  <div id="sample">\n    <simple-picker-option \n      aria-hidden="true" \n      hide-option-labels$="[[hideOptionLabels]]"\n      icon$="[[__selectedOption.icon]]"\n      style$="[[__selectedOption.style]]" \n      title$="[[__selectedOption.alt]]"\n      title-as-html$="[[titleAsHtml]]">\n    </simple-picker-option>\n    <span id="icon"><iron-icon aria-hidden="true" icon="arrow-drop-down"></iron-icon></span>\n  </div>\n  <div id="collapse">\n    <div class="rows">\n      <template is="dom-repeat" items="[[__options]]" as="row" index-as="rownum">\n        <div class="row">\n          <template is="dom-repeat" items=[[row]] as="option" index-as="colnum">\n            <simple-picker-option \n              active$="[[_isActive(__activeDesc,rownum,colnum)]]"\n              aria-selected$="[[_isSelected(value,option.value)]]"\n              data$="[[data]]"\n              hide-option-labels$="[[hideOptionLabels]]"\n              icon$="[[option.icon]]"\n              id$="[[_getOptionId(rownum,colnum)]]"\n              role="option"\n              selected$="[[_isSelected(value,option.value)]]"\n              on-option-focus="_handleOptionFocus"\n              on-set-selected-option="_handleSetSelectedOption"\n              style$="[[option.style]]" \n              tabindex="-1"\n              title="[[option.alt]]"\n              title-as-html$="[[titleAsHtml]]"\n              value="[[option.value]]">\n            </simple-picker-option>\n          </template>\n        </div>\n      </template>\n    </div>\n  </div>\n</div>']);return h=function(){return e},e}window.customElements.define(d.tag,d);var v=function(e){function i(){return t(this,i),a(this,s(i).apply(this,arguments))}return l(i,n.PolymerElement),o(i,[{key:"_getOption",value:function(e,n){if(void 0!==e&&null!=n){var t=n.split("-");return e[t[1]][t[2]]}return null}},{key:"_getOptionId",value:function(e,n){return"option-"+e+"-"+n}},{key:"_goToOption",value:function(e,n){var t=this._getOptionId(e,n),i=this.shadowRoot.querySelector("#"+t),o=this.shadowRoot.querySelector("#"+this.__activeDesc);null!==i&&(i.tabindex=0,i.focus(),o.tabindex=-1)}},{key:"_handleListboxEvent",value:function(e,n){this.dispatchEvent(new CustomEvent(n,{detail:this})),"click"===n&&this._toggleListbox(!this.expanded)}},{key:"_handleListboxKeydown",value:function(e){this.dispatchEvent(new CustomEvent("keydown",{detail:this}));var n=this.__activeDesc.split("-"),t=parseInt(n[1]),i=parseInt(n[2]);if(32===e.keyCode)e.preventDefault(),this._toggleListbox(!this.expanded);else if(this.expanded&&[9,35,36,38,40].includes(e.keyCode))if(e.preventDefault(),35===e.keyCode){var o=this.options.length-1,l=this.options[o].length-1;this._goToOption(o,l)}else 36===e.keyCode?this._goToOption(0,0):38===e.keyCode?i>0?this._goToOption(t,i-1):t>0&&this._goToOption(t-1,this.options[t-1].length-1):40===e.keyCode&&(i<this.options[t].length-1?this._goToOption(t,i+1):t<this.options.length-1&&this._goToOption(t+1,[0]))}},{key:"_handleOptionFocus",value:function(e){this._setActiveOption(e.detail.id)}},{key:"_hasLabel",value:function(e){return null!=e&&""!==e.trim()}},{key:"_isActive",value:function(e,n,t){return e===this._getOptionId(n,t)}},{key:"_isSelected",value:function(e,n){return e===n}},{key:"_setActiveOption",value:function(e){this.__activeDesc=e,this.dispatchEvent(new CustomEvent("option-focus",{detail:this}))}},{key:"_setSelectedOption",value:function(){var e=null;if(void 0!==this.options&&null!==this.options){this.set("__options","string"==typeof this.options?JSON.parse(this.options):this.options.slice()),this.__activeDesc="option-0-0";for(var n=0;n<this.__options.length;n++)for(var t=0;t<this.__options[n].length;t++)this.__options[n][t].value===this.value&&(this.__activeDesc="option-"+n+"-"+t,e=this.__options[n][t])}null===e&&(this.value=null),this.__selectedOption=e,this.dispatchEvent(new CustomEvent("change",{bubbles:!0,detail:this}))}},{key:"_toggleListbox",value:function(e){var n=this.shadowRoot.querySelector("#"+this.__activeDesc);this.expanded=e,e?(null!==n&&n.focus(),this.dispatchEvent(new CustomEvent("expand",{detail:this}))):(null!==n&&(this.value=n.getAttribute("value")),this.dispatchEvent(new CustomEvent("collapse",{detail:this})))}},{key:"ready",value:function(){p(s(i.prototype),"ready",this).call(this);var e=this;void 0!==this.$.listbox&&(this.$.listbox.addEventListener("click",function(n){e._handleListboxEvent(n,"click")}),this.$.listbox.addEventListener("mousedown",function(n){e._handleListboxEvent(n,"mousedown")}),this.$.listbox.addEventListener("keydown",function(n){e._handleListboxKeydown(n)}),this.addEventListener("blur",function(e){this.expanded=!1}))}},{key:"setOptions",value:function(e){this.set("options",[[]]),this.set("options",e)}},{key:"connectedCallback",value:function(){p(s(i.prototype),"connectedCallback",this).call(this)}}],[{key:"template",get:function(){return n.html(h())}},{key:"properties",get:function(){return{ariaLabelledby:{name:"ariaLabelledby",type:"String",value:null},disabled:{name:"disabled",type:"Boolean",value:!1},expanded:{name:"expanded",type:"Boolean",value:!1,reflectToAttribute:!0},titleAsHtml:{name:"titleAsHtml",type:"Boolean",value:!1},hideOptionLabels:{name:"hideOptionLabels",type:"Boolean",value:!1},hasLabel:{name:"label",type:"Boolean",computed:"_hasLabel(label)"},label:{name:"label",type:"String",value:null},options:{name:"options",type:"Array",value:[[]],notify:!0,observer:"_setSelectedOption"},value:{name:"value",type:"Object",value:null,notify:!0,observer:"_setSelectedOption",reflectToAttribute:!0},__activeDesc:{name:"__activeDesc",type:"String",value:"option-0-0"},__selectedOption:{name:"_setSelectedOption",type:"Object"}}}},{key:"tag",get:function(){return"simple-picker"}}]),i}();window.customElements.define(v.tag,v),e.SimplePicker=v,Object.defineProperty(e,"__esModule",{value:!0})});
-//# sourceMappingURL=simple-picker.umd.js.map
+/**
+ * Copyright 2018 The Pennsylvania State University
+ * @license Apache-2.0, see License.md for full text.
+ */
+import { LitElement, html, css } from "lit-element/lit-element.js";
+/**
+ * `simple-picker`
+ * @customElement simple-picker
+ * a simple picker for options, icons, etc.
+ *
+### Styling
+
+`<simple-picker>` provides the following custom properties and mixins
+for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--simple-picker-font-family` | Main font-family. | inherit
+`--simple-picker-font-size` | Main font-size. | inherit
+`--simple-picker-color` | Main text color. | black
+`--simple-picker-color-active` | Color of sample text when button is focused within or hovered. | --simple-picker-color
+`--simple-picker-color-disabled` | Disabled text color. | #888
+`--simple-picker-background-color` | Background color for button. | #f0f0f0
+`--simple-picker-background-color-disabled` | Background color for button when picker is disabled. | #e8e8e8
+`--simple-picker-border-radius` | Main border-radius. | 2px
+`--simple-picker-border-width` | Default border width. | 1px
+`--simple-picker-border-style` | Default border style. | solid
+`--simple-picker-border-color` | Default border color. | --simple-picker-color-disabled
+`--simple-picker-focus-border-width` | Border width when focused within or hovered. | --simple-picker-border-width
+`--simple-picker-focus-border-style` | Border style when focused within or hovered. | --simple-picker-border-style
+`--simple-picker-focus-border-color` | Border color when focused within or hovered. | --simple-picker-border-color
+`--simple-picker-label-color` | Label text color. | --simple-picker-color
+`--simple-picker-float-label-color` | Floating label text color. | --simple-picker-color-disabled
+`--simple-picker-float-label-active-color` | Floating label text color when picker is focused or hovered. | --simple-picker-color-disabled
+`--simple-picker-icon-transform` | Rotation of arrow icon by default. | rotate(0deg)
+`--simple-picker-expanded-icon-transform` | Rotation of arrow icon when picker is expanded. | rotate(0deg)
+`--simple-picker-sample-color` | Sample option text color. | --simple-picker-color
+`--simple-picker-sample-padding` | Sample option padding. | 2px
+`--simple-picker-sample-background-color` | Sample option background-color. | transparent
+`--simple-picker-option-size` | Height of option. | 24px
+`--simple-picker-option-selected-background-color` | Outline for currently sselected option. | --simple-picker-options-background-color
+`--simple-picker-option-active-background-color` | Outline for currently active option. | #aaddff
+`--simple-picker-option-padding` | padding within each simple picker option | 2px 10px
+`--simple-picker-option-label-padding` | adding within each simple picker option's label | --simple-picker-option-padding
+`--simple-picker-options-max-height` | Maximum amount of space listbox can use before scrolling. Use `unset` for now vertical scroll. | 250px
+`--simple-picker-options-border-width` | Border width of listbox. | --simple-picker-border-width
+`--simple-picker-options-border-style` | Border style of listbox. | --simple-picker-border-style
+`--simple-picker-options-border-color` | Border color of listbox. | --simple-picker-border-color
+`--simple-picker-options-background-color` | Background color for listbox. | #fff
+`--simple-picker-height` | Calculation based on option size, padding, and border. DO NOT EDIT. | --simple-picker-option-size - --simple-picker-sample-padding * 2 - --simple-picker-border-width * 2
+*
+
+ * @demo ./demo/index.html
+ */
+class SimplePicker extends LitElement {
+  
+  //styles function
+  static get styles() {
+    return  [
+      
+      css`
+:host {
+  display: inline-flex;
+  align-items: center;
+  color: var(--simple-picker-color, black);
+  font-family: var(--simple-picker-font-family, inherit);
+  font-size: var(--simple-picker-font-size, inherit);
+  --simple-picker-height: calc(var(--simple-picker-option-size, 24px) + var(--simple-picker-sample-padding, 2px) * 2 + var(--simple-picker-border-width, 1px) * 2);
+  min-height: var(--simple-picker-height);
+  max-height: var(--simple-picker-height);
+}
+
+:host([block-label]) {
+  display: block;
+  margin: 0 0 15px;
+  max-height: unset;
+}
+
+:host([disabled]) {
+  --simple-picker-color: var(--simple-picker-color-disabled, #888);
+  --simple-picker-background-color: var(--simple-picker-background-color-disabled, #e8e8e8);
+  cursor: not-allowed;
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+div {
+  margin: unset;
+  padding: unset;
+}
+
+label:not([hidden]) {
+  display: flex;
+  align-items: center;
+  padding-right: 5px;
+  font-family: var(--simple-picker-font-family, inherit);
+  color: var(--simple-picker-label-color, var(--simple-picker-color, black));
+}
+
+:host([block-label]) label:not([hidden]) {
+  display: block;
+  padding-right: 0px;
+  color: var(--simple-picker-float-label-color, var(--simple-picker-color-disabled, #888));
+  transition: all 0.5s;
+  max-height: unset;
+}
+
+:host([block-label]:focus-within) label,
+:host([block-label]:hover) label {
+  color: var(--simple-picker-float-label-active-color, var(--simple-picker-color, black));
+  transition: all 0.5s;
+}
+
+#sample, 
+.rows {
+  margin: 0;
+  padding: 0;
+}
+
+#listbox {
+  cursor: pointer;
+  position: relative;
+  flex: 1 0 auto;
+  min-height: var(--simple-picker-height);
+  max-height: var(--simple-picker-height);
+}
+
+#sample {
+  display: flex;
+  flex: 1 0 auto;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--simple-picker-sample-padding, 2px);
+  border-radius: var(--simple-picker-border-radius, 2px);
+  color: var(--simple-picker-sample-color, black);
+  background-color: var(--simple-picker-background-color, #f0f0f0);
+  border-width: var(--simple-picker-border-width, 1px);
+  border-style: var(--simple-picker-border-style, solid);
+  border-color: var(--simple-picker-border-color, var(--simple-picker-color-disabled, #888));  
+}
+
+:host([hide-sample]) #sample {
+  width: var(--simple-picker-option-size);
+  overflow: visible;
+}
+
+:host(:focus-within) #sample {
+  border-width: var(--simple-picker-focus-border-width, var(--simple-picker-border-width, 1px));
+  border-style: var(--simple-picker-focus-border-style, var(--simple-picker-border-style, solid));
+  border-color: var(--simple-picker-focus-border-color, var(--simple-picker-border-color, var(--simple-picker-color-disabled, #888)));
+  transition: all 0.5s;
+}
+
+#icon {
+  transform: var(--simple-picker-icon-transform, rotate(0deg));
+  transition: transform 0.25s;
+}
+
+:host([expanded]) #icon {
+  transform: var(--simple-picker-expanded-icon-transform, rotate(0deg));
+  transition: transform 0.25s;
+}
+
+#collapse {
+  display: none;
+  width: 100%;
+  position: absolute;  
+  padding: var(--simple-picker-options-border-width, var(--simple-picker-border-width, 1px));
+  z-index: 2;
+}
+
+:host([expanded]:not([disabled])) #collapse {
+  display: block;
+} 
+
+.rows {
+  display: block;
+  position: absolute;
+  z-index: 1000;  
+  left: calc(var(--simple-picker-options-border-width, var(--simple-picker-border-width, 1px)));  
+  top: calc(0px - var(--simple-picker-options-border-width, var(--simple-picker-border-width, 1px)));
+  border-width: var(--simple-picker-options-border-width, var(--simple-picker-border-width, 1px));
+  border-style: var(--simple-picker-options-border-style, var(--simple-picker-border-style, solid));
+  border-color: var(--simple-picker-options-border-color, var(--simple-picker-border-color, var(--simple-picker-color-disabled, #888)));
+  background-color: var(--simple-picker-options-background-color, #fff);
+  max-height: var(--simple-picker-options-max-height, 250px);
+  overflow-y: auto; 
+}
+:host([align-right]) #collapse .rows {
+  left: unset;
+  right: calc(var(--simple-picker-options-border-width, var(--simple-picker-border-width, 1px)) *2);
+}
+
+.row {
+  display: flex; 
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+simple-picker-option {
+  z-index: 1;
+  flex: 1 1 auto;
+  justify-content: flex-start;
+  max-height: unset;
+  min-height: var(--simple-picker-option-size, 24px);
+  min-width: var(--simple-picker-option-size, 24px);
+  line-height: var(--simple-picker-option-size, 24px);
+  color: var(--simple-picker-color, black);
+  background-color: var(--simple-picker-options-background-color, #fff);
+  transition: max-height 2s;
+}
+
+simple-picker-option[selected] {
+  z-index: 50;
+  color: var(--simple-picker-color, black);
+  background-color: var(--simple-picker-option-selected-background-color, var(--simple-picker-options-background-color, #fff));
+}
+
+simple-picker-option[active] {
+  z-index: 100;
+  cursor: pointer;
+  color: var(--simple-picker-color, black);
+  background-color: var(--simple-picker-option-active-background-color, #aaddff);
+}
+
+#sample simple-picker-option {
+  color: var(--simple-picker-color, black);
+  background-color: var(--simple-picker-sample-background-color, transparent);
+  --simple-picker-option-padding: var(--simple-picker-sample-padding, 2px) 0;
+  border: none;
+}
+
+:host([hide-sample]) #sample simple-picker-option {
+  position: absolute;
+  left: -9999px;
+  overflow: hidden;
+  width: 0;
+  height: 0;
+}
+
+:host(:focus-within) #sample simple-picker-option,
+:host(:hover) #sample simple-picker-option {
+  --simple-picker-color: var(--simple-picker-color-active, var(--simple-picker-color, black));
+}
+
+:host(:not([expanded])) #collapse simple-picker-option {
+  max-height: 0;
+  transition: max-height 1.5s;
+}
+
+@media screen and (max-width: 600px) {
+  :host {
+    position: static;
+  }
+  #collapse {
+    top: 0;
+    margin-top: 0;
+    position: relative;
+  } 
+  .rows {
+    position: absolute;
+  }  
+}
+      `
+    ];
+  }
+
+// render function
+  render() {
+    return html`
+
+<label id="listLabel" for="listbox" .hidden="${!this.label || this.label.trim() === ''}">
+  ${this.label && this.label.trim() !== "" ? this.label.trim()  : "" }
+</label>
+<div id="listbox"
+  .aria-activedescendant="${this.__activeDesc}" 
+  .aria-labelledby="${this.ariaLabelledby}" 
+  .disabled="${this.disabled}"
+  role="listbox" 
+  tabindex="0"
+  @click="${this._handleListboxClick}"
+  @mousedown="${this._handleListboxMousedown}"
+  @keydown="${this._handleListboxKeydown}">
+  <div id="sample">
+    <simple-picker-option 
+      ?hide-option-labels="${this.hideOptionLabels}"
+      ?title-as-html="${this.titleAsHtml}"
+      .icon="${this.__selectedOption ? this.__selectedOption.icon : false}"
+      .label="${this.__selectedOption ? this.__selectedOption.alt : false}"
+      .style=${this.__selectedOption ? this.__selectedOption.style : false}
+      aria-hidden="true">
+    </simple-picker-option>
+    <span id="icon"><iron-icon aria-hidden="true" icon="arrow-drop-down"></iron-icon></span>
+  </div>
+  <div id="collapse">
+    <div class="rows">
+        ${this.__options ? this.__options.map((row,rownum) => html`
+          <div class="row">
+            ${row ? row.map((option,colnum) => html`
+              <simple-picker-option
+                @option-focus="${this._handleOptionFocus}"
+                @set-selected-option="${this._handleSetSelectedOption}"
+                ?active="${`${this.__activeDesc}` === `option-${rownum}-${colnum}`}"
+                ?hide-option-labels="${this.hideOptionLabels}"
+                ?hidden="${!this.allowNull && !option.value}"
+                ?selected="${this.value === option.value}"
+                ?title-as-html="${this.titleAsHtml}" 
+                .data="${this.data}"
+                .icon="${option.icon}"
+                .id="option-${rownum}-${colnum}"
+                .label="${option.alt}"
+                .style=${option.style}
+                aria-selected="${this.value === option.value ? 'true' : 'false'}"
+                role="option"
+                tabindex="-1"
+                value="${option.value}">
+              </simple-picker-option>
+            `) : ``}
+          </div>
+        `) : ``}
+    </div>
+  </div>
+</div>`;
+  }
+
+  // properties available to the custom element for data binding
+  static get properties() {
+    return {
+  
+  ...super.properties,
+  
+  /**
+   * llow a null value?
+   * Default behavior/false will select first option and set value accordingly.
+   */
+  "allowNull": {
+    "type": Boolean,
+    "reflect": true,
+    "attribute": "allow-null"
+  },
+
+  /**
+   * Align right edges of listbox and button?
+   * Default behavior/false aligns to left edges.
+   */
+  "alignRight": {
+    "type": Boolean,
+    "reflect": true,
+    "attribute": "align-right"
+  },
+
+  /**
+   * Optional. Sets aria-labelledby attribute
+   */
+  "ariaLabelledby": {
+    "type": String,
+    "attribute": "aria-labelledby"
+  },
+
+  /**
+   * Position label above select dropdown?
+   */
+  "blockLabel": {
+    "type": Boolean,
+    "reflect": true,
+    "attribute": "block-label"
+  },
+
+  /**
+   * Is picker disabled?
+   */
+  "disabled": {
+    "type": Boolean,
+    "reflect": true
+  },
+
+  /**
+   * Is it expanded?
+   */
+  "expanded": {
+    "type": Boolean,
+    "reflect": true,
+    "attribute": "expanded"
+  },
+
+  /**
+   * Hide option labels? As color-picker or icon-picker, labels may be redundant.
+   * This option would move labels off-screen so that only screen-readers will have them.
+   */
+  "hideOptionLabels": {
+    "type": Boolean,
+    "reflect": true,
+    "attribute": "hide-option-labels"
+  },
+
+  /**
+   * Hide selected item sample?
+   * Default behavior/false shows a sample without expanding menu.
+   */
+  "hideSample": {
+    "type": Boolean,
+    "reflect": true,
+    "attribute": "hide-sample"
+  },
+
+  /**
+   * Optional. Label for picker input
+   */
+  "label": {
+    "type": String
+  },
+
+  /**
+   * An array of options for picker, eg.: 
+[
+  [
+    {
+      "icon": "editor:format-paint",      //Optional. Used if picker is used as an icon picker.
+      "alt": "Blue",                      //Required for accessibility. Alt text description of choice.
+      "style": "background-color: blue;", //Optional. Used to set an option's style.
+      ...                                 //Optional. Any other properties that should be captured as part of selected option's value
+    },...
+  ]
+]
+   */
+  "options": {
+    "type": Array
+  },
+
+  /**
+   * Renders html as title. (Good for titles with HTML in them.)
+   */
+  "titleAsHtml": {
+    "type": Boolean,
+    "attribute": "title-as-html"
+  },
+
+  /**
+   * An string that stores current value for picker
+   */
+  "value": {
+    "type": String,
+    "reflect": true
+  },
+
+  /**
+   * Aria-activedescendant attribute (active option's ID)
+   */
+  "__activeDesc": {
+    "type": String
+  },
+
+  /**
+   * An array of options for picker, eg.: `
+[
+  [
+    {
+      "icon": "editor:format-paint",      //Optional. Used if picker is used as an icon picker.
+      "alt": "Blue",                      //Required for accessibility. Alt text description of choice.
+      "style": "background-color: blue;", //Optional. Used to set an option's style.
+      ...                                 //Optional. Any other properties that should be captured as part of selected option's value
+    },...
+  ]
+]`
+   */
+  "__options": {
+    "type": Array
+  },
+
+  /**
+   * Selected option based on value of picker
+   */
+  "__selectedOption": {
+    "type": Object
+  }
+}
+;
+  }
+
+  /**
+   * Store the tag name to make it easier to obtain directly.
+   * @notice function name must be here for tooling to operate correctly
+   */
+  static get tag() {
+    return "simple-picker";
+  }
+
+  // life cycle
+  constructor() {
+    super();
+    import("@polymer/iron-icon/iron-icon.js");
+    import("@polymer/iron-icons/iron-icons.js");
+    import("./lib/simple-picker-option.js");
+    this.tag = SimplePicker.tag;
+    this.allowNull = false;
+    this.alignRight = false;
+    this.ariaLabelledby = null;
+    this.blockLabel = false;
+    this.disabled = false;
+    this.expanded = false;
+    this.hideOptionLabels = false;
+    this.hideSample = false;
+    this.label = null;
+    this.__options = [[]];
+    this.options = [
+      [
+        {
+          icon: null,
+          style: null,
+          alt: null,
+          value: null
+        }
+      ]
+    ];
+    this.titleAsHtml = false;
+    this.value = null;
+    this.__activeDesc = "option-0-0";
+    this.__hasLabel = true;
+    this.__selectedOption = {};
+    this.addEventListener("blur", function(e) {
+      this.expanded = false;
+    });
+    // map our imported properties json to real props on the element
+    // @notice static getter of properties is built via tooling
+    // to edit modify src/test-lit-properties.json
+    let obj = SimplePicker.properties;
+    for (let p in obj) {
+      if (obj.hasOwnProperty(p)) {
+        if (this.hasAttribute(p)) {
+          this[p] = this.getAttribute(p);
+        } else {
+          if (p.reflect) this.setAttribute(p, obj[p].value);
+          this[p] = obj[p].value;
+        }
+      }
+    }
+  }
+
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName === "value") this._valueChanged(this.value, oldValue);
+      if (propName === "options") this._optionsChanged(this.value, oldValue);
+    });
+    /**
+     * Fires when properties change
+     * @event changed
+     */
+    this.dispatchEvent(
+      new CustomEvent("changed", {
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * returns value of selected option.
+   *
+   * @param {array} options array of options
+   * @param {string} optionId selected option's id
+   * @returns {object} selected option
+   */
+  _getOption(options, optionId) {
+    if (options !== undefined && optionId !== undefined && optionId !== null) {
+      let coords = optionId.split("-");
+      return options[coords[1]][coords[2]];
+    }
+    return null;
+  }
+
+  /**
+   * sets a new active descendant and sets focus on it
+   *
+   * @param {number} rownum row number to be tested
+   * @param {number} colnum column number to be tested
+   * @returns {void}
+   */
+  _goToOption(rownum, colnum) {
+    let targetId = html`
+        option-${rownum}-${colnum}
+      `,
+      target = this.shadowRoot.querySelector("#" + targetId),
+      active = this.shadowRoot.querySelector("#" + this.__activeDesc);
+    if (target !== null) {
+      target.tabindex = 0; //allow item to be focusable.
+      target.focus();
+      active.tabindex = -1; //prevent tabbing between options.
+    }
+  }
+
+  /**
+   * handles listbox click event
+   * @param {event} e event
+   * @returns {void}
+   */
+  _handleListboxClick(e) {
+    /**
+     * handles listbox click event
+     * @event click
+     */
+    this.dispatchEvent(new CustomEvent("click", { detail: this }));
+    this._toggleListbox();
+  }
+
+  /**
+   * handles listbox mousedown event
+   * @param {event} e event
+   * @returns {void}
+   */
+  _handleListboxMousedown(e) {
+    /**
+     * fires with listbox mousedown event
+     * @event mousedown
+     */
+    this.dispatchEvent(new CustomEvent("mousedown", { detail: this }));
+  }
+
+  /**
+   * handles listbox keyboard events
+   * @param {event} e event
+   * @returns {void}
+   */
+  _handleListboxKeydown(e) {
+    /**
+     * fires with listbox keyboard events
+     * @event keydown
+     */
+    this.dispatchEvent(new CustomEvent("keydown", { detail: this }));
+    let coords = this.__activeDesc.split("-"),
+      rownum = parseInt(coords[1]),
+      colnum = parseInt(coords[2]);
+    if (e.keyCode === 32) {
+      //spacebar
+      e.preventDefault();
+      this._toggleListbox();
+    } else if (this.expanded && [9, 35, 36, 38, 40].includes(e.keyCode)) {
+      e.preventDefault();
+      if (e.keyCode === 35) {
+        //end
+        let lastrow = this.options.length - 1,
+          lastcol = this.options[lastrow].length - 1;
+        this._goToOption(lastrow, lastcol); //move to last option
+      } else if (e.keyCode === 36) {
+        //home
+        this._goToOption(0, 0); //move to first option
+      } else if (e.keyCode === 38) {
+        //previous (up arrow)
+        if (colnum > 0) {
+          this._goToOption(rownum, colnum - 1); //move up to previous column
+        } else if (rownum > 0) {
+          this._goToOption(rownum - 1, this.options[rownum - 1].length - 1); //move up to end of previous row
+        }
+      } else if (e.keyCode === 40) {
+        //next (down arrow)
+        if (colnum < this.options[rownum].length - 1) {
+          //move down to next column
+          this._goToOption(rownum, colnum + 1);
+        } else if (rownum < this.options.length - 1) {
+          //move down to beginning of next row
+          this._goToOption(rownum + 1, [0]);
+        }
+      }
+    }
+  }
+
+  /**
+   * handles option focus event and sets active descendant
+   * @param {event} e event
+   * @returns {void}
+   */
+  _handleOptionFocus(e) {
+    this._setActiveOption(e.detail.id);
+  }
+
+  /**
+   * sets  active descendant to a given option's id
+   * @param {string} id option id
+   * @returns {void}
+   */
+  _setActiveOption(id) {
+    this.__activeDesc = id;
+    /**
+     * fires when active descendant changes
+     * @event option-focus
+     */
+    this.dispatchEvent(new CustomEvent("option-focus", { detail: this }));
+  }
+
+  /**
+   * handles change in value
+   *
+   * @param {object} newValue new value for picker
+   * @param {object} oldValue old value for picker
+   * @returns {void}
+   */
+  _valueChanged(newValue, oldValue) {
+    this._setSelectedOption(newValue, oldValue);
+    /**
+     * fires when value changes
+     * @event value-changed
+     */
+    this.dispatchEvent(
+      new CustomEvent("value-changed", {
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * handles change in options
+   * @param {object} newValue new options for picker
+   * @param {object} oldValue old options for picker
+   * @returns {void}
+   */
+  _optionsChanged(newValue, oldValue) {
+    this._setSelectedOption(newValue, oldValue);
+  }
+
+  /**
+   * sets selected option to a given option's id
+   * @returns {void}
+   */
+  _setSelectedOption(newVal, oldVal) {
+    let sel =
+      !this.allowNull && this.options.length > 0 && this.options[0].length > 0
+        ? this.options[0][0].value
+        : null;
+    if (this.options) {
+      this.__options =
+        typeof this.options === "string"
+          ? JSON.parse(this.options)
+          : this.options.slice();
+      //if nulls are allowed, set active descendant to first not null option
+      this.__activeDesc = this.allowNull ? "option-0-0" : null;
+      for (var i = 0; i < this.__options.length; i++) {
+        for (var j = 0; j < this.__options[i].length; j++) {
+          //if unset, set active descendant to first not null option
+          if (this.value !== null && this.__activeDesc === null)
+            this.__activeDesc = `option-${i}-${j}`;
+          if (`${this.__options[i][j].value}` === `${this.value}`) {
+            //set active descendant to option that matches value
+            this.__activeDesc = `option-${i}-${j}`;
+            sel = this.__options[i][j];
+          }
+        }
+      }
+    }
+    if (sel === null) this.value = null;
+    this.__selectedOption = sel;
+
+    /**
+     * fires when options or value changes
+     * @event change
+     */
+    this.dispatchEvent(
+      new CustomEvent("change", { bubbles: true, detail: this })
+    );
+  }
+
+  /**
+   * toggles listbox
+   *
+   * @param {boolean} open whether to open
+   * @returns {void}
+   */
+  _toggleListbox(open = !this.expanded) {
+    if (this.disabled) return;
+    let active = this.shadowRoot.querySelector("#" + this.__activeDesc);
+    this.expanded = open;
+    if (open) {
+      if (active !== null) active.focus();
+      /**
+       * fires when listbox is expanded
+       * @event expand
+       */
+      this.dispatchEvent(new CustomEvent("expand", { detail: this }));
+    } else {
+      if (active !== null) this.value = active.getAttribute("value");
+      /**
+       * fires when listbox is collapsed
+       * @event collapse
+       */
+      this.dispatchEvent(new CustomEvent("collapse", { detail: this }));
+    }
+  }
+  /**
+   * sets options for picker
+   *
+   * @param {array} options nested array of options
+   * @returns {void}
+   */
+  setOptions(options) {
+    this.set("options", [[]]);
+    this.set("options", options);
+  }
+  /**
+   * life cycle, element is removed from DOM
+   */
+  disconnectedCallback() {
+    this.removeEventListener("blur", function(e) {
+      this.expanded = false;
+    });
+    super.disconnectedCallback();
+  }
+}
+window.customElements.define(SimplePicker.tag, SimplePicker);
+export { SimplePicker };

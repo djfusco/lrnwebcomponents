@@ -1,6 +1,7 @@
 /**
  * Material design: [Icons](https://material.io/guidelines/style/icons.html)
- * `mdi-movie-iconset-svg` is a iconset for the Material Design Icons collection with the "movie" tag
+ * `mdi-movie-iconset-svg`
+ * @element mdi-movie-iconset-svg is a iconset for the Material Design Icons collection with the "movie" tag
  *
  * Example:
  *   <iron-icon icon="mdi-movie:filmstrip"></iron-icon>

@@ -1,5 +1,3 @@
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
-
 export const MtzFileDownloadBehaviors = function(SuperClass) {
   return class extends SuperClass {
     static get properties() {
@@ -13,7 +11,8 @@ export const MtzFileDownloadBehaviors = function(SuperClass) {
                   CSV: "text/csv",
                   JSON: "text/json",
                   PDF: "application/pdf",
-                  TXT: "text/plain"
+                  TXT: "text/plain",
+                  HTML: "text/html"
                 };
               }
             }
@@ -29,7 +28,8 @@ export const MtzFileDownloadBehaviors = function(SuperClass) {
                 CSV: "text/csv",
                 JSON: "text/json",
                 PDF: "application/pdf",
-                TXT: "text/plain"
+                TXT: "text/plain",
+                HTML: "text/html"
               };
             }
           }
@@ -61,9 +61,9 @@ export const MtzFileDownloadBehaviors = function(SuperClass) {
         link.href = (window.URL || window.webkitURL).createObjectURL(blob);
         link.download = filename;
         link.target = newTab ? "_blank" : "_self";
-        dom(this.root).appendChild(link);
+        this.appendChild(link);
         link.click();
-        dom(this.root).removeChild(link);
+        this.removeChild(link);
       }
     }
 

@@ -2,32 +2,25 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { html, css, LitElement } from "lit-element/lit-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 /**
  * `lrndesign-abbreviation`
  * `A wrapper to make a cleaner abbreviation deign element`
  *
  * @demo demo/index.html
+ * @element lrndesign-abbreviation
  */
-class LrndesignAbbreviation extends SchemaBehaviors(PolymerElement) {
+class LrndesignAbbreviation extends SchemaBehaviors(LitElement) {
   constructor() {
     super();
-    import("@polymer/paper-tooltip/paper-tooltip.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        LrndesignAbbreviation.haxProperties,
-        LrndesignAbbreviation.tag,
-        this
-      );
-    });
+    setTimeout(() => {
+      import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
+    }, 0);
   }
-  static get template() {
-    return html`
-      <style>
+  static get styles() {
+    return [
+      css`
         :host {
           display: inline-block;
         }
@@ -40,25 +33,35 @@ class LrndesignAbbreviation extends SchemaBehaviors(PolymerElement) {
           text-decoration: underline double;
           cursor: help;
           outline: var(--abbreviation-selection, #ffff33);
-          @apply --abbreviation-main;
         }
         abbr:focus,
         abbr:active,
         abbr:hover {
           text-decoration: none;
           background-color: var(--abbreviation-selection, #ffff33);
-          @apply --abbreviation-hover;
         }
         abbr::-moz-selection,
         abbr::selection {
           text-decoration: none;
           background-color: var(--abbreviation-selection, #ffff33);
-          @apply --abbreviation-selection;
         }
-      </style>
-      <abbr tabindex="0" title$="[[phrase]]" id="abbr">[[abbr]]</abbr>
-      <paper-tooltip for="abbr" position="top" offset="2" animation-delay="300"
-        >[[phrase]]</paper-tooltip
+        simple-tooltip {
+          --simple-tooltip-background: #000000;
+          --simple-tooltip-opacity: 1;
+          --simple-tooltip-text-color: #ffffff;
+          --simple-tooltip-delay-in: 0;
+        }
+      `
+    ];
+  }
+  /**
+   * Render callback
+   */
+  render() {
+    return html`
+      <abbr tabindex="0" title="${this.phrase}" id="abbr">${this.abbr}</abbr>
+      <simple-tooltip for="abbr" position="top" offset="2" animation-delay="300"
+        >${this.phrase}</simple-tooltip
       >
     `;
   }
@@ -67,28 +70,22 @@ class LrndesignAbbreviation extends SchemaBehaviors(PolymerElement) {
     return "lrndesign-abbreviation";
   }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Abbreviation text.
        */
       abbr: {
-        type: String,
-        reflectToAttribute: true,
-        notify: true
+        type: String
       },
       /**
        * The thing the abbreviation represents.
        */
       phrase: {
-        type: String,
-        reflectToAttribute: true,
-        notify: true
+        type: String
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   /**
    * Attached to the DOM, now fire.
@@ -111,7 +108,7 @@ class LrndesignAbbreviation extends SchemaBehaviors(PolymerElement) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {

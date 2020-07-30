@@ -1,20 +1,24 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import "@polymer/iron-icons/iron-icons.js";
 import "@polymer/iron-icon/iron-icon.js";
 import "@polymer/paper-button/paper-button.js";
-class MapMenuItem extends PolymerElement {
-  static get template() {
-    return html`
-      <style>
+class MapMenuItem extends LitElement {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
-          transition: 0.2s all ease-in-out;
-          transition-delay: 0.2s;
-          --map-menu-item-height: 16px;
+          transition: 0.1s all ease-in-out;
+          font-size: var(--map-menu-item-font-size);
+          --map-menu-item-height: 24px;
+          --map-menu-item-a-color: inherit;
         }
         :host([active]) {
           background: var(--map-menu-active-color);
-          @apply --map-menu-item-active-item;
+          color: var(--map-menu-item-active-item-color, #000000);
         }
         paper-button {
           width: 100%;
@@ -24,19 +28,31 @@ class MapMenuItem extends PolymerElement {
         iron-icon {
           display: inline-block;
           --iron-icon-height: var(--map-menu-item-height);
+          --iron-icon-width: var(--map-menu-item-height);
         }
         .title {
           text-transform: none;
         }
-        a,
-        a:hover,
         a:visited,
+        a {
+          display: block;
+          color: var(--map-menu-item-a-color);
+          text-decoration: var(--map-menu-item-a-text-decoration, none);
+        }
+        a:hover,
+        a:active,
         a:focus {
-          color: inherit;
+          color: var(
+            --map-menu-item-a-active-color,
+            var(--map-menu-item-a-color)
+          );
+          text-decoration: var(
+            --map-menu-item-a-text-decoration-hover,
+            underline
+          );
         }
         #track {
-          transition: 0.2s all ease-in-out;
-          transition-delay: 0.5s;
+          transition: 0.1s all ease-in-out;
           position: absolute;
           right: 0;
 
@@ -53,16 +69,30 @@ class MapMenuItem extends PolymerElement {
           visibility: visible;
           opacity: 1;
         }
-      </style>
-      <a tabindex="-1" href$="[[url]]">
+        #wrapper {
+          font-size: var(--map-menu-font-size);
+        }
+      `
+    ];
+  }
+  /**
+   * LitElement life cycle - render callback
+   */
+  render() {
+    return html`
+      <a tabindex="-1" href="${this.url}">
         <paper-button id="wrapper" role="link" noink>
-          <iron-icon hidden$="[[__hasIcon(icon)]]" icon="[[icon]]"></iron-icon>
-          <span class="title">[[title]]</span>
-          <iron-icon
-            id="track"
-            hidden$="[[__hasIcon(trackIcon)]]"
-            icon="[[trackIcon]]"
-          ></iron-icon>
+          ${this.icon
+            ? html`
+                <iron-icon icon="${this.icon}"></iron-icon>
+              `
+            : ``}
+          <span class="title">${this.title}</span>
+          ${this.trackIcon
+            ? html`
+                <iron-icon id="track" icon="${this.trackIcon}"></iron-icon>
+              `
+            : ``}
         </paper-button>
       </a>
     `;
@@ -70,51 +100,67 @@ class MapMenuItem extends PolymerElement {
   static get tag() {
     return "map-menu-item";
   }
-
+  constructor() {
+    super();
+    this.icon = "";
+    this.trackIcon = "";
+    this.title = "";
+    this.url = "";
+    this.active = false;
+  }
+  /**
+   * LitElement life cycle - properties definition
+   */
   static get properties() {
     return {
       icon: {
-        type: String,
-        value: ""
+        type: String
       },
       trackIcon: {
-        stype: String,
-        value: "",
-        observer: "_trackIconChanged"
+        type: String,
+        attribute: "track-icon"
       },
       title: {
-        type: String,
-        value: ""
+        type: String
       },
       url: {
-        type: String,
-        value: ""
+        type: String
       },
       icon: {
         type: String
       },
       id: {
         type: String,
-        reflectToAttribute: true
+        reflect: true
       },
       active: {
-        type: Boolean,
-        value: false
+        type: Boolean
       },
       selected: {
         type: String
       }
     };
   }
-
-  static get observers() {
-    return ["__selectedChanged(selected, id)"];
+  /**
+   * LitElement life cycle - properties changed callback
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "trackIcon") {
+        this._trackIconChanged(this[propName], oldValue);
+      }
+      if (["id", "selected"].includes(propName)) {
+        this.__selectedChanged(this.selected, this.id);
+      }
+    });
   }
   _trackIconChanged(newValue, oldValue) {
-    if (newValue) {
-      this.$.track.classList.add("show-icon");
-    } else {
-      this.$.track.classList.remove("show-icon");
+    if (this.shadowRoot.querySelector("#track")) {
+      if (newValue) {
+        this.shadowRoot.querySelector("#track").classList.add("show-icon");
+      } else {
+        this.shadowRoot.querySelector("#track").classList.remove("show-icon");
+      }
     }
   }
   __selectedChanged(selected, id) {
@@ -139,22 +185,6 @@ class MapMenuItem extends PolymerElement {
         detail: { id: this.id }
       })
     );
-  }
-
-  connectedCallback() {
-    super.connectedCallback();
-    this.dispatchEvent(
-      new CustomEvent("child-attached", {
-        bubbles: true,
-        cancelable: true,
-        composed: true,
-        detail: { id: this.id }
-      })
-    );
-  }
-
-  __hasIcon(icon) {
-    return icon || icon === "" ? true : false;
   }
 }
 window.customElements.define(MapMenuItem.tag, MapMenuItem);

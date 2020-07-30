@@ -1,5 +1,4 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
 import "@polymer/iron-flex-layout/iron-flex-layout-classes.js";
 import "@polymer/iron-icons/image-icons.js";
 import "@polymer/iron-icons/iron-icons.js";
@@ -8,7 +7,6 @@ import "@polymer/iron-pages/iron-pages.js";
 import "@polymer/app-layout/app-toolbar/app-toolbar.js";
 import "@polymer/paper-menu-button/paper-menu-button.js";
 import "@polymer/paper-icon-button/paper-icon-button.js";
-import "@polymer/paper-ripple/paper-ripple.js";
 import { AppLocalizeBehavior } from "@polymer/app-localize-behavior/app-localize-behavior.js";
 import { mixinBehaviors } from "@polymer/polymer/lib/legacy/class.js";
 import "./eco-json-schema-object.js";
@@ -624,7 +622,7 @@ class EcoJsonSchemaWizard extends mixinBehaviors(
           .toLowerCase() + "-changed",
         "_schemaPropertyChanged"
       );
-      dom(ctx.$.form).appendChild(el);
+      ctx.shadowRoot.querySelector("#form").appendChild(el);
     });
   }
   _removePropertyEl(el) {
@@ -638,10 +636,10 @@ class EcoJsonSchemaWizard extends mixinBehaviors(
       );
     }
     el.schemaProperty = null;
-    dom(this.$.form).removeChild(el);
+    this.shadowRoot.querySelector("#form").removeChild(el);
   }
   _clearForm() {
-    var formEl = dom(this.$.form);
+    var formEl = this.shadowRoot.querySelector("#form");
     while (formEl.firstChild) {
       this._removePropertyEl(formEl.firstChild);
     }
@@ -707,7 +705,7 @@ class EcoJsonSchemaWizard extends mixinBehaviors(
   }
   _errorChanged() {
     var ctx = this;
-    dom(this.$.form).childNodes.forEach(function(el) {
+    this.shadowRoot.querySelector("#form").childNodes.forEach(function(el) {
       var name = el.getAttribute("name");
       if (ctx.error && ctx.error[name]) {
         el.error = ctx.error[name];

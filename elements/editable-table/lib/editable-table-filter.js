@@ -1,43 +1,44 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
+/**
+ * Copyright 2018 The Pennsylvania State University
+ * @license Apache-2.0, see License.md for full text.
+ */
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import "@polymer/paper-button/paper-button.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
 import "@polymer/iron-icons/iron-icons.js";
 import "./editable-table-iconset.js";
+
 /**
-`editable-table-filter`
-Displays a cell in the editable-table-display mode 
-(editable-table-display.html) as a filter button.
-
-* @demo demo/index.html
-
-@microcopy - the mental model for this element
-
-<editable-table-filter 
-  column-number="1"       //The index of the cell's column
-  text="">                //The text of the cell, which will become the filter value when button is toggled.
-</editable-table-filter>
-
-*/
-class EditableTableFilter extends PolymerElement {
-  static get template() {
-    return html`
-      <style is="custom-style">
-        :host paper-button {
-          padding: 0;
+ * `editable-table-editor-filter`
+ * `Displays a cell in the editable-table-display mode (editable-table-display.html) as a filter button.`
+ *
+ * @demo ./demo/display.html
+ * @polymer
+ * @element editable-table-editor-filter
+ */
+class EditableTableFilter extends LitElement {
+  static get styles() {
+    return [
+      css`
+        paper-button {
+          padding: var(--editable-table-cell-padding, 0);
           margin: 0;
-          width: 100%;
+          width: auto;
           min-width: unset;
-          display: inline-flex;
+          display: flex;
           justify-content: space-between;
           align-items: center;
           align-content: stretch;
           text-transform: unset;
+          font-family: var(--editable-table-font-family);
         }
-        :host paper-button > div {
+        paper-button > div {
           flex-grow: 1;
         }
-        :host .sr-only {
+        iron-icon {
+          min-width: 24px;
+        }
+        .sr-only {
           position: absolute;
           left: -9999px;
           font-size: 0;
@@ -45,7 +46,7 @@ class EditableTableFilter extends PolymerElement {
           width: 0;
           overflow: hidden;
         }
-        :host #filter-off {
+        #filter-off {
           opacity: 0.25;
         }
         :host(:not([filtered])) .filtered,
@@ -57,69 +58,75 @@ class EditableTableFilter extends PolymerElement {
         :host([filtered]:hover) #filter {
           display: none;
         }
-      </style>
-      <paper-button id="button" class="container">
-        <span>[[text]]</span>
-        <span class="sr-only" hidden\$="[[!filtered]]"> (filtered)</span>
+      `
+    ];
+  }
+  render() {
+    return html`
+      <paper-button
+        id="button"
+        class="container"
+        @click="${this._onFilterClicked}"
+      >
+        <span>${this.text}</span>
+        <span class="sr-only" .hidden="${!this.filtered}"> (filtered)</span>
         <span class="sr-only"> Toggle filter.</span>
         <iron-icon id="filter" icon="editable-table:filter"></iron-icon>
         <iron-icon id="filter-off" icon="editable-table:filter-off"></iron-icon>
       </paper-button>
-      <paper-tooltip for="button">Toggle filter for "[[text]]"</paper-tooltip>
+      <simple-tooltip for="button"
+        >Toggle Column ${this.columnIndex} filter for
+        "${this.text}"</simple-tooltip
+      >
     `;
   }
 
   static get tag() {
     return "editable-table-filter";
   }
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      this.addEventListener("click", this._onFilterTapped.bind(this));
-    });
-  }
-  disconnectedCallback() {
-    this.removeEventListener("click", this._onFilterTapped.bind(this));
-    super.disconnectedCallback();
+  constructor() {
+    super();
+    this.columnIndex = null;
+    this.filtered = false;
+    this.text = "";
   }
   static get properties() {
     return {
       /**
-       * the column for the filter
+       * Index of the column
        */
-      columnNumber: {
+      columnIndex: {
         type: Number,
-        value: null
+        attribute: "column-index"
       },
       /**
-       * is the data filtered
+       * Whether the column is filtered
        */
       filtered: {
         type: Boolean,
-        value: false,
-        reflectToAttribute: true
+        reflect: true
       },
       /**
-       * the column header text
+       * Column header text
        */
       text: {
-        type: String,
-        value: ""
+        type: String
       }
     };
   }
 
   /**
-   * listen for button tap
+   * Listens for button click
    */
   _getPressed(filtered) {
     return filtered ? "true" : "false";
   }
 
   /**
-   * listen for button tap
+   * Fires when filter button is clicked
+   * @event toggle-filter
    */
-  _onFilterTapped() {
+  _onFilterClicked() {
     this.dispatchEvent(
       new CustomEvent("toggle-filter", {
         bubbles: true,

@@ -1,7 +1,8 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 /**
  * `simple-concept-network-node`
+ * @element simple-concept-network-node
  * A small but effective little data visualizer for topics surrounding
  * a central concept, much like the ELMS:LN snowflake icon.
  * @demo demo/index.html
@@ -12,13 +13,13 @@ class SimpleConceptNetworkNode extends PolymerElement {
   constructor() {
     super();
     import("@polymer/paper-button/paper-button.js");
-    import("@polymer/paper-tooltip/paper-tooltip.js");
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
     import("@polymer/iron-icons/iron-icons.js");
     import("@lrnwebcomponents/lrn-icons/lrn-icons.js");
   }
   static get template() {
     return html`
-      <style>
+      <style include="simple-colors-shared-styles-polymer">
         :host {
           display: inline-flex;
           --simple-concept-network-color: var(
@@ -157,9 +158,9 @@ class SimpleConceptNetworkNode extends PolymerElement {
           </div>
         </paper-button>
       </a>
-      <paper-tooltip for="button" position="bottom" offset="45">
+      <simple-tooltip for="button" position="bottom" offset="45">
         [[label]]
-      </paper-tooltip>
+      </simple-tooltip>
     `;
   }
   static get properties() {

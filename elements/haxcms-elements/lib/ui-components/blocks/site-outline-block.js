@@ -4,7 +4,7 @@
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
-import { autorun, toJS } from "mobx";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
 import "@lrnwebcomponents/haxcms-elements/lib/ui-components/query/site-query.js";
 import "@polymer/polymer/lib/elements/dom-repeat.js";
 
@@ -12,14 +12,13 @@ import "@polymer/polymer/lib/elements/dom-repeat.js";
  * `site-outline-block`
  * `Menu on top of the site typically a bar of options`
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
 class SiteOutlineBlock extends PolymerElement {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "site-outline-block";
@@ -123,7 +122,7 @@ class SiteOutlineBlock extends PolymerElement {
                 class="link"
                 tabindex="-1"
                 title$="Go to [[item.title]]"
-                href$="[[item.location]]"
+                href$="[[item.slug]]"
                 ><paper-button noink="[[noink]]"
                   ><span class="link-index">[[humanIndex(index)]]</span
                   ><span class="link-title">[[item.title]]</span></paper-button
@@ -214,7 +213,7 @@ class SiteOutlineBlock extends PolymerElement {
     // as long as didn't disable the indicator, do this processing
     if (this.indicator != "none") {
       if (newValue) {
-        this.$.indicator.classList.add("activated");
+        this.shadowRoot.querySelector("#indicator").classList.add("activated");
         let el = null;
         //ensure that this level is included
         if (this.shadowRoot.querySelector('[data-id="' + newValue + '"]')) {
@@ -243,19 +242,24 @@ class SiteOutlineBlock extends PolymerElement {
           el.classList.add("active");
           this._prevEl = el;
           if (this.indicator == "arrow") {
-            this.$.indicator.style.left =
+            this.shadowRoot.querySelector("#indicator").style.left =
               el.offsetLeft + el.offsetWidth / 2 - this.arrowSize + "px";
-            this.$.indicator.style.top =
+            this.shadowRoot.querySelector("#indicator").style.top =
               el.offsetTop + el.offsetHeight - this.arrowSize + "px";
           } else {
-            this.$.indicator.style.left = el.offsetLeft + "px";
-            this.$.indicator.style.top = el.offsetTop + el.offsetHeight + "px";
-            this.$.indicator.style.width = el.offsetWidth + "px";
+            this.shadowRoot.querySelector("#indicator").style.left =
+              el.offsetLeft + "px";
+            this.shadowRoot.querySelector("#indicator").style.top =
+              el.offsetTop + el.offsetHeight + "px";
+            this.shadowRoot.querySelector("#indicator").style.width =
+              el.offsetWidth + "px";
           }
         }
       } else {
         // shouldn't be possible but might as well list
-        this.$.indicator.classList.remove("activated");
+        this.shadowRoot
+          .querySelector("#indicator")
+          .classList.remove("activated");
       }
     }
   }

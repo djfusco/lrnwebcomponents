@@ -1,83 +1,86 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 import { OERSchema } from "@lrnwebcomponents/oer-schema/lib/oerschema.js";
 /**
  * `oer-schema`
  * `A LRN element to wrap an oer schema prefix onto materials.`
  * @demo demo/index.html
+ * @element oer-schema
  */
-class OerSchemaElement extends SchemaBehaviors(PolymerElement) {
-  constructor() {
-    super();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        OerSchemaElement.haxProperties,
-        OerSchemaElement.tag,
-        this
-      );
-    });
-  }
-  static get template() {
-    return html`
-      <style>
+class OerSchemaElement extends SchemaBehaviors(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: inline-block;
         }
-      </style>
-      <span property\$="oer:[[oerProperty]]"> <slot></slot> [[text]] </span>
+      `
+    ];
+  }
+  render() {
+    return html`
+      <span property="oer:${this.oerProperty}">
+        <slot></slot> ${this.text}
+      </span>
     `;
   }
   static get tag() {
     return "oer-schema";
   }
+  constructor() {
+    super();
+    this.text = "";
+    this.oerProperty = "name";
+    this.typeof = "Resource";
+  }
+  updated(changedProperties) {
+    if (super.updated) {
+      super.updated(changedProperties);
+    }
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "relatedResource") {
+        this._OERLink = this._generateforComponentLink(this.relatedResource);
+      }
+    });
+  }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
       /**
        * Text to wire into the middle of the element.
        * This is easier to manage then slotted data though
        * this supports both methods.
        */
       text: {
-        type: String,
-        value: ""
+        type: String
       },
       /**
        * Property value for this oer resource
        */
       oerProperty: {
         type: String,
-        value: "name"
+        attribute: "oer-property"
       },
       /**
        * Property value for this oer resource
        */
       typeof: {
-        type: String,
-        value: "Resource"
+        type: String
       },
       /**
        * Related Resource ID
        */
       relatedResource: {
-        type: String
-      },
-      /**
-       * License link object for semantic meaning
-       */
-      _OERLink: {
-        type: Object,
-        computed: "_generateforComponentLink(relatedResource)"
+        type: String,
+        attribute: "related-resource"
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   static get haxProperties() {
+    import("@lrnwebcomponents/hax-iconset/hax-iconset.js");
     let oerSchema = new OERSchema();
     return {
       canScale: false,
@@ -86,7 +89,7 @@ class OerSchemaElement extends SchemaBehaviors(PolymerElement) {
       gizmo: {
         title: "Schema",
         description: "Schematized element area",
-        icon: "icons:code",
+        icon: "hax:oerschema",
         color: "blue",
         groups: ["Instructional"],
         handles: [
@@ -96,32 +99,31 @@ class OerSchemaElement extends SchemaBehaviors(PolymerElement) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN",
+          inlineOnly: true
         }
       },
       settings: {
         quick: [
           {
-            property: "text",
+            slot: "",
             title: "Text",
-            description: "The text to schematize",
             inputMethod: "textfield",
             icon: "editor:title"
           }
         ],
         configure: [
           {
-            property: "text",
+            slot: "",
             title: "Text",
-            description: "The text to schematize",
             inputMethod: "textfield",
             icon: "editor:title"
           },
           {
             property: "typeof",
             title: "Schema typeof",
-            description: "Schema typeof",
             inputMethod: "select",
+            allowNull: true,
             options: oerSchema.types
           },
           {
@@ -129,6 +131,7 @@ class OerSchemaElement extends SchemaBehaviors(PolymerElement) {
             title: "Schema property",
             description: "The OER Schema property this represents",
             inputMethod: "select",
+            allowNull: true,
             options: {
               name: "name",
               additionalType: "additionalType",
@@ -155,15 +158,17 @@ class OerSchemaElement extends SchemaBehaviors(PolymerElement) {
     };
   }
   _generateforComponentLink(source) {
-    // remove existing if this is moving around
-    if (this._OERLink) {
-      document.head.removeChild(this._OERLink);
+    if (document && document.head) {
+      // remove existing if this is moving around
+      if (this._OERLink) {
+        document.head.removeChild(this._OERLink);
+      }
+      let link = document.createElement("link");
+      link.setAttribute("property", "oer:forComponent");
+      link.setAttribute("content", this.relatedResource);
+      document.head.appendChild(link);
+      return link;
     }
-    let link = document.createElement("link");
-    link.setAttribute("property", "oer:forComponent");
-    link.setAttribute("content", this.relatedResource);
-    document.head.appendChild(link);
-    return link;
   }
 }
 window.customElements.define(OerSchemaElement.tag, OerSchemaElement);

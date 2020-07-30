@@ -12,16 +12,46 @@ ELMS:LN produced web components for any project
 ### Install
 
 ```bash
-$ git clone git@github.com/elmsln/lrnwebcomponents.git
+$ git clone https://github.com/elmsln/lrnwebcomponents.git
 $ cd lrnwebcomponents
+$ yarn global add @wcfactory/cli
+$ yarn global add polymer-cli
+$ yarn global add lerna
+$ yarn global add web-component-analyzer
 $ yarn install
-$ yarn start
 ```
 
+## Windows
+
+[Cygwin command line](https://www.cygwin.com/) is lightly tested, but slower than true Bash environment.
+
+### Windows Install
+
+To properly configure git endlines for Windows, run this configuration
+```bash
+$ git config --global core.autocrlf true
+```
+
+```bash
+$ git clone https://github.com/elmsln/lrnwebcomponents.git
+$ cd lrnwebcomponents
+$ yarn global add symlink-dir
+$ yarn global add @wcfactory/cli
+$ yarn global add polymer-cli
+$ yarn global add lerna
+$ yarn global add web-component-analyzer
+$ yarn install
+```
+
+
+## To work on any element in our repo
+```bash
+$ cd elements/ELEMENTNAME
+$ yarn start
+```
+Edit files in `lib/`, `src/` and `demo/` in order to modify the element to contribute back to us via PR.
 ## Scripts
 
-- `$ yarn start`
-    - Launch a demo server. This should be continuously running as you develop.
 - `$ wcf element`
     -  Create a new component.
 - `$ yarn run rebuild-wcfcache`

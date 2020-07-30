@@ -3,17 +3,16 @@
  * @license Apache-2.0, see License.md for full text.
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { pathFromUrl } from "@polymer/polymer/lib/utils/resolve-url.js";
 import "@lrnwebcomponents/circle-progress/circle-progress.js";
 import "@polymer/paper-button/paper-button.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
 import "@polymer/paper-styles/paper-styles.js";
 import "@polymer/paper-spinner/paper-spinner.js";
 import "@polymer/neon-animation/neon-animation.js";
 import "@polymer/iron-icons/iron-icons.js";
 /**
  * `lrnsys-progress-circle`
+ * @element lrnsys-progress-circle
  * `circle that the outline grows as the percentage ticks up`
  *
  */
@@ -192,7 +191,7 @@ class LrnsysProgressCircle extends PolymerElement {
           }
         </style>
       </custom-style>
-      <paper-tooltip
+      <simple-tooltip
         hidden$="[[!toolTip]]"
         for="button"
         position="bottom"
@@ -200,7 +199,7 @@ class LrnsysProgressCircle extends PolymerElement {
         animation-delay="0"
       >
         [[label]]
-      </paper-tooltip>
+      </simple-tooltip>
       <paper-button
         id="button"
         class="button"
@@ -434,9 +433,6 @@ class LrnsysProgressCircle extends PolymerElement {
        */
       completeSound: {
         type: String,
-        value:
-          pathFromUrl(decodeURIComponent(import.meta.url)) +
-          "assets/complete.mp3",
         reflectToAttribute: true
       },
       /**
@@ -444,9 +440,6 @@ class LrnsysProgressCircle extends PolymerElement {
        */
       finishedSound: {
         type: String,
-        value:
-          pathFromUrl(decodeURIComponent(import.meta.url)) +
-          "assets/finished.mp3",
         reflectToAttribute: true
       },
       /**
@@ -462,7 +455,10 @@ class LrnsysProgressCircle extends PolymerElement {
       }
     };
   }
-
+  // simple path from a url modifier
+  pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf("/") + 1);
+  }
   /**
    * Ready state
    */
@@ -476,22 +472,6 @@ class LrnsysProgressCircle extends PolymerElement {
       "50": false,
       "75": false
     };
-  }
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      this.addEventListener("click", this.tapEventOn.bind(this));
-      this.addEventListener("mouseover", this.focusOn.bind(this));
-      this.addEventListener("mouseout", this.focusOff.bind(this));
-      this.addEventListener("focused-changed", this.focusEvent.bind(this));
-    });
-  }
-  disconnectedCallback() {
-    this.removeEventListener("click", this.tapEventOn.bind(this));
-    this.removeEventListener("mouseover", this.focusOn.bind(this));
-    this.removeEventListener("mouseout", this.focusOff.bind(this));
-    this.removeEventListener("focused-changed", this.focusEvent.bind(this));
-    super.disconnectedCallback();
   }
   /**
    * Test if the value = max meaning that we hit complete from available
@@ -540,6 +520,21 @@ class LrnsysProgressCircle extends PolymerElement {
       this._bubbleProgress["25"] = true;
     }
   }
+  constructor() {
+    super();
+    this.completeSound =
+      this.pathFromUrl(decodeURIComponent(import.meta.url)) +
+      "lib/assets/complete.mp3";
+    this.finishedSound =
+      this.pathFromUrl(decodeURIComponent(import.meta.url)) +
+      "lib/assets/finished.mp3";
+    setTimeout(() => {
+      this.addEventListener("click", this.tapEventOn.bind(this));
+      this.addEventListener("mouseover", this.focusOn.bind(this));
+      this.addEventListener("mouseout", this.focusOff.bind(this));
+      this.addEventListener("focused-changed", this.focusEvent.bind(this));
+    }, 0);
+  }
   /**
    * Focus event for UX consistency.
    */
@@ -549,15 +544,15 @@ class LrnsysProgressCircle extends PolymerElement {
       // focus shows focus
       if (this.focusState) {
         // force icon to be set to real one and class added
-        this.$.icon.icon = this.icon;
-        this.$.icon.classList.add("activeIcon");
+        this.shadowRoot.querySelector("#icon").icon = this.icon;
+        this.shadowRoot.querySelector("#icon").classList.add("activeIcon");
       } else {
         // if complete set it back to what it was
         if (this.status == "complete" || this.status == "finished") {
-          this.$.icon.icon = this.activeIcon;
+          this.shadowRoot.querySelector("#icon").icon = this.activeIcon;
         }
         // drop the class for active step
-        this.$.icon.classList.remove("activeIcon");
+        this.shadowRoot.querySelector("#icon").classList.remove("activeIcon");
       }
       this.focusState = !this.focusState;
     }
@@ -569,8 +564,8 @@ class LrnsysProgressCircle extends PolymerElement {
     // see if it has hover classes
     if (!this.disabled && this.status != "loading") {
       // force icon to be set to real one and class added
-      this.$.icon.icon = this.icon;
-      this.$.icon.classList.add("activeIcon");
+      this.shadowRoot.querySelector("#icon").icon = this.icon;
+      this.shadowRoot.querySelector("#icon").classList.add("activeIcon");
     }
   }
   /**
@@ -581,10 +576,10 @@ class LrnsysProgressCircle extends PolymerElement {
     if (!this.disabled && this.status != "loading") {
       // if complete set it back to what it was
       if (this.status == "complete" || this.status == "finished") {
-        this.$.icon.icon = this.activeIcon;
+        this.shadowRoot.querySelector("#icon").icon = this.activeIcon;
       }
       // drop the class for active step
-      this.$.icon.classList.remove("activeIcon");
+      this.shadowRoot.querySelector("#icon").classList.remove("activeIcon");
     }
   }
   /**
@@ -610,7 +605,7 @@ class LrnsysProgressCircle extends PolymerElement {
       // support for a loading icon while loading
       if (status == "loading") {
         tmp = this.loadingIcon;
-        this.$.icon.classList.add("transition");
+        this.shadowRoot.querySelector("#icon").classList.add("transition");
       } else if (status == "finished") {
         tmp = this.finishedIcon;
       } else if (
@@ -622,7 +617,7 @@ class LrnsysProgressCircle extends PolymerElement {
         }
         tmp = iconComplete;
       } else {
-        this.$.icon.classList.remove("transition");
+        this.shadowRoot.querySelector("#icon").classList.remove("transition");
       }
       return tmp;
     }

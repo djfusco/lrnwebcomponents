@@ -2,25 +2,18 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import "@polymer/polymer/lib/elements/dom-if.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 /**
  * `md-block`
  * `a markdown block`
- *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @polymer
  * @demo demo/index.html
+ * @element md-block
  */
-class MdBlock extends PolymerElement {
-  // render function
-  static get template() {
-    return html`
-      <style>
+class MdBlock extends LitElement {
+  //styles function
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
         }
@@ -28,13 +21,19 @@ class MdBlock extends PolymerElement {
         :host([hidden]) {
           display: none;
         }
-      </style>
+      `
+    ];
+  }
+  // render function
+  render() {
+    return html`
       <div>
-        <marked-element markdown="[[markdown]]">
+        <marked-element markdown="${this.markdown}">
           <div slot="markdown-html"></div>
-          <dom-if if="[[hasSource]]">
-            <script type="text/markdown" src$="[[source]]"></script>
-          </dom-if>
+          <script
+            type="text/markdown"
+            .src="${this.source ? this.source : undefined}"
+          ></script>
         </marked-element>
       </div>
     `;
@@ -54,7 +53,9 @@ class MdBlock extends PolymerElement {
         groups: ["Block"],
         handles: [
           {
-            type: "todo:read-the-docs-for-usage"
+            type: "markdown",
+            source: "source",
+            src: "source"
           }
         ],
         meta: {
@@ -87,29 +88,36 @@ class MdBlock extends PolymerElement {
           }
         ],
         advanced: []
-      }
+      },
+      demoSchema: [
+        {
+          tag: "md-block",
+          properties: {
+            source:
+              "https://raw.githubusercontent.com/elmsln/HAXcms/master/HAXDocs.md"
+          },
+          content: ""
+        }
+      ]
     };
   }
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       source: {
-        name: "source",
-        type: "String"
-      },
-      hasSource: {
-        name: "hasSource",
-        type: "Boolean",
-        computed: "_calculateHasSource(source)"
+        type: String
       },
       markdown: {
-        name: "markdown",
-        type: "String"
+        type: String
       }
     };
   }
   constructor() {
     super();
+    this.markdown = "";
+    this.source = "";
     import("@polymer/marked-element/marked-element.js");
   }
   /**
@@ -119,29 +127,6 @@ class MdBlock extends PolymerElement {
   static get tag() {
     return "md-block";
   }
-  /**
-   * Calculate visibility of the source response
-   */
-  _calculateHasSource(source) {
-    if (source && source != "") {
-      return true;
-    }
-    this.source = null;
-    return false;
-  }
-  /**
-   * life cycle, element is afixed to the DOM
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(MdBlock.haxProperties, MdBlock.tag, this);
-  }
-
-  /**
-   * life cycle, element is removed from the DOM
-   */
-  //disconnectedCallback() {}
 }
 window.customElements.define(MdBlock.tag, MdBlock);
 export { MdBlock };

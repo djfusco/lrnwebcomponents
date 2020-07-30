@@ -1,41 +1,30 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { pathFromUrl } from "@polymer/polymer/lib/utils/resolve-url.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import "@lrnwebcomponents/es-global-bridge/es-global-bridge.js";
-import "@polymer/polymer/lib/elements/dom-if.js";
+import "@polymer/iron-icon/iron-icon.js";
+import "@polymer/iron-icons/iron-icons.js";
 import * as md5 from "./lib/md5.min.js";
 /**
 `paper-avatar`
 User avatar in material style
 
 ### Styling
-
-To change the background color:
-
-    paper-avatar {
-      --paper-avatar-color: red;
-    }
-	
-To change the size of the avatar:
-
-    paper-avatar {
-      --paper-avatar-width: 60px;
-    }
-
 Custom property | Description | Default
 ----------------|-------------|----------
-`--paper-avatar-width` | Size (width and height) of the avatar image | `40px`
-`--paper-avatar-color` | Background color of the avatar image | 
+`--paper-avatar-width` | Size (width and height) of the avatar image | 40px
+`--paper-avatar-color` | Background color of the avatar image | `--paper-avatar-calculated-bg`
+`--paper-avatar-text-color` | Text color of the avatar image | #fff
+`--paper-avatar-calculated-bg` | Do NOT use. Thi is an automatically set variable that can be overriden `--paper-avatar-color` | #000
 
 
 * @demo demo/index.html 
 */
-class PaperAvatar extends PolymerElement {
-  static get tag() {
-    return "paper-avatar";
-  }
-  static get template() {
-    return html`
-      <style>
+class PaperAvatar extends LitElement {
+  /**
+   * LitElement style method
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           --paper-avatar-width: 40px;
           display: inline-block;
@@ -45,20 +34,24 @@ class PaperAvatar extends PolymerElement {
           height: var(--paper-avatar-width);
           border-radius: 50%;
           cursor: default;
-          background-color: var(
-            --paper-avatar-color,
-            var(--paper-avatar-bgcolor)
-          );
           -webkit-user-select: none;
           -moz-user-select: none;
           -ms-user-select: none;
           user-select: none;
+          color: var(--paper-avatar-text-color, #ffffff);
+          background-color: var(
+            --paper-avatar-color,
+            var(--paper-avatar-calculated-bg, #000)
+          );
         }
 
         :host > * {
           pointer-events: none;
         }
-
+        img {
+          width: var(--paper-avatar-width);
+          height: var(--paper-avatar-width);
+        }
         #label,
         #img,
         #jdenticon {
@@ -83,66 +76,141 @@ class PaperAvatar extends PolymerElement {
           -ms-flex-align: center;
           align-items: center;
         }
+        #label[hidden] {
+          display: none;
+        }
         #label span {
           display: block;
           width: 100%;
           font-weight: 400;
-          color: rgba(255, 255, 255, 0.8);
+          color: var(--paper-avatar-text-color, #ffffff);
           text-transform: capitalize;
           font-family: "Roboto", "Noto", sans-serif;
           -webkit-font-smoothing: antialiased;
           text-align: center;
-          font-size: calc(var(--paper-avatar-width) / 1.65);
+          font-size: calc(var(--paper-avatar-width) * 0.7);
+          opacity: 0.8;
+        }
+        #label span[two-chars] {
+          font-size: calc(var(--paper-avatar-width) * 0.5);
+        }
+        #label iron-icon {
+          margin: 0 auto;
+          width: calc(var(--paper-avatar-width) * 0.9);
+          height: calc(var(--paper-avatar-width) * 0.9);
         }
         #jdenticon {
           width: var(--paper-avatar-width);
           height: var(--paper-avatar-width);
         }
-      </style>
-      <div id="label" title="[[label]]"><span>[[_label(label)]]</span></div>
+        #jdenticon * {
+          fill: var(--paper-avatar-text-color, #ffffff);
+          opacity: 0.8;
+        }
+        ::slotted(*) {
+          fill: var(--paper-avatar-text-color, #ffffff);
+          opacity: 0.8;
+        }
+      `
+    ];
+  }
+  /**
+   * A convention our team uses
+   */
+  static get tag() {
+    return "paper-avatar";
+  }
+  /**
+   * LitElement render method
+   */
+  render() {
+    return html`
       <svg id="jdenticon" width="40" height="40"><slot></slot></svg>
-      <template is="dom-if" if="[[src]]">
-        <img
-          id="img"
-          src="[[src]]"
-          title="[[label]]"
-          on-load="_onImgLoad"
-          on-error="_onImgError"
-          title="[[color]]"
-        />
-      </template>
+      <div
+        id="label"
+        title="${this.label}"
+        ?hidden="${this.jdenticonExists && this.jdenticon}"
+      >
+        ${this.icon
+          ? html`
+              <iron-icon icon="${this.icon}"></iron-icon>
+            `
+          : html`
+              <span ?two-chars="${this.twoChars}"
+                >${this._label(this.label)}
+              </span>
+            `}
+      </div>
+      ${this.src
+        ? html`
+            <img
+              id="img"
+              loading="lazy"
+              .src="${this.src || ""}"
+              @load="${this._onImgLoad}"
+              @error="${this._onImgError}"
+              aria-hidden="true"
+            />
+          `
+        : ``}
     `;
   }
+  /**
+   * HTMLElement specification
+   */
+  constructor() {
+    super();
+    this.label = null;
+    this.src = null;
+    this.jdenticonExists = false;
+    this.twoChars = false;
+    this.jdenticon = false;
+  }
+  /**
+   * LitElement specific property update life cycle
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "label") {
+        this._observerLabel(this[propName]);
+      }
+    });
+  }
+  /**
+   * LitElement / popular library convention
+   */
   static get properties() {
     return {
+      /**
+       * Optional iron-icon
+       */
+      icon: {
+        type: String
+      },
       /**
        * Image address or base64
        */
       src: {
-        type: String,
-        value: false
+        type: String
       },
-
       /**
        *	Label with username
        */
       label: {
-        type: String,
-        observer: "_observerLabel"
+        type: String
       },
       /**
        * Ensure we can support jdenticon before invoking it
        */
       jdenticonExists: {
-        type: Boolean,
-        value: false
+        type: Boolean
       },
       /**
        * Show two chars in avatar
        */
       twoChars: {
         type: Boolean,
-        value: false
+        attribute: "two-chars"
       },
 
       /**
@@ -156,8 +224,7 @@ class PaperAvatar extends PolymerElement {
        * Set true if you want use a jdenticon avatar
        */
       jdenticon: {
-        type: Boolean,
-        value: false
+        type: Boolean
       }
     };
   }
@@ -167,29 +234,28 @@ class PaperAvatar extends PolymerElement {
   _observerLabel(label) {
     if (label) {
       if (this.jdenticonExists && this.jdenticon) {
-        this.$.label.hidden = true;
+        this.shadowRoot.querySelector("#label").hidden = true;
 
-        window.jdenticon.config = {
-          lightness: {
-            color: [1, 1],
-            grayscale: [1, 1]
-          },
-          saturation: 1
-        };
-        window.jdenticon.update(this.$.jdenticon, window.md5(label));
+        window.jdenticon.update(
+          this.shadowRoot.querySelector("#jdenticon"),
+          window.md5(label)
+        );
       }
-
-      this.updateStyles({
-        "--paper-avatar-bgcolor": this._parseColor(label)
-      });
+      this.style.setProperty(
+        "--paper-avatar-calculated-bg",
+        this._parseColor(label)
+      );
     }
   }
+  // simple path from a url modifier
+  pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf("/") + 1);
+  }
   /**
-   * ready lifecycle
+   * LitElement life cycle - shadowDom / properties mapped
    */
-  ready() {
-    super.ready();
-    const basePath = pathFromUrl(decodeURIComponent(import.meta.url));
+  firstUpdated(changedProperties) {
+    const basePath = this.pathFromUrl(decodeURIComponent(import.meta.url));
     const location = `${basePath}lib/jdenticon-1.4.0.min.js`;
     window.addEventListener(
       "es-bridge-jdenticon-loaded",
@@ -198,6 +264,9 @@ class PaperAvatar extends PolymerElement {
     window.ESGlobalBridge.requestAvailability();
     window.ESGlobalBridge.instance.load("jdenticon", location);
   }
+  /**
+   * HTMLElement life cycle
+   */
   disconnectedCallback() {
     window.removeEventListener(
       "es-bridge-jdenticon-loaded",

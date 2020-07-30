@@ -1,29 +1,41 @@
 {
   /**
-   * The id for the toolbar
-   */
-  "toolbar": {
-    "name": "toolbar",
-    "type": "String",
-    "value": ""
-  },
-  /**
    * The editor's unique id
    */
   "id": {
     "name": "id",
-    "type": "String",
+    "type": String,
     "value": ""
   },
+
+  /**
+   * Placeholder text for empty editable regions
+   */
+  "placeholder": {
+    "name": "placeholder",
+    "type": String,
+    "reflectToAttribute": true,
+    "value": "Click to edit"
+  },
+
+  /**
+   * The id for the toolbar
+   */
+  "toolbar": {
+    "name": "toolbar",
+    "type": String,
+    "value": ""
+  },
+
   /**
    * The type of editor toolbar, i.e.
-   * `full` for full toolbar with breadcrumb,
-   * `mini` for mini floating toolbar, or
+   * full - full for full toolbar with breadcrumb,
+   * mini - mini for mini floating toolbar, or
    * the default toolbar if neither.
    */
   "type": {
     "name": "type",
-    "type": "String",
-    "value": ""
+    "type": String,
+    "value": "rich-text-editor-toolbar"
   }
 }

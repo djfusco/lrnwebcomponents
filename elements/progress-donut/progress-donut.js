@@ -2,244 +2,98 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
-import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import "@lrnwebcomponents/chartist-render/chartist-render.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import { LrndesignPie } from "@lrnwebcomponents/lrndesign-chart/lib/lrndesign-pie.js";
 /**
  * `progress-donut`
- * `Showing progression in a circle shape w/ hollow middle`
+ * @element progress-donut
+ * shows progress in as a rounded shape w/ hollow middle
+ *
+ * @extends LrndesignPie
+ * @see @lrnwebcomponents/lrndesign-chart/lib/lrndesign-pie.js
+ * @see @lrnwebcomponents/lrndesign-chart/lrndesign-chart.js
+ * @see @lrnwebcomponents/chartist-render/chartist-render.js
+ * @see @lrnwebcomponents/simple-colors/simple-colors.js
  *
  * @demo demo/index.html
- *
- * @microcopy - the mental model for this element
- *  -
  */
-class ProgressDonut extends SchemaBehaviors(PolymerElement) {
-  constructor() {
-    super();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        ProgressDonut.haxProperties,
-        ProgressDonut.tag,
-        this
-      );
-    });
-  }
-  static get template() {
-    return html`
-      <style>
-        :host {
-          background-color: var(--simple-colors-background1, #ffffff);
-          overflow: visible;
-          display: block;
-        }
-        :host #wrapper {
-          margin: 0 auto;
-          position: relative;
-        }
-        :host #wrapper > * {
-          position: absolute;
-        }
-        :host #wrapper #chart {
-          left: 0;
-          top: 0;
-        }
-        :host #wrapper,
-        :host #wrapper #chart {
-          width: 250px;
-          height: 250px;
-        }
-        :host([size="xs"]) #wrapper,
-        :host([size="xs"]) #wrapper #chart {
-          width: 150px;
-          height: 150px;
-        }
-        :host([size="sm"]) #wrapper,
-        :host([size="sm"]) #wrapper #chart {
-          width: 200px;
-          height: 200px;
-        }
-        :host([size="lg"]) #wrapper,
-        :host([size="lg"]) #wrapper #chart {
-          width: 300px;
-          height: 300px;
-        }
-        :host([size="xl"]) #wrapper,
-        :host([size="xl"]) #wrapper #chart {
-          width: 400px;
-          height: 400px;
-        }
-        :host #wrapper > #image {
-          left: 20%;
-          top: 20%;
-          width: 60%;
-          height: 60%;
-          -webkit-clip-path: circle(50% at 50% 50%);
+class ProgressDonut extends LrndesignPie {
+  //styles function
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        .ct-center-image {
+          width: 100%;
+          height: 100%;
+          transform: translateX(25%) translateY(25%) scale(0.5);
           clip-path: circle(50% at 50% 50%);
         }
-      </style>
-      <div id="wrapper">
-        <img
-          id="image"
-          alt\$="[[imageAlt]]"
-          aria-hidden="true"
-          hidden\$="[[!imageSrc]]"
-          src\$="[[imageSrc]]"
-          style\$="[[imageStyle]]"
-        />
-        <chartist-render
-          id="chart"
-          data\$="[[data]]"
-          chart-desc\$="[[desc]]"
-          chart-title="[[title]]"
-          scale="ct-square"
-          options\$="[[options]]"
-          title\$="[[title]]"
-          type="pie"
-        >
-        </chartist-render>
-      </div>
+
+        .ct-center-ellipse {
+          fill: var(--chartist-bg-color, #fff);
+        }
+      `
+    ];
+  }
+
+  // render function
+  render() {
+    return html`
+      ${super.render()}
     `;
   }
 
-  static get tag() {
-    return "progress-donut";
-  }
-  static get properties() {
-    let props = {
-      /**
-       * An array of completed values
-       */
-      complete: {
-        type: Array,
-        value: []
-      },
-      /**
-       * The thickness of the donut from 0-100
-       */
-      donutThickness: {
-        type: Number
-      },
-      /**
-       * An array of hex codes to use as colors for each section.
-       * If null, colors are determined by accentColor & dark properties
-       */
-      colors: {
-        type: Array,
-        value: null
-      },
-      /**
-       * An array of data for the donut chart
-       */
-      data: {
-        type: Array,
-        computed: "_getData(complete)"
-      },
-      /**
-       * Accessible long description
-       */
-      desc: {
-        type: String,
-        value: null
-      },
-      /**
-       * An array of data for the donut chart
-       */
-      options: {
-        type: Array,
-        computed: "_getOptions(complete,total,size,colors,accentColor,dark)"
-      },
-      /**
-       * The source of the image in the center of the object.
-       */
-      imageSrc: {
-        type: String,
-        value: null,
-        reflectToAttribute: true
-      },
-      /**
-       * The alt text for the image.
-       */
-      imageAlt: {
-        type: String,
-        value: null,
-        reflectToAttribute: true
-      },
-      /**
-       * The style for the image based on the size of the donut
-       */
-      imageStyle: {
-        type: String,
-        computed: "_getImageStyle(size)"
-      },
-      /**
-       * The size of the progress-donut: sx, sm, md, lg, or xl. Default is md
-       */
-      size: {
-        type: String,
-        value: "md",
-        reflectToAttribute: true
-      },
-      /**
-       * Title
-       */
-      title: {
-        type: String
-      },
-      /**
-       * a selected accent-color: grey, red, pink, purple, etc.
-       */
-      accentColor: {
-        type: String,
-        value: "grey",
-        reflectToAttribute: true
-      },
-      /**
-       * An array of incomplete values
-       */
-      total: {
-        type: Number,
-        value: 100
-      }
-    };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
-  }
+  // haxProperty definition
   static get haxProperties() {
     return {
       canScale: true,
       canPosition: true,
       canEditSource: false,
       gizmo: {
-        title: "Sample gizmo",
-        description: "The user will be able to see this for selection in a UI.",
+        title: "Progress Donut",
+        description: "Progression donut",
         icon: "av:play-circle-filled",
         color: "grey",
-        groups: ["Video", "Media"],
-        handles: [
-          {
-            type: "video",
-            url: "source"
-          }
-        ],
+        groups: ["Presentation", "Data"],
+        handles: [],
         meta: {
-          author: "Your organization on github"
+          author: "ELMS:LN"
         }
       },
       settings: {
         quick: [
           {
-            property: "title",
-            title: "Title",
-            description: "The title of the element",
-            inputMethod: "textfield",
-            icon: "editor:title"
+            property: "animated",
+            title: "Animated",
+            description: "Whether progress animates on first load",
+            inputMethod: "boolean"
+          },
+          {
+            property: "complete",
+            title: "Complete",
+            description: "An array of completed values.",
+            inputMethod: "array",
+            properties: [
+              {
+                title: "Number",
+                description: "Completed number.",
+                inputMethod: "number"
+              }
+            ]
+          },
+          {
+            property: "total",
+            title: "Total",
+            description: "Total when all items are complete.",
+            inputMethod: "number"
+          },
+          {
+            property: "startAngle",
+            title: "Start Angle",
+            description: "Donut angle where progress starts",
+            inputMethod: "number"
           }
         ],
         configure: [
@@ -249,176 +103,213 @@ class ProgressDonut extends SchemaBehaviors(PolymerElement) {
             description: "The title of the element",
             inputMethod: "textfield",
             icon: "editor:title"
+          },
+          {
+            property: "desc",
+            title: "Description",
+            description: "Accessible long description",
+            inputMethod: "textfield"
+          },
+          {
+            property: "imageSrc",
+            title: "Image Source",
+            description: "Source of image inside donut.",
+            inputMethod: "haxupload",
+            icon: "link",
+            validationType: "url"
+          },
+          {
+            property: "imageAlt",
+            title: "Image Alt Text",
+            description: "Alt text for image.",
+            inputMethod: "alt"
+          },
+          {
+            property: "animated",
+            title: "Animated",
+            description: "Whether progress animates on first load",
+            inputMethod: "boolean"
+          },
+          {
+            property: "complete",
+            title: "Complete",
+            description: "An array of completed values.",
+            inputMethod: "array"
+          },
+          {
+            property: "total",
+            title: "Total",
+            description: "Total when all items are complete.",
+            inputMethod: "arrnumberay"
+          },
+          {
+            property: "startAngle",
+            title: "Start Angle",
+            description: "Donut angle where progress starts",
+            inputMethod: "number"
           }
         ],
         advanced: []
       }
     };
   }
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      this.addEventListener("chartist-render-draw", this._onCreated.bind(this));
-    });
-  }
-  disconnectedCallback() {
-    this.removeEventListener(
-      "chartist-render-draw",
-      this._onCreated.bind(this)
-    );
-    super.disconnectedCallback();
-  }
-  /**
-   * Makes chart and returns the chart object.
-   */
-  _getData(complete) {
-    return { series: complete };
-  }
-
-  /**
-   * Makes chart and returns the chart object.
-   */
-  _getImageStyle(size) {
-    let offset = "22%",
-      diameter = "56%";
-    if (this.size === "xs") {
-      offset = "32%";
-      diameter = "36%";
-    } else if (this.size === "sm") {
-      offset = "26%";
-      diameter = "48%";
-    } else if (this.size === "lg") {
-      offset = "20%";
-      diameter = "60%";
-    } else if (this.size === "xl") {
-      offset = "17%";
-      diameter = "66%";
-    }
-    return (
-      "left: " +
-      offset +
-      "; top: " +
-      offset +
-      "; width: " +
-      diameter +
-      "; height: " +
-      diameter +
-      ";"
-    );
-  }
-
-  /**
-   * Makes chart and returns the chart object.
-   */
-  _getOptions(complete, total, size, colors, accentColor, dark) {
-    let sum = 0;
-    for (let i = 0; i < complete.length; i++) {
-      sum += parseFloat(complete[i]);
-    }
+  // properties available to the custom element for data binding
+  static get properties() {
     return {
-      donut: true,
-      showLabel: false,
-      startAngle: 0,
-      total: Math.max(sum, total)
+      ...super.properties,
+
+      /**
+       * Timing for animation or -1 for false
+       */
+      animation: {
+        type: Number,
+        attribute: "animation"
+      },
+      /**
+       * Timing for animation or 0 none
+       */
+      animationDelay: {
+        type: Number,
+        attribute: "animation-delay"
+      },
+      /**
+       * An array of completed values
+       */
+      complete: {
+        type: Array
+      },
+      /**
+       * Accessible long description
+       */
+      desc: {
+        type: String
+      },
+      /**
+       * Source of image in the center of the object.
+       */
+      imageSrc: {
+        attribute: "image-src",
+        type: String,
+        reflect: true
+      },
+      /**
+       * Alt text for image.
+       */
+      imageAlt: {
+        attribute: "image-alt",
+        type: String,
+        reflect: true
+      }
     };
+  }
+
+  constructor() {
+    super();
+    super.setProperties();
+    this.animation = -1;
+    this.animationDelay = 0;
+    this.complete = [];
+    this.desc = "";
+    this.imageSrc = "";
+    this.imageAlt = "";
+    this.donut = false;
+    this.showLabel = false;
+    this.showTable = false;
+    this.addEventListener("chartist-render-draw", this.addAnimation);
+  }
+
+  static get tag() {
+    return "progress-donut";
+  }
+  /**
+   * Called every time the element is removed from the DOM. Useful for
+   * running clean up code (removing event listeners, etc.).
+   */
+  disconnectedCallback() {
+    this.removeEventListener("chartist-render-draw", this.addAnimation);
+    super.disconnectedCallback();
   }
 
   /**
    * Handles chart creation event.
+   * @param {event} e create event
    */
-  _onCreated(e) {
-    this.__chart = e.detail;
-    this.makeChart(this.__chart);
-  }
-
-  /**
-   * Makes chart and returns the chart object.
-   */
-  makeChart(chart) {
-    if (chart !== undefined) {
-      let colors = this.colors,
-        strokeWidth = "10%",
-        hex = SimpleColors.colors,
-        accent =
-          this.accentColor !== null
-            ? this.accentColor.replace(/-([a-z])/g, function(g) {
-                return g[1].toUpperCase();
-              })
-            : null;
-      if (colors === undefined || colors === null || colors.length === 0) {
-        if (accent !== null && hex[accent] !== null) {
-          colors = this.dark
-            ? [
-                hex[accent][9],
-                hex[accent][6],
-                hex[accent][3],
-                hex[accent][7],
-                hex[accent][4]
-              ]
-            : [
-                hex[accent][0],
-                hex[accent][3],
-                hex[accent][5],
-                hex[accent][2],
-                hex[accent][4]
-              ];
-        } else {
-          colors = this.dark
-            ? [
-                hex.orange[6],
-                hex.pink[4],
-                hex.purple[5],
-                hex.cyan[6],
-                hex.lime[5]
-              ]
-            : [
-                hex.pink[5],
-                hex.deepPurple[4],
-                hex.blue[3],
-                hex.teal[4],
-                hex.yellow[5]
-              ];
-        }
-      }
-
-      if (this.size === "xs") {
-        strokeWidth = "8%";
-      } else if (this.size === "sm") {
-        strokeWidth = "9%";
-      } else if (this.size === "lg") {
-        strokeWidth = "11%";
-      } else if (this.size === "xl") {
-        strokeWidth = "12%";
-      }
-      // From chartist.js docs:
-      chart.on("draw", function(data) {
-        data.element._node.style.strokeWidth = strokeWidth;
-        data.element._node.style.stroke = colors[data.index % colors.length];
-        if (data.type === "slice") {
-          var pathLength = data.element._node.getTotalLength();
-          data.element.attr({
-            "stroke-dasharray": pathLength + "px " + pathLength + "px"
-          });
-          var animationDefinition = {
-            "stroke-dashoffset": {
-              id: "anim" + data.index,
-              dur: 500,
-              from: -pathLength + "px",
-              to: "0px",
-              easing: Chartist.Svg.Easing.easeOutQuint,
-              fill: "freeze"
-            }
-          };
-          if (data.index !== 0) {
-            animationDefinition["stroke-dashoffset"].begin =
-              "anim" + (data.index - 1) + ".end";
-          }
-          data.element.attr({ "stroke-dashoffset": -pathLength + "px" });
-          data.element.animate(animationDefinition, false);
-        }
+  addAnimation(e) {
+    let data = e && e.detail ? e.detail : undefined;
+    if (this.animation > 0 && data && data.type && data.type === "slice") {
+      var opacity = 1,
+        val = data.value || this.donutTotal / this.donutData.length,
+        dur = (this.animation * val) / this.donutTotal;
+      data.element.attr({
+        c: opacity
       });
-      return chart;
+      var animationDefinition = {
+        opacity: {
+          id: "anim" + data.index,
+          dur: dur,
+          from: -opacity,
+          to: 1,
+          fill: "freeze"
+        }
+      };
+      if (data.index !== 0) {
+        animationDefinition["opacity"].begin =
+          "anim" + (data.index - 1) + ".end";
+      } else {
+        animationDefinition["opacity"].begin = this.animationDelay;
+      }
+      if (this.donutData.length > 0)
+        animationDefinition["opacity"].easing =
+          Chartist.Svg.Easing.easeOutQuint;
+      data.element.attr({ opacity: -opacity });
+      data.element.animate(animationDefinition, false);
     }
+    console.log(data, data.element._node.getTotalLength());
+    if (data && data.index === this.complete.length - 1 && this.chart) {
+      data.group.append(
+        new Chartist.Svg(
+          "ellipse",
+          {
+            cx: "50%",
+            cy: "50%",
+            rx: "32%",
+            ry: "32%"
+          },
+          "ct-center-ellipse"
+        )
+      );
+      data.group.append(
+        new Chartist.Svg(
+          "image",
+          {
+            href: this.imageSrc,
+            alt: this.imageAlt
+          },
+          "ct-center-image"
+        )
+      );
+    }
+  }
+  get donutData() {
+    return Array.isArray(this.complete)
+      ? this.complete
+      : JSON.parse(this.complete || "[]");
+  }
+  get donutLabels() {
+    return this.donutData.map((h, i) => `Item ${i + 1}`);
+  }
+  get donutTotal() {
+    return Math.max(this.donutData.reduce((sum, val) => sum + val), this.total);
+  }
+  get options() {
+    return super.options;
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName === "complete" && this.complete !== oldValue)
+        this.data = [this.donutLabels, this.donutData];
+    });
+    super.updated(changedProperties);
   }
 }
 window.customElements.define(ProgressDonut.tag, ProgressDonut);

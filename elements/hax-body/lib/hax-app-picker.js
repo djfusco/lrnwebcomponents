@@ -1,9 +1,4 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
-import "@polymer/polymer/lib/elements/dom-repeat.js";
-import "./hax-shared-styles.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 /**
  `hax-app-picker`
  A picker for selecting an item from a list of apps / hax gizmos which require
@@ -16,19 +11,10 @@ import "./hax-shared-styles.js";
 @microcopy - the mental model for this element
  - data - this is the app data model for an element which expresses itself to hax
 */
-class HaxAppPicker extends PolymerElement {
-  constructor() {
-    super();
-    import("@polymer/paper-button/paper-button.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-app-picker-item.js");
-    import("@polymer/iron-icon/iron-icon.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/paper-dialog/paper-dialog.js");
-    import("@polymer/paper-dialog-scrollable/paper-dialog-scrollable.js");
-  }
-  static get template() {
-    return html`
-      <style include="hax-shared-styles">
+class HaxAppPicker extends LitElement {
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
         }
@@ -37,11 +23,6 @@ class HaxAppPicker extends PolymerElement {
         paper-dialog:not(:defined) {
           display: none;
         }
-        hax-app-picker-item {
-          -webkit-transition: 0.3s all linear;
-          transition: 0.3s all linear;
-          display: inline-flex;
-        }
         #closedialog {
           float: right;
           top: 15px;
@@ -49,88 +30,93 @@ class HaxAppPicker extends PolymerElement {
           position: absolute;
           padding: 8px;
           margin: 0;
-          color: var(--hax-color-text);
+          background-color: var(--hax-color-menu-heading-bg, #eeeeee);
+          color: var(--hax-color-menu-heading-color, black);
           background-color: transparent;
           width: 40px;
           height: 40px;
           min-width: unset;
         }
-        #ironlist {
-          width: 100%;
-          min-height: 280px;
-        }
-        .repeat-item {
-          display: inline-flex;
-        }
         #dialog {
-          min-width: 300px;
-          min-height: 280px;
+          min-width: 400px;
+          min-height: 108px;
           max-height: 60vh;
           max-width: 50vw;
           overflow: hidden;
           border-radius: 16px;
           z-index: 1000000;
           border: 2px solid var(--hax-color-border-outline);
-          @apply --hax-app-picker-dialog;
           background-color: #ffffff;
+          --hax-tray-panel-accent-text: var(
+            --simple-colors-default-theme-grey-1,
+            #fff
+          );
+          --hax-tray-panel-accent: var(
+            --simple-colors-default-theme-purple-8,
+            #8a009b
+          );
         }
-        #buttonlist {
+        .button-list {
           display: block;
           text-align: left;
           margin: 0px;
+          max-width: 50vw;
           overflow-x: hidden;
           overflow-y: auto;
+          display: flex;
+          justify-content: space-evenly;
+          flex-wrap: wrap;
         }
-        #title,
-        .element-button > div {
-          color: var(--hax-color-text);
+        #title {
+          color: var(--hax-color-menu-heading-color, black);
         }
         #title {
           padding: 16px;
           border-bottom: 2px solid var(--hax-color-border-outline);
           margin: 0;
           width: calc(100% - 32px);
-          background-color: var(--hax-color-menu-heading-bg);
-          color: var(--hax-color-text);
-          @apply --paper-font-title;
-          @apply --hax-app-picker-dialog-title;
+          background-color: var(--hax-color-menu-heading-bg, #eeeeee);
+          color: var(--hax-color-menu-heading-color, black);
         }
-        .scroll-wrap {
-          margin-bottom: -64px;
-          min-height: 180px;
-        }
-        .element-button {
-          display: inline-block;
-          width: 70px;
-          margin: 8px 4px;
-          text-align: center;
-        }
-      </style>
-      <paper-dialog id="dialog">
-        <h3 id="title">[[title]]</h3>
-        <paper-dialog-scrollable id="buttonlist">
-          <div class="scroll-wrap">
-            <template
-              is="dom-repeat"
-              id="ironlist"
-              items="[[selectionList]]"
-              as="element"
-            >
-              <div class="repeat-item">
-                <hax-app-picker-item
-                  id$="picker-item-[[index]]"
-                  class="element-button"
-                  on-click="_selected"
-                  data-selected\$="[[index]]"
-                  label="[[element.title]]"
-                  icon="[[element.icon]]"
-                  color="[[element.color]]"
-                ></hax-app-picker-item>
-              </div>
-            </template>
-          </div>
-        </paper-dialog-scrollable>
-        <paper-button id="closedialog" on-click="close">
+      `
+    ];
+  }
+  constructor() {
+    super();
+    this._elements = [];
+    this.selectionList = [];
+    this.title = "Pick an options";
+    this.pickerType = "gizmo";
+    this.opened = false;
+    import("@polymer/paper-button/paper-button.js");
+    import("@polymer/iron-icon/iron-icon.js");
+    import("@polymer/paper-dialog/paper-dialog.js");
+    setTimeout(() => {
+      this.addEventListener("iron-overlay-canceled", this.close.bind(this));
+      this.addEventListener("iron-overlay-closed", this.close.bind(this));
+    }, 0);
+  }
+  render() {
+    return html`
+      <paper-dialog id="dialog" ?opened="${this.opened}">
+        <h3 id="title">${this.title}</h3>
+        <div class="button-list">
+          ${this.selectionList.map(
+            (element, index) => html`
+              <hax-tray-button
+                id="picker-item-${index}"
+                @click="${this._selected}"
+                data-selected="${index}"
+                label="${element.title}"
+                icon="${element.icon}"
+                color="${element.color}"
+                ?color-meaning="${this.selectionList.length === 2}"
+              >
+              </hax-tray-button>
+            `
+          )}
+        </div>
+        <paper-button id="closedialog" @click="${this.closeEvent}">
           <iron-icon icon="icons:cancel" title="Close dialog"></iron-icon>
         </paper-button>
       </paper-dialog>
@@ -139,69 +125,63 @@ class HaxAppPicker extends PolymerElement {
   static get tag() {
     return "hax-app-picker";
   }
-
+  closeEvent(e) {
+    this.opened = false;
+  }
   static get properties() {
     return {
       /**
        * raw element set
        */
       _elements: {
-        type: Array,
-        value: []
+        type: Array
       },
       /**
        * Refactored list for selection purposes
        */
       selectionList: {
-        type: Array,
-        value: []
+        type: Array
       },
       /**
        * Title for the dialog
        */
       title: {
-        type: String,
-        value: "Pick an options"
+        type: String
       },
       /**
        * Allow multiple uses
        */
       pickerType: {
         type: String,
-        value: "gizmo"
+        attribute: "picker-type"
       },
       /**
        * Opened status to bind to the dialog box being open
        */
       opened: {
-        type: Boolean,
-        value: false,
-        observer: "_openedChanged"
+        type: Boolean
       }
     };
   }
-  /**
-   * Attached life cycle
-   */
-  connectedCallback() {
-    super.connectedCallback();
+  firstUpdated(changedProperties) {
     this.dispatchEvent(
-      new CustomEvent("hax-register-app-picker", {
+      new CustomEvent("hax-register-core-piece", {
         bubbles: true,
         cancelable: true,
         composed: true,
-        detail: this
+        detail: {
+          piece: "haxAppPicker",
+          object: this
+        }
       })
     );
-    afterNextRender(this, function() {
-      this.addEventListener("iron-overlay-canceled", this.close.bind(this));
-      this.addEventListener("iron-overlay-closed", this.close.bind(this));
-    });
   }
-  disconnectedCallback() {
-    this.removeEventListener("iron-overlay-canceled", this.close.bind(this));
-    this.removeEventListener("iron-overlay-closed", this.close.bind(this));
-    super.disconnectedCallback();
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "opened") {
+        this._openedChanged(this[propName], oldValue);
+      }
+    });
   }
 
   /**
@@ -216,13 +196,10 @@ class HaxAppPicker extends PolymerElement {
    */
   _openedChanged(newValue, oldValue) {
     if (newValue) {
-      this.shadowRoot.querySelector("#dialog").open();
       // lock the background
       document.body.style.overflow = "hidden";
     } else {
-      if (this.shadowRoot.querySelector("#dialog").close) {
-        this.shadowRoot.querySelector("#dialog").close();
-      }
+      this.selectionList = [];
       document.body.style.overflow = null;
     }
   }
@@ -248,21 +225,21 @@ class HaxAppPicker extends PolymerElement {
       case "gizmo":
         for (var i in elements) {
           elements[i].__type = type;
-          tmp[i] = {
+          tmp.push({
             icon: elements[i].gizmo.icon,
             title: elements[i].gizmo.title,
             color: elements[i].gizmo.color
-          };
+          });
         }
         break;
       // app selector
       case "app":
         for (var i in elements) {
-          tmp[i] = {
+          tmp.push({
             icon: elements[i].details.icon,
             title: elements[i].details.title,
             color: elements[i].details.color
-          };
+          });
         }
         break;
       // we don't know what to do with this
@@ -271,32 +248,32 @@ class HaxAppPicker extends PolymerElement {
         break;
     }
     this._elements = elements;
-    this.set("selectionList", []);
-    this.set("selectionList", tmp);
+    this.selectionList = [...tmp];
     this.opened = true;
     // try to focus on option 0
     setTimeout(() => {
       this.shadowRoot.querySelector("#picker-item-0").focus();
-    }, 100);
+    }, 50);
   }
   /**
    * Handle the user selecting an app.
    */
   _selected(e) {
-    var normalizedEvent = dom(e);
-    let key = normalizedEvent.localTarget.getAttribute("data-selected");
+    let key = e.target.getAttribute("data-selected");
     e.preventDefault();
     e.stopPropagation();
     if (typeof this._elements[key] !== typeof undefined) {
       // haxElement is a unique case
       if (this.pickerType == "gizmo") {
-        window.HaxStore.write("activeHaxElement", this._elements[key], this);
-        if (this._elements[key].__type === "__convert") {
-          window.HaxStore.instance.haxManager.editExistingNode = true;
-        }
-        // ensure this is open even though it should be
-        window.HaxStore.instance.haxManager.selectStep("configure");
-        window.HaxStore.instance.haxManager.open();
+        this._elements[key].replace = true;
+        this.dispatchEvent(
+          new CustomEvent("hax-insert-content", {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            detail: this._elements[key]
+          })
+        );
       } else if (this.pickerType == "delete") {
         if (this._elements[key]["title"] === "Yes") {
           if (

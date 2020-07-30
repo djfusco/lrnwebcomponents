@@ -1,0 +1,75 @@
+{
+  /**
+   * the id of the active tab
+   */
+  "activeTab": {
+    "type": "String",
+    "reflect": true,
+    "attribute": "active-tab"
+  },
+  /**
+   * whether the tabbed interface is disabled
+   */
+  "disabled": {
+    "type": "Boolean",
+    "reflect": true,
+    "attribute": "disabled"
+  },
+  /**
+   * whether the tabbed interface is hidden
+   */
+  "hidden": {
+    "type": "Boolean",
+    "reflect": true,
+    "attribute": "hidden"
+  },
+  /**
+   * Optional minimum breakpoint for showing tab text with icons, or
+   * Default is always text with icons.
+   * `-1` forces icon-only mode.
+   */
+  "iconBreakpoint": {
+    "type": "Number",
+    "attribute": "icon-breakpoint"
+  },
+  /**
+   * unique identifier/anchor for the tabbed interface
+   */
+  "id": {
+    "type": "String",
+    "reflect": true
+  },
+  /**
+   * Optional minimum breakpoint for horizontal layout of tabs.
+   * Default is unset (always horizontal).
+   * `-1` forces vertical-only mode.
+   */
+  "layoutBreakpoint": {
+    "type": "Number",
+    "attribute": "layout-breakpoint"
+  },
+  /**
+   * the size of the tabs,
+   * where `xs` is the smaller breakpoint
+   * and `xs` is the larger breakpoint
+   */
+  "responsiveSize": {
+    "type": "String",
+    "reflect": true,
+    "attribute": "responsive-size"
+  },
+  /**
+   * whether the tabs are sticky
+   */
+  "sticky": {
+    "type": "Boolean",
+    "reflect": true,
+    "attribute": "sticky"
+  },
+  /**
+   * an array of tab data based on slotted `a11y-tab` elements
+   */
+  "__tabs": {
+    "type": "Array"
+  }
+}

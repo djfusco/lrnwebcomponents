@@ -1,2 +1,2744 @@
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?t(exports,require("@polymer/polymer/polymer-legacy.js"),require("@polymer/polymer/lib/legacy/polymer.dom.js"),require("@polymer/polymer/lib/utils/flattened-nodes-observer.js"),require("@polymer/polymer/lib/utils/flush.js"),require("@polymer/polymer/lib/utils/async.js"),require("@polymer/paper-item/paper-item.js"),require("@lrnwebcomponents/simple-colors/simple-colors.js"),require("@polymer/iron-a11y-keys/iron-a11y-keys.js"),require("@lrnwebcomponents/grid-plate/grid-plate.js"),require("@polymer/app-layout/app-toolbar/app-toolbar.js"),require("@polymer/iron-icons/iron-icons.js"),require("@lrnwebcomponents/md-extra-icons/md-extra-icons.js"),require("@polymer/paper-tooltip/paper-tooltip.js"),require("@polymer/neon-animation/neon-animation.js"),require("@polymer/iron-icon/iron-icon.js"),require("@polymer/iron-icons/editor-icons.js"),require("@polymer/iron-icons/device-icons.js"),require("@polymer/iron-icons/hardware-icons.js"),require("@polymer/iron-icons/social-icons.js"),require("@polymer/iron-icons/av-icons.js"),require("@polymer/iron-icons/maps-icons.js"),require("@polymer/paper-listbox/paper-listbox.js"),require("@polymer/paper-menu-button/paper-menu-button.js"),require("@polymer/paper-icon-button/paper-icon-button.js"),require("@polymer/paper-button/paper-button.js"),require("@polymer/polymer/polymer-element.js"),require("@polymer/iron-icons/image-icons.js"),require("@polymer/paper-slider/paper-slider.js"),require("@lrnwebcomponents/materializecss-styles/lib/colors.js"),require("@polymer/paper-input/paper-textarea.js"),require("@polymer/paper-input/paper-input.js"),require("@polymer/paper-checkbox/paper-checkbox.js")):"function"==typeof define&&define.amd?define(["exports","@polymer/polymer/polymer-legacy.js","@polymer/polymer/lib/legacy/polymer.dom.js","@polymer/polymer/lib/utils/flattened-nodes-observer.js","@polymer/polymer/lib/utils/flush.js","@polymer/polymer/lib/utils/async.js","@polymer/paper-item/paper-item.js","@lrnwebcomponents/simple-colors/simple-colors.js","@polymer/iron-a11y-keys/iron-a11y-keys.js","@lrnwebcomponents/grid-plate/grid-plate.js","@polymer/app-layout/app-toolbar/app-toolbar.js","@polymer/iron-icons/iron-icons.js","@lrnwebcomponents/md-extra-icons/md-extra-icons.js","@polymer/paper-tooltip/paper-tooltip.js","@polymer/neon-animation/neon-animation.js","@polymer/iron-icon/iron-icon.js","@polymer/iron-icons/editor-icons.js","@polymer/iron-icons/device-icons.js","@polymer/iron-icons/hardware-icons.js","@polymer/iron-icons/social-icons.js","@polymer/iron-icons/av-icons.js","@polymer/iron-icons/maps-icons.js","@polymer/paper-listbox/paper-listbox.js","@polymer/paper-menu-button/paper-menu-button.js","@polymer/paper-icon-button/paper-icon-button.js","@polymer/paper-button/paper-button.js","@polymer/polymer/polymer-element.js","@polymer/iron-icons/image-icons.js","@polymer/paper-slider/paper-slider.js","@lrnwebcomponents/materializecss-styles/lib/colors.js","@polymer/paper-input/paper-textarea.js","@polymer/paper-input/paper-input.js","@polymer/paper-checkbox/paper-checkbox.js"],t):t((e=e||self).HaxBody={},e.polymerLegacy_js,e.polymer_dom_js,e.flattenedNodesObserver_js,e.flush_js,e.async,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,e.polymerElement_js)}(this,function(e,t,n,o,i,a,r,l,s,d,c,p,h,u,x,m,b,f,v,g,y,w,k,S,N,C,_){"use strict";function H(e){return(H="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}function T(e,t){return t||(t=e.slice(0)),Object.freeze(Object.defineProperties(e,{raw:{value:Object.freeze(t)}}))}var L=document.createElement("dom-module");function M(){var e=T(['\n    <style include="simple-colors hax-shared-styles">\n      :host {\n        display: flex;\n        box-sizing: border-box;\n        height: 36px;\n        width: 36px;\n      }\n      :host([mini]) {\n        height: unset;\n        width: unset;\n      }\n      :host([menu]) {\n        width: 100%;\n        position: relative;\n        display: -ms-flexbox;\n        display: -webkit-flex;\n        display: flex;\n        -ms-flex-direction: row;\n        -webkit-flex-direction: row;\n        flex-direction: row;\n        -webkit-justify-content: flex-start;\n        justify-content: flex-start;\n        -webkit-font-smoothing: antialiased;\n        font-size: 16px;\n        font-weight: 400;\n        line-height: 24px;\n      }\n      :host([menu]) paper-button {\n        -webkit-justify-content: flex-start;\n        justify-content: flex-start;\n      }\n      #label {\n        padding-left: 5px;\n      }\n      paper-button {\n        display: flex;\n        align-items: center;\n        background-color: var(--hax-color-bg-accent);\n        color: var(--hax-color-text);\n        min-width: 0;\n        margin: 0;\n        text-transform: none;\n        padding: 0;\n        border-radius: 0;\n        font-size: 12px;\n        transition: 0.3s all;\n        height: 36px;\n        width: 36px;\n        min-width: unset;\n        @apply --hax-toolbar-item-container;\n        --paper-button-ink-color: var(--hax-color-accent1);\n      }\n      paper-button:active,\n      paper-button:hover,\n      paper-button:focus {\n        color: var(--hax-color-text-active);\n        outline: 1px solid var(--hax-color-accent1);\n      }\n      :host([default]) paper-button {\n        background: black;\n      }\n      :host([dark]) paper-button {\n        background-color: var(--hax-color-text);\n        color: var(--hax-color-bg-accent);\n      }\n      :host([dark]) paper-button:hover {\n        background-color: var(--hax-color-bg-accent);\n        color: var(--hax-color-text);\n      }\n      :host([dark]) paper-button:active {\n        background: var(--hax-color-bg-accent);\n        color: var(--hax-color-text);\n      }\n      iron-icon {\n        width: 20px;\n        height: 20px;\n        padding: 0;\n        margin: 0;\n      }\n      :host([mini]) iron-icon {\n        width: 16px;\n        height: 16px;\n      }\n      :host([mini]) paper-button {\n        border-radius: 50%;\n        width: 18px;\n        height: 18px;\n        padding: 1px;\n        border: 1px solid var(--hax-color-border-outline);\n      }\n      :host([mini]) paper-button:active,\n      :host([mini]) paper-button:hover,\n      :host([mini]) paper-button:focus {\n        outline: unset;\n        border: 1px solid var(--hax-color-accent1);\n      }\n      :host([menu]) paper-button {\n        padding: 0 8px;\n        width: 100%;\n        height: 36px;\n      }\n      :host([menu]) paper-button:hover {\n        background-color: #d3d3d3;\n        color: #000000;\n      }\n      .flip-icon {\n        transform: rotateY(180deg);\n      }\n      paper-tooltip {\n        --paper-tooltip-background: #000000;\n        --paper-tooltip-opacity: 1;\n        --paper-tooltip-text-color: #ffffff;\n        --paper-tooltip-delay-in: 0;\n        --paper-tooltip: {\n          border-radius: 0;\n        }\n      }\n    </style>\n\n    <paper-button\n      disabled="[[disabled]]"\n      id="buttoncontainer"\n      tabindex="0"\n      title$="[[tooltip]]"\n    >\n      <iron-icon id="button" icon="[[icon]]" hidden$="[[!icon]]"></iron-icon>\n      <span id="label" hidden$="[[!label]]">[[label]]</span> <slot></slot>\n    </paper-button>\n    <paper-tooltip\n      id="tooltip"\n      for$="[[this]]"\n      offset="10"\n      position="[[tooltipDirection]]"\n      animation-delay="0"\n    >\n      [[tooltip]]\n    </paper-tooltip>\n  '],['\n    <style include="simple-colors hax-shared-styles">\n      :host {\n        display: flex;\n        box-sizing: border-box;\n        height: 36px;\n        width: 36px;\n      }\n      :host([mini]) {\n        height: unset;\n        width: unset;\n      }\n      :host([menu]) {\n        width: 100%;\n        position: relative;\n        display: -ms-flexbox;\n        display: -webkit-flex;\n        display: flex;\n        -ms-flex-direction: row;\n        -webkit-flex-direction: row;\n        flex-direction: row;\n        -webkit-justify-content: flex-start;\n        justify-content: flex-start;\n        -webkit-font-smoothing: antialiased;\n        font-size: 16px;\n        font-weight: 400;\n        line-height: 24px;\n      }\n      :host([menu]) paper-button {\n        -webkit-justify-content: flex-start;\n        justify-content: flex-start;\n      }\n      #label {\n        padding-left: 5px;\n      }\n      paper-button {\n        display: flex;\n        align-items: center;\n        background-color: var(--hax-color-bg-accent);\n        color: var(--hax-color-text);\n        min-width: 0;\n        margin: 0;\n        text-transform: none;\n        padding: 0;\n        border-radius: 0;\n        font-size: 12px;\n        transition: 0.3s all;\n        height: 36px;\n        width: 36px;\n        min-width: unset;\n        @apply --hax-toolbar-item-container;\n        --paper-button-ink-color: var(--hax-color-accent1);\n      }\n      paper-button:active,\n      paper-button:hover,\n      paper-button:focus {\n        color: var(--hax-color-text-active);\n        outline: 1px solid var(--hax-color-accent1);\n      }\n      :host([default]) paper-button {\n        background: black;\n      }\n      :host([dark]) paper-button {\n        background-color: var(--hax-color-text);\n        color: var(--hax-color-bg-accent);\n      }\n      :host([dark]) paper-button:hover {\n        background-color: var(--hax-color-bg-accent);\n        color: var(--hax-color-text);\n      }\n      :host([dark]) paper-button:active {\n        background: var(--hax-color-bg-accent);\n        color: var(--hax-color-text);\n      }\n      iron-icon {\n        width: 20px;\n        height: 20px;\n        padding: 0;\n        margin: 0;\n      }\n      :host([mini]) iron-icon {\n        width: 16px;\n        height: 16px;\n      }\n      :host([mini]) paper-button {\n        border-radius: 50%;\n        width: 18px;\n        height: 18px;\n        padding: 1px;\n        border: 1px solid var(--hax-color-border-outline);\n      }\n      :host([mini]) paper-button:active,\n      :host([mini]) paper-button:hover,\n      :host([mini]) paper-button:focus {\n        outline: unset;\n        border: 1px solid var(--hax-color-accent1);\n      }\n      :host([menu]) paper-button {\n        padding: 0 8px;\n        width: 100%;\n        height: 36px;\n      }\n      :host([menu]) paper-button:hover {\n        background-color: #d3d3d3;\n        color: #000000;\n      }\n      .flip-icon {\n        transform: rotateY(180deg);\n      }\n      paper-tooltip {\n        --paper-tooltip-background: #000000;\n        --paper-tooltip-opacity: 1;\n        --paper-tooltip-text-color: #ffffff;\n        --paper-tooltip-delay-in: 0;\n        --paper-tooltip: {\n          border-radius: 0;\n        }\n      }\n    </style>\n\n    <paper-button\n      disabled="[[disabled]]"\n      id="buttoncontainer"\n      tabindex="0"\n      title\\$="[[tooltip]]"\n    >\n      <iron-icon id="button" icon="[[icon]]" hidden\\$="[[!icon]]"></iron-icon>\n      <span id="label" hidden\\$="[[!label]]">[[label]]</span> <slot></slot>\n    </paper-button>\n    <paper-tooltip\n      id="tooltip"\n      for\\$="[[this]]"\n      offset="10"\n      position="[[tooltipDirection]]"\n      animation-delay="0"\n    >\n      [[tooltip]]\n    </paper-tooltip>\n  ']);return M=function(){return e},e}function j(){var e=T(['\n    <style>\n      :host {\n        display: block;\n        box-sizing: border-box;\n      }\n      paper-menu-button {\n        color: rgba(0, 0, 0, 0.66);\n        margin: 0;\n        padding: 0;\n        text-transform: none;\n        background-color: #ffffff;\n        display: flex;\n        min-width: 24px;\n      }\n\n      paper-menu-button .label {\n        font-size: 12px;\n        margin-top: 4px;\n      }\n\n      paper-menu-button .button-inner {\n        padding-top: 8px;\n        text-align: center;\n      }\n\n      paper-icon-button {\n        color: rgba(0, 0, 0, 0.66);\n        margin: 0;\n        text-transform: none;\n        background-color: #ffffff;\n        min-width: 24px;\n        display: flex;\n        padding: 0;\n        border-radius: 0;\n      }\n\n      paper-icon-button {\n        padding: 8px;\n        margin: 0;\n        box-sizing: border-box;\n      }\n\n      paper-icon-button:hover {\n        background-color: var(--paper-grey-300, grey);\n      }\n\n      .flip-icon {\n        transform: rotateY(180deg);\n      }\n\n      paper-tooltip {\n        pointer-events: none;\n      }\n      paper-listbox {\n        padding: 0;\n      }\n    </style>\n    <paper-menu-button>\n      <hax-toolbar-item\n        id="button"\n        slot="dropdown-trigger"\n        icon="[[icon]]"\n        hidden$="[[!icon]]"\n        class$="[[iconClass]]"\n        tooltip="[[tooltip]]"\n      ></hax-toolbar-item>\n      <paper-listbox\n        id="listbox"\n        slot="dropdown-content"\n        selected="{{selected}}"\n      >\n        <slot></slot>\n      </paper-listbox>\n    </paper-menu-button>\n  '],['\n    <style>\n      :host {\n        display: block;\n        box-sizing: border-box;\n      }\n      paper-menu-button {\n        color: rgba(0, 0, 0, 0.66);\n        margin: 0;\n        padding: 0;\n        text-transform: none;\n        background-color: #ffffff;\n        display: flex;\n        min-width: 24px;\n      }\n\n      paper-menu-button .label {\n        font-size: 12px;\n        margin-top: 4px;\n      }\n\n      paper-menu-button .button-inner {\n        padding-top: 8px;\n        text-align: center;\n      }\n\n      paper-icon-button {\n        color: rgba(0, 0, 0, 0.66);\n        margin: 0;\n        text-transform: none;\n        background-color: #ffffff;\n        min-width: 24px;\n        display: flex;\n        padding: 0;\n        border-radius: 0;\n      }\n\n      paper-icon-button {\n        padding: 8px;\n        margin: 0;\n        box-sizing: border-box;\n      }\n\n      paper-icon-button:hover {\n        background-color: var(--paper-grey-300, grey);\n      }\n\n      .flip-icon {\n        transform: rotateY(180deg);\n      }\n\n      paper-tooltip {\n        pointer-events: none;\n      }\n      paper-listbox {\n        padding: 0;\n      }\n    </style>\n    <paper-menu-button>\n      <hax-toolbar-item\n        id="button"\n        slot="dropdown-trigger"\n        icon="[[icon]]"\n        hidden\\$="[[!icon]]"\n        class\\$="[[iconClass]]"\n        tooltip="[[tooltip]]"\n      ></hax-toolbar-item>\n      <paper-listbox\n        id="listbox"\n        slot="dropdown-content"\n        selected="{{selected}}"\n      >\n        <slot></slot>\n      </paper-listbox>\n    </paper-menu-button>\n  ']);return j=function(){return e},e}function P(){var e=T(['\n    <style include="hax-shared-styles">\n      :host {\n        display: inline-flex;\n        height: 36px;\n        box-sizing: border-box;\n      }\n      :host hax-toolbar-menu ::slotted(*):hover {\n        background-color: var(--hax-color-bg-accent);\n      }\n      :host hax-toolbar-menu ::slotted(*) {\n        height: 36px;\n      }\n    </style>\n    <hax-toolbar-menu\n      id="menu"\n      icon="[[icon]]"\n      tooltip="[[label]]"\n      tooltip-direction="[[direction]]"\n      selected="{{selectedValue}}"\n      reset-on-select="[[resetOnSelect]]"\n    >\n      <slot></slot>\n    </hax-toolbar-menu>\n  ']);return P=function(){return e},e}function $(){var e=T(['\n    <style>\n      :host {\n        display: inline-flex;\n        height: 36px;\n        width: 36px;\n      }\n      :host([mini]) {\n        height: unset;\n        width: unset;\n      }\n      :host([menu]) {\n        display: flex;\n        width: 100%;\n      }\n    </style>\n    <hax-toolbar-item\n      disabled="[[disabled]]"\n      light="[[light]]"\n      mini="[[mini]]"\n      id="button"\n      icon="[[icon]]"\n      hidden$="[[!icon]]"\n      icon-class="[[iconClass]]"\n      on-mousedown="_storeSelection"\n      on-click="_fireEvent"\n      tooltip="[[label]]"\n      tooltip-direction="[[direction]]"\n      default="[[default]]"\n      menu="[[menu]]"\n    >\n      <slot></slot>\n    </hax-toolbar-item>\n  '],['\n    <style>\n      :host {\n        display: inline-flex;\n        height: 36px;\n        width: 36px;\n      }\n      :host([mini]) {\n        height: unset;\n        width: unset;\n      }\n      :host([menu]) {\n        display: flex;\n        width: 100%;\n      }\n    </style>\n    <hax-toolbar-item\n      disabled="[[disabled]]"\n      light="[[light]]"\n      mini="[[mini]]"\n      id="button"\n      icon="[[icon]]"\n      hidden\\$="[[!icon]]"\n      icon-class="[[iconClass]]"\n      on-mousedown="_storeSelection"\n      on-click="_fireEvent"\n      tooltip="[[label]]"\n      tooltip-direction="[[direction]]"\n      default="[[default]]"\n      menu="[[menu]]"\n    >\n      <slot></slot>\n    </hax-toolbar-item>\n  ']);return $=function(){return e},e}function A(){var e=T(['\n    <style>\n      :host {\n        display: inline-flex;\n        box-sizing: border-box;\n        height: 36px;\n        width: 36px;\n      }\n      :host([menu]) {\n        display: flex;\n        width: 100%;\n      }\n    </style>\n    <iron-a11y-keys\n      id="a11y"\n      target="[[target]]"\n      keys="enter"\n      on-keys-pressed="_fireEvent"\n    ></iron-a11y-keys>\n    <hax-toolbar-item\n      id="button"\n      icon="[[icon]]"\n      hidden$="[[!icon]]"\n      tooltip-direction="[[direction]]"\n      tooltip="[[label]]"\n      on-mousedown="_fireEvent"\n      mini="[[mini]]"\n      menu="[[menu]]"\n      light="[[light]]"\n    >\n      <slot></slot>\n    </hax-toolbar-item>\n  '],['\n    <style>\n      :host {\n        display: inline-flex;\n        box-sizing: border-box;\n        height: 36px;\n        width: 36px;\n      }\n      :host([menu]) {\n        display: flex;\n        width: 100%;\n      }\n    </style>\n    <iron-a11y-keys\n      id="a11y"\n      target="[[target]]"\n      keys="enter"\n      on-keys-pressed="_fireEvent"\n    ></iron-a11y-keys>\n    <hax-toolbar-item\n      id="button"\n      icon="[[icon]]"\n      hidden\\$="[[!icon]]"\n      tooltip-direction="[[direction]]"\n      tooltip="[[label]]"\n      on-mousedown="_fireEvent"\n      mini="[[mini]]"\n      menu="[[menu]]"\n      light="[[light]]"\n    >\n      <slot></slot>\n    </hax-toolbar-item>\n  ']);return A=function(){return e},e}function E(){var e=T(['\n    <style is="custom-style" include="simple-colors hax-shared-styles">\n      :host {\n        display: flex;\n        justify-content: flex-start;\n        visibility: visible;\n        transition: 0.3s all ease;\n        box-sizing: border-box;\n        height: 36px;\n        pointer-events: all;\n      }\n      :host *[hidden] {\n        display: none;\n      }\n      .wrapper {\n        display: flex;\n        margin-top: -1px;\n        border: 1px solid var(--hax-color-border-outline);\n        height: 36px;\n        align-items: center;\n      }\n      :host .wrapper ::slotted(*) {\n        pointer-events: all;\n      }\n      .close-cap {\n        margin: 10px 12px 0 8px;\n        display: flex;\n        padding: 0;\n      }\n      :host * ::slotted(hax-context-item:hover),\n      :host * ::slotted(hax-context-item-textop:hover),\n      :host * ::slotted(hax-context-item-menu:hover),\n      hax-context-item:hover,\n      hax-context-item-textop:hover,\n      hax-context-item-menu:hover {\n        z-index: 2;\n      }\n      #moremenu hax-context-item,\n      #moremenu ::slotted(paper-item),\n      paper-item {\n        height: 32px;\n        padding: 0;\n        min-width: 100px;\n      }\n\n      #moremenu hax-context-item:hover,\n      :host #moremenu ::slotted(paper-item:hover),\n      paper-item:hover {\n        background-color: var(--hax-color-menu-heading-bg);\n        cursor: pointer;\n      }\n      paper-slider {\n        background-color: var(--hax-color-bg-accent);\n        color: #ffffff;\n        font-weight: bold;\n        height: 36px;\n        min-width: 100px;\n        --paper-slider-font-color: var(--hax-color-accent1-text);\n        --paper-slider-active-color: var(--hax-color-accent1);\n        --paper-slider-knob-color: var(--hax-color-accent1);\n        --paper-slider-pin-start-color: var(--hax-color-accent1);\n        --paper-slider-pin-color: var(--hax-color-accent1);\n      }\n      .convert-button {\n        border-top: 1px solid var(--hax-color-bg-accent);\n      }\n    </style>\n    <hax-context-item\n      hidden$="[[inline]]"\n      mini\n      light\n      icon="close"\n      label="Close"\n      event-name="close-menu"\n      class="close-cap"\n      direction="left"\n    ></hax-context-item>\n    <div class="wrapper">\n      <hax-context-item-menu\n        hidden$="[[!haxProperties.canPosition]]"\n        selected-value="{{justifyValue}}"\n        id="justify"\n        icon="[[justifyIcon]]"\n        label="Alignment"\n      >\n        <hax-context-item\n          menu\n          icon="editor:format-align-left"\n          event-name="hax-align-left"\n          >Left</hax-context-item\n        >\n        <hax-context-item\n          menu\n          icon="editor:format-align-center"\n          event-name="hax-align-center"\n          >Center</hax-context-item\n        >\n      </hax-context-item-menu>\n      <paper-slider\n        hidden$="[[!haxProperties.canScale]]"\n        id="slider"\n        pin=""\n        min="25"\n        step="25"\n        max="100"\n        value="{{size}}"\n      ></paper-slider>\n      <paper-tooltip\n        hidden$="[[inline]]"\n        for="slider"\n        position="top"\n        offset="10"\n      >\n        Resize\n      </paper-tooltip>\n      <slot name="primary"></slot>\n      <hax-context-item\n        hidden$="[[inline]]"\n        icon="delete"\n        icon-class="red-text text-darken-1"\n        label="Remove"\n        event-name="grid-plate-delete"\n      ></hax-context-item>\n      <hax-context-item-menu\n        hidden$="[[hideMore]]"\n        icon="more-vert"\n        label="More"\n        id="moremenu"\n        event-name="grid-plate-op"\n        reset-on-select=""\n      >\n        <paper-item value="" hidden></paper-item>\n        <slot name="more"></slot>\n        <hax-context-item\n          menu\n          icon="icons:content-copy"\n          icon-class="green-text"\n          event-name="grid-plate-duplicate"\n          >Duplicate</hax-context-item\n        >\n        <hax-context-item\n          hidden$="[[hideTransform]]"\n          menu\n          icon="image:transform"\n          class="convert-button"\n          icon-class="orange-text"\n          event-name="grid-plate-convert"\n          >Transform to..</hax-context-item\n        >\n      </hax-context-item-menu>\n    </div>\n  ']);return E=function(){return e},e}function z(){var e=T(['\n    <style include="simple-colors hax-shared-styles">\n      :host {\n        display: block;\n        pointer-events: none;\n        background-color: white;\n      }\n      :host [hidden] {\n        display: none;\n      }\n      paper-item {\n        -webkit-justify-content: flex-start;\n        justify-content: flex-start;\n        height: 36px;\n        padding: 0 8px;\n        min-height: 36px;\n      }\n      paper-item:hover {\n        background-color: #d3d3d3;\n        cursor: pointer;\n      }\n      iron-icon {\n        padding: 8px;\n      }\n      paper-item strong {\n        padding: 8px;\n        font-size: 12px;\n      }\n      :host(.hax-context-pin-top) hax-toolbar {\n        position: fixed;\n        top: 64px;\n        opacity: 0.95;\n      }\n      :host(.hax-context-pin-bottom) hax-toolbar {\n        position: fixed;\n        bottom: 0;\n        opacity: 0.95;\n      }\n    </style>\n    <hax-toolbar selected="[[selection]]" hide-transform="" id="toolbar">\n      <hax-context-item-menu\n        slot="primary"\n        selected-value="{{selectedValue}}"\n        id="formatsize"\n        icon="text-format"\n        label="Format"\n        event-name="text-tag"\n      >\n        <paper-item value="p"\n          ><iron-icon icon="editor:format-textdirection-l-to-r"></iron-icon\n          >Normal text <strong>&lt;P&gt;</strong></paper-item\n        >\n        <paper-item value="h2"\n          ><iron-icon icon="editor:title"></iron-icon>Title\n          <strong>&lt;H2&gt;</strong></paper-item\n        >\n        <paper-item value="h3"\n          ><iron-icon icon="editor:title"></iron-icon>Content heading\n          <strong>&lt;H3&gt;</strong></paper-item\n        >\n        <paper-item value="h4"\n          ><iron-icon icon="editor:text-fields"></iron-icon>Subheading\n          <strong>&lt;H4&gt;</strong></paper-item\n        >\n        <paper-item value="h5"\n          ><iron-icon icon="editor:text-fields"></iron-icon>Deeper subheading\n          <strong>&lt;H5&gt;</strong></paper-item\n        >\n        <paper-item value="blockquote"\n          ><iron-icon icon="editor:format-quote"></iron-icon>Quote<strong\n            >&lt;blockquote&gt;</strong\n          ></paper-item\n        >\n        <paper-item value="code"\n          ><iron-icon icon="icons:code"></iron-icon>Code block<strong\n            >&lt;code&gt;</strong\n          ></paper-item\n        >\n      </hax-context-item-menu>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-bold"\n        label="Bold"\n        event-name="text-bold"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-italic"\n        label="Italic"\n        event-name="text-italic"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:insert-link"\n        label="Link"\n        event-name="text-link"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-list-numbered"\n        label="Numbered list"\n        event-name="text-list-numbered"\n        hidden$="[[!polyfillSafe]]"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-list-bulleted"\n        label="Bulleted list"\n        event-name="text-list-bulleted"\n        hidden$="[[!polyfillSafe]]"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-indent-increase"\n        label="Indent"\n        event-name="text-indent"\n        hidden$="[[!polyfillSafe]]"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-indent-decrease"\n        label="Outdent"\n        event-name="text-outdent"\n        hidden$="[[!polyfillSafe]]"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-clear"\n        label="Remove format"\n        event-name="text-remove-format"\n      ></hax-context-item-textop>\n      <hax-context-item\n        slot="primary"\n        icon="device:graphic-eq"\n        label="Advanced item"\n        event-name="insert-inline-gizmo"\n        hidden$="[[isSafari]]"\n      ></hax-context-item>\n      <hax-context-item-textop\n        slot="primary"\n        icon="device:graphic-eq"\n        label="Advanced item"\n        event-name="insert-inline-gizmo"\n        hidden$="[[!isSafari]]"\n      ></hax-context-item-textop>\n\n      <hax-context-item-textop\n        menu=""\n        slot="more"\n        icon="mdextra:unlink"\n        event-name="text-unlink"\n        >Remove link</hax-context-item-textop\n      >\n      <hax-context-item-textop\n        menu=""\n        slot="more"\n        icon="mdextra:subscript"\n        event-name="text-subscript"\n        >Subscript</hax-context-item-textop\n      >\n      <hax-context-item-textop\n        menu=""\n        slot="more"\n        icon="mdextra:superscript"\n        event-name="text-superscript"\n        >Superscript</hax-context-item-textop\n      >\n      <hax-context-item-textop\n        menu=""\n        slot="more"\n        icon="editor:format-strikethrough"\n        event-name="text-strikethrough"\n        >Cross out</hax-context-item-textop\n      >\n    </hax-toolbar>\n  '],['\n    <style include="simple-colors hax-shared-styles">\n      :host {\n        display: block;\n        pointer-events: none;\n        background-color: white;\n      }\n      :host [hidden] {\n        display: none;\n      }\n      paper-item {\n        -webkit-justify-content: flex-start;\n        justify-content: flex-start;\n        height: 36px;\n        padding: 0 8px;\n        min-height: 36px;\n      }\n      paper-item:hover {\n        background-color: #d3d3d3;\n        cursor: pointer;\n      }\n      iron-icon {\n        padding: 8px;\n      }\n      paper-item strong {\n        padding: 8px;\n        font-size: 12px;\n      }\n      :host(.hax-context-pin-top) hax-toolbar {\n        position: fixed;\n        top: 64px;\n        opacity: 0.95;\n      }\n      :host(.hax-context-pin-bottom) hax-toolbar {\n        position: fixed;\n        bottom: 0;\n        opacity: 0.95;\n      }\n    </style>\n    <hax-toolbar selected="[[selection]]" hide-transform="" id="toolbar">\n      <hax-context-item-menu\n        slot="primary"\n        selected-value="{{selectedValue}}"\n        id="formatsize"\n        icon="text-format"\n        label="Format"\n        event-name="text-tag"\n      >\n        <paper-item value="p"\n          ><iron-icon icon="editor:format-textdirection-l-to-r"></iron-icon\n          >Normal text <strong>&lt;P&gt;</strong></paper-item\n        >\n        <paper-item value="h2"\n          ><iron-icon icon="editor:title"></iron-icon>Title\n          <strong>&lt;H2&gt;</strong></paper-item\n        >\n        <paper-item value="h3"\n          ><iron-icon icon="editor:title"></iron-icon>Content heading\n          <strong>&lt;H3&gt;</strong></paper-item\n        >\n        <paper-item value="h4"\n          ><iron-icon icon="editor:text-fields"></iron-icon>Subheading\n          <strong>&lt;H4&gt;</strong></paper-item\n        >\n        <paper-item value="h5"\n          ><iron-icon icon="editor:text-fields"></iron-icon>Deeper subheading\n          <strong>&lt;H5&gt;</strong></paper-item\n        >\n        <paper-item value="blockquote"\n          ><iron-icon icon="editor:format-quote"></iron-icon>Quote<strong\n            >&lt;blockquote&gt;</strong\n          ></paper-item\n        >\n        <paper-item value="code"\n          ><iron-icon icon="icons:code"></iron-icon>Code block<strong\n            >&lt;code&gt;</strong\n          ></paper-item\n        >\n      </hax-context-item-menu>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-bold"\n        label="Bold"\n        event-name="text-bold"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-italic"\n        label="Italic"\n        event-name="text-italic"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:insert-link"\n        label="Link"\n        event-name="text-link"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-list-numbered"\n        label="Numbered list"\n        event-name="text-list-numbered"\n        hidden\\$="[[!polyfillSafe]]"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-list-bulleted"\n        label="Bulleted list"\n        event-name="text-list-bulleted"\n        hidden\\$="[[!polyfillSafe]]"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-indent-increase"\n        label="Indent"\n        event-name="text-indent"\n        hidden\\$="[[!polyfillSafe]]"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-indent-decrease"\n        label="Outdent"\n        event-name="text-outdent"\n        hidden\\$="[[!polyfillSafe]]"\n      ></hax-context-item-textop>\n      <hax-context-item-textop\n        slot="primary"\n        icon="editor:format-clear"\n        label="Remove format"\n        event-name="text-remove-format"\n      ></hax-context-item-textop>\n      <hax-context-item\n        slot="primary"\n        icon="device:graphic-eq"\n        label="Advanced item"\n        event-name="insert-inline-gizmo"\n        hidden$="[[isSafari]]"\n      ></hax-context-item>\n      <hax-context-item-textop\n        slot="primary"\n        icon="device:graphic-eq"\n        label="Advanced item"\n        event-name="insert-inline-gizmo"\n        hidden$="[[!isSafari]]"\n      ></hax-context-item-textop>\n\n      <hax-context-item-textop\n        menu=""\n        slot="more"\n        icon="mdextra:unlink"\n        event-name="text-unlink"\n        >Remove link</hax-context-item-textop\n      >\n      <hax-context-item-textop\n        menu=""\n        slot="more"\n        icon="mdextra:subscript"\n        event-name="text-subscript"\n        >Subscript</hax-context-item-textop\n      >\n      <hax-context-item-textop\n        menu=""\n        slot="more"\n        icon="mdextra:superscript"\n        event-name="text-superscript"\n        >Superscript</hax-context-item-textop\n      >\n      <hax-context-item-textop\n        menu=""\n        slot="more"\n        icon="editor:format-strikethrough"\n        event-name="text-strikethrough"\n        >Cross out</hax-context-item-textop\n      >\n    </hax-toolbar>\n  ']);return z=function(){return e},e}function B(){var e=T(['\n    <style is="custom-style">\n      :host {\n        padding: 0;\n        margin: 0;\n        border-radius: 0;\n        box-sizing: content-box;\n      }\n      :host([disabled]) {\n        opacity: 0.5;\n      }\n      :host(:not([disabled]):focus),\n      :host(:not([disabled]):hover) {\n        cursor: pointer;\n      }\n      :host([disabled]:focus),\n      :host([disabled]:hover) {\n        cursor: not-allowed;\n      }\n      :host([selected]) {\n        outline: 1px solid white;\n      }\n      :host([dark][selected]) {\n        outline: 1px solid black;\n      }\n      :host(:focus),\n      :host(:hover) {\n        outline: 1px dotted white;\n      }\n      :host([dark]:focus),\n      :host([dark]:hover) {\n        outline: 1px dotted black;\n      }\n    </style>\n  ']);return B=function(){return e},e}function q(){var e=T(['\n    <custom-style>\n      <style is="custom-style">\n        :host {\n          display: inline-block;\n          position: relative;\n        }\n        :host,\n        :host #button,\n        :host #palette {\n          margin: 0;\n          padding: 0;\n        }\n        :host #collapse {\n          position: absolute;\n          top: var(--simple-colors-picker-preview-size, 20px);\n          margin-top: 12px;\n        }\n        :host([disabled]) #collapse,\n        :host([collapsed]) #collapse {\n          height: 0;\n          overflow: hidden;\n          transition: all 0.3s;\n          transition-delay: 0.3s;\n        }\n        :host #palette {\n          position: absolute;\n          left: 0;\n          right: 0;\n          display: table;\n          border-collapse: collapse;\n          z-index: 1000;\n          border: 1px solid;\n          border-color: var(\n            --simple-colors-picker-button-border-color,\n            --simple-colors-background3\n          );\n        }\n        :host .row {\n          display: table-row;\n        }\n        :host simple-colors-picker-swatch {\n          display: table-cell;\n          padding-top: var(--simple-colors-picker-swatch-size, 20px);\n          padding-left: var(--simple-colors-picker-swatch-size, 20px);\n        }\n        :host simple-colors-picker-swatch[disabled] {\n          display: none;\n        }\n        :host .sr-only {\n          display: table-cell;\n          font-size: 0;\n        }\n        :host #button {\n          display: flex;\n          align-items: center;\n          border: 1px solid;\n          border-radius: 4px;\n          color: var(\n            --simple-colors-picker-button-color,\n            --simple-colors-foreground2\n          );\n          border-color: var(\n            --simple-colors-picker-button-border-color,\n            --simple-colors-background3\n          );\n          background-color: var(\n            --simple-colors-picker-button-bg-color,\n            --simple-colors-background2\n          );\n        }\n        :host([disabled]) #button,\n        :host #button[disabled] {\n          color: var(\n            --simple-colors-picker-button-disabled-color,\n            --simple-colors-foreground4\n          );\n          border-color: var(\n            --simple-colors-picker-button-disabled-border-color,\n            --simple-colors-background5\n          );\n          background-color: var(\n            --simple-colors-picker-button-disabled-bg-color,\n            --simple-colors-background4\n          );\n          cursor: not-allowed;\n        }\n        :host(:not([disabled])) #button:focus,\n        :host(:not([disabled])) #button:hover {\n          color: var(\n            --simple-colors-picker-button-hover-color,\n            --simple-colors-foreground1\n          );\n          border-color: var(\n            --simple-colors-picker-button-hover-color,\n            --simple-colors-background5\n          );\n          background-color: var(\n            --simple-colors-picker-button-hover-bg-color,\n            --simple-colors-background1\n          );\n        }\n        :host #button > div {\n          margin: 5px;\n          border: 1px solid;\n          flex-grow: 1;\n          border-color: var(\n            --simple-colors-picker-button-hover-color,\n            --simple-colors-background5\n          );\n          display: inline-block;\n        }\n        :host #button > div,\n        :host #button > div iron-icon {\n          width: var(--simple-colors-picker-preview-size, 20px);\n          height: var(--simple-colors-picker-preview-size, 20px);\n        }\n        :host(:not([collapsed])) #icon {\n          transform: rotate(-90deg);\n          transition: transform 0.25s;\n        }\n        :host #empty {\n          padding: 15px;\n        }\n        @media screen and (max-width: 600px) {\n          :host {\n            position: static;\n          }\n          :host #collapse {\n            top: 0;\n            margin-top: 0;\n            position: relative;\n          }\n          :host #palette {\n            position: sticky;\n          }\n        }\n      </style>\n    </custom-style>\n    <button id="button" label="[[label]]" disabled$="[[disabled]]">\n      <div id="swatch" style="[[selectedStyle]]">\n        <iron-icon id="texture" icon="image:texture"></iron-icon>\n      </div>\n      <span id="icon"><iron-icon icon="arrow-drop-down"></iron-icon></span>\n    </button>\n    <div id="collapse" aria-collapsed="[[collapse]]">\n      <div id="palette">\n        <div id="empty">No colors available.</div>\n        <template\n          id="rows"\n          is="dom-repeat"\n          items="[[swatches]]"\n          as="row"\n          index-as="level"\n        >\n          <div class="row">\n            <span id="level" class="sr-only">lightness level [[level]]</span>\n            <template\n              id="swatches"\n              is="dom-repeat"\n              items="[[row]]"\n              as="swatch"\n              index-as="order"\n            >\n              <simple-colors-picker-swatch\n                aria-describedby="level"\n                disabled="[[disabled]]"\n                hex="[[swatch.hex]]"\n                label="[[swatch.label]]"\n                level="[[swatch.level]]"\n                order="[[order]]"\n                role="button"\n                selected="[[swatch.selected]]"\n                tabindex="0"\n              >\n              </simple-colors-picker-swatch>\n            </template>\n          </div>\n        </template>\n      </div>\n    </div>\n  '],['\n    <custom-style>\n      <style is="custom-style">\n        :host {\n          display: inline-block;\n          position: relative;\n        }\n        :host,\n        :host #button,\n        :host #palette {\n          margin: 0;\n          padding: 0;\n        }\n        :host #collapse {\n          position: absolute;\n          top: var(--simple-colors-picker-preview-size, 20px);\n          margin-top: 12px;\n        }\n        :host([disabled]) #collapse,\n        :host([collapsed]) #collapse {\n          height: 0;\n          overflow: hidden;\n          transition: all 0.3s;\n          transition-delay: 0.3s;\n        }\n        :host #palette {\n          position: absolute;\n          left: 0;\n          right: 0;\n          display: table;\n          border-collapse: collapse;\n          z-index: 1000;\n          border: 1px solid;\n          border-color: var(\n            --simple-colors-picker-button-border-color,\n            --simple-colors-background3\n          );\n        }\n        :host .row {\n          display: table-row;\n        }\n        :host simple-colors-picker-swatch {\n          display: table-cell;\n          padding-top: var(--simple-colors-picker-swatch-size, 20px);\n          padding-left: var(--simple-colors-picker-swatch-size, 20px);\n        }\n        :host simple-colors-picker-swatch[disabled] {\n          display: none;\n        }\n        :host .sr-only {\n          display: table-cell;\n          font-size: 0;\n        }\n        :host #button {\n          display: flex;\n          align-items: center;\n          border: 1px solid;\n          border-radius: 4px;\n          color: var(\n            --simple-colors-picker-button-color,\n            --simple-colors-foreground2\n          );\n          border-color: var(\n            --simple-colors-picker-button-border-color,\n            --simple-colors-background3\n          );\n          background-color: var(\n            --simple-colors-picker-button-bg-color,\n            --simple-colors-background2\n          );\n        }\n        :host([disabled]) #button,\n        :host #button[disabled] {\n          color: var(\n            --simple-colors-picker-button-disabled-color,\n            --simple-colors-foreground4\n          );\n          border-color: var(\n            --simple-colors-picker-button-disabled-border-color,\n            --simple-colors-background5\n          );\n          background-color: var(\n            --simple-colors-picker-button-disabled-bg-color,\n            --simple-colors-background4\n          );\n          cursor: not-allowed;\n        }\n        :host(:not([disabled])) #button:focus,\n        :host(:not([disabled])) #button:hover {\n          color: var(\n            --simple-colors-picker-button-hover-color,\n            --simple-colors-foreground1\n          );\n          border-color: var(\n            --simple-colors-picker-button-hover-color,\n            --simple-colors-background5\n          );\n          background-color: var(\n            --simple-colors-picker-button-hover-bg-color,\n            --simple-colors-background1\n          );\n        }\n        :host #button > div {\n          margin: 5px;\n          border: 1px solid;\n          flex-grow: 1;\n          border-color: var(\n            --simple-colors-picker-button-hover-color,\n            --simple-colors-background5\n          );\n          display: inline-block;\n        }\n        :host #button > div,\n        :host #button > div iron-icon {\n          width: var(--simple-colors-picker-preview-size, 20px);\n          height: var(--simple-colors-picker-preview-size, 20px);\n        }\n        :host(:not([collapsed])) #icon {\n          transform: rotate(-90deg);\n          transition: transform 0.25s;\n        }\n        :host #empty {\n          padding: 15px;\n        }\n        @media screen and (max-width: 600px) {\n          :host {\n            position: static;\n          }\n          :host #collapse {\n            top: 0;\n            margin-top: 0;\n            position: relative;\n          }\n          :host #palette {\n            position: sticky;\n          }\n        }\n      </style>\n    </custom-style>\n    <button id="button" label="[[label]]" disabled\\$="[[disabled]]">\n      <div id="swatch" style="[[selectedStyle]]">\n        <iron-icon id="texture" icon="image:texture"></iron-icon>\n      </div>\n      <span id="icon"><iron-icon icon="arrow-drop-down"></iron-icon></span>\n    </button>\n    <div id="collapse" aria-collapsed="[[collapse]]">\n      <div id="palette">\n        <div id="empty">No colors available.</div>\n        <template\n          id="rows"\n          is="dom-repeat"\n          items="[[swatches]]"\n          as="row"\n          index-as="level"\n        >\n          <div class="row">\n            <span id="level" class="sr-only">lightness level [[level]]</span>\n            <template\n              id="swatches"\n              is="dom-repeat"\n              items="[[row]]"\n              as="swatch"\n              index-as="order"\n            >\n              <simple-colors-picker-swatch\n                aria-describedby="level"\n                disabled="[[disabled]]"\n                hex="[[swatch.hex]]"\n                label="[[swatch.label]]"\n                level="[[swatch.level]]"\n                order="[[order]]"\n                role="button"\n                selected="[[swatch.selected]]"\n                tabindex="0"\n              >\n              </simple-colors-picker-swatch>\n            </template>\n          </div>\n        </template>\n      </div>\n    </div>\n  ']);return q=function(){return e},e}function O(){var e=T(['\n    <style includes="hax-shared-styles">\n      :host *[hidden] {\n        display: none;\n      }\n      :host {\n        display: block;\n        height: 36px;\n      }\n      hax-context-item {\n        margin: 0;\n        height: 36px;\n      }\n      .human-name {\n        font-size: 16px;\n        line-height: 16px;\n        width: -webkit-fit-content;\n        width: -moz-max-content;\n        width: fit-content;\n      }\n      .human-name-inner {\n        border: 1px solid var(--hax-color-border-outline);\n        font-family: "Noto Serif", serif;\n        font-size: 16px;\n        margin: -33px 0px 0 38px;\n        line-height: 16px;\n        padding: 8px;\n        width: -webkit-fit-content;\n        width: -moz-max-content;\n        width: fit-content;\n        background-color: var(--hax-color-accent1);\n        color: var(--hax-color-accent1-text);\n        border-bottom: none;\n      }\n      :host(:hover) .human-name-inner {\n        opacity: 1;\n      }\n      :host(.hax-context-pin-top) hax-toolbar {\n        position: fixed;\n        top: 64px;\n        opacity: 0.9;\n      }\n      :host(.hax-context-pin-bottom) hax-toolbar {\n        position: fixed;\n        bottom: 0;\n        opacity: 0.9;\n      }\n      :host(.hax-context-pin-top) hax-toolbar:hover,\n      :host(.hax-context-pin-bottom) hax-toolbar:hover {\n        opacity: 1;\n      }\n    </style>\n    <div class="human-name">\n      <div class="human-name-inner">[[humanName]]</div>\n    </div>\n    <hax-toolbar hax-properties="[[haxProperties]]" size="{{ceSize}}">\n      <slot slot="primary"></slot>\n      <hax-context-item\n        slot="primary"\n        icon="icons:settings"\n        label="Settings"\n        event-name="hax-manager-configure"\n        hidden$="[[!__hasSettingsForm]]"\n      ></hax-context-item>\n      <hax-context-item\n        slot="primary"\n        icon="icons:view-quilt"\n        label="[[__parentName]]"\n        event-name="hax-manager-configure-container"\n        hidden$="[[!__hasParentSettingsForm]]"\n      ></hax-context-item>\n    </hax-toolbar>\n  ']);return O=function(){return e},e}function R(){var e=T(['\n    <style>\n      :host {\n        display: block;\n        width: 32px;\n      }\n      hax-context-item {\n        display: block;\n        margin: 6px 0;\n        width: 28px;\n        height: 24px;\n      }\n      .area {\n        width: 32px;\n        float: left;\n        visibility: visible;\n        transition: 0.3s all ease;\n      }\n    </style>\n    <div class="area">\n      <hax-context-item\n        mini\n        light\n        icon="hardware:keyboard-arrow-up"\n        label="Move up"\n        event-name="grid-plate-up"\n        direction="left"\n      ></hax-context-item>\n      <hax-context-item\n        mini\n        light\n        icon="hardware:keyboard-arrow-down"\n        label="Move down"\n        event-name="grid-plate-down"\n        direction="left"\n      ></hax-context-item>\n    </div>\n  ']);return R=function(){return e},e}function I(){var e=T(['\n    <style includes="hax-shared-styles">\n      :host {\n        display: block;\n        margin: 0;\n        border: 1px solid var(--hax-color-bg-accent);\n      }\n      .wrapper {\n        background-color: var(--hax-color-bg-accent);\n        color: var(--hax-color-text);\n        display: flex;\n        align-items: center;\n      }\n      hax-context-item {\n        margin: 0;\n        width: 40px;\n        height: 40px;\n      }\n      #elementoptions {\n        height: inherit;\n      }\n      #input {\n        color: #ffffff;\n      }\n      paper-checkbox {\n        --paper-checkbox-label-color: #ffffff;\n      }\n      .input-mixer-label {\n        padding-left: 4px;\n      }\n      paper-textarea,\n      paper-input {\n        --paper-input-container: {\n          padding: 0;\n        }\n        --paper-input-container-label-floating: {\n          color: var(--hax-color-text);\n        }\n        --paper-input-container-color: var(--hax-color-text);\n        --paper-input-container-focus-color: var(--hax-color-text);\n        --paper-input-container-invalid-color: var(--hax-color-text);\n        --paper-input-container-input-color: var(--hax-color-text);\n        --paper-input-container-shared-input-style: {\n          color: var(--hax-color-text);\n          background: transparent;\n          margin: 0;\n          padding: 0;\n          min-width: 300px;\n          line-height: 16px;\n          font-size: 16px;\n          outline: none;\n          border: none;\n        }\n      }\n      .input-method {\n        color: #ffffff;\n        padding: 0 8px;\n      }\n      #updatebutton {\n        border: 1px solid black;\n      }\n      #updatebutton:hover {\n        border: none;\n      }\n    </style>\n    <div class="wrapper">\n      <template is="dom-if" if="[[__inputselect]]">\n        <span class="input-mixer-label">[[label]]</span>\n        <hax-context-item-menu\n          selected-value="{{__selectedValue}}"\n          icon="[[icon]]"\n          id="input"\n        >\n          <slot></slot>\n        </hax-context-item-menu>\n      </template>\n      <span class="input-method">\n        <template is="dom-if" if="[[__inputtextarea]]">\n          <paper-textarea\n            id="input"\n            label="[[label]]"\n            value="{{value}}"\n            auto-validate=""\n            pattern="[[validation]]"\n            required="[[required]]"\n          ></paper-textarea>\n        </template>\n        <template is="dom-if" if="[[__inputtextfield]]">\n          <paper-input\n            id="input"\n            type="[[validationType]]"\n            label="[[label]]"\n            value="{{value}}"\n            auto-validate=""\n            pattern="[[validation]]"\n            required="[[required]]"\n          ></paper-input>\n        </template>\n        <template is="dom-if" if="[[__inputboolean]]">\n          <paper-checkbox id="input" checked="{{value}}"\n            >[[label]]</paper-checkbox\n          >\n        </template>\n        <template is="dom-if" if="[[__inputflipboolean]]">\n          <paper-checkbox id="input" checked="{{value}}"\n            >[[label]]</paper-checkbox\n          >\n        </template>\n        <template is="dom-if" if="[[__inputcolorpicker]]">\n          <span>[[label]]</span>\n          <simple-colors-picker\n            id="input"\n            value="{{value}}"\n          ></simple-colors-picker>\n        </template>\n      </span>\n      <paper-tooltip for="input" position="top" offset="14">\n        [[description]]\n      </paper-tooltip>\n      <hax-context-item\n        id="updatebutton"\n        icon="subdirectory-arrow-right"\n        label$="Update [[label]]"\n        event-name="hax-update-tap"\n      ></hax-context-item>\n    </div>\n  '],['\n    <style includes="hax-shared-styles">\n      :host {\n        display: block;\n        margin: 0;\n        border: 1px solid var(--hax-color-bg-accent);\n      }\n      .wrapper {\n        background-color: var(--hax-color-bg-accent);\n        color: var(--hax-color-text);\n        display: flex;\n        align-items: center;\n      }\n      hax-context-item {\n        margin: 0;\n        width: 40px;\n        height: 40px;\n      }\n      #elementoptions {\n        height: inherit;\n      }\n      #input {\n        color: #ffffff;\n      }\n      paper-checkbox {\n        --paper-checkbox-label-color: #ffffff;\n      }\n      .input-mixer-label {\n        padding-left: 4px;\n      }\n      paper-textarea,\n      paper-input {\n        --paper-input-container: {\n          padding: 0;\n        }\n        --paper-input-container-label-floating: {\n          color: var(--hax-color-text);\n        }\n        --paper-input-container-color: var(--hax-color-text);\n        --paper-input-container-focus-color: var(--hax-color-text);\n        --paper-input-container-invalid-color: var(--hax-color-text);\n        --paper-input-container-input-color: var(--hax-color-text);\n        --paper-input-container-shared-input-style: {\n          color: var(--hax-color-text);\n          background: transparent;\n          margin: 0;\n          padding: 0;\n          min-width: 300px;\n          line-height: 16px;\n          font-size: 16px;\n          outline: none;\n          border: none;\n        }\n      }\n      .input-method {\n        color: #ffffff;\n        padding: 0 8px;\n      }\n      #updatebutton {\n        border: 1px solid black;\n      }\n      #updatebutton:hover {\n        border: none;\n      }\n    </style>\n    <div class="wrapper">\n      <template is="dom-if" if="[[__inputselect]]">\n        <span class="input-mixer-label">[[label]]</span>\n        <hax-context-item-menu\n          selected-value="{{__selectedValue}}"\n          icon="[[icon]]"\n          id="input"\n        >\n          <slot></slot>\n        </hax-context-item-menu>\n      </template>\n      <span class="input-method">\n        <template is="dom-if" if="[[__inputtextarea]]">\n          <paper-textarea\n            id="input"\n            label="[[label]]"\n            value="{{value}}"\n            auto-validate=""\n            pattern="[[validation]]"\n            required="[[required]]"\n          ></paper-textarea>\n        </template>\n        <template is="dom-if" if="[[__inputtextfield]]">\n          <paper-input\n            id="input"\n            type="[[validationType]]"\n            label="[[label]]"\n            value="{{value}}"\n            auto-validate=""\n            pattern="[[validation]]"\n            required="[[required]]"\n          ></paper-input>\n        </template>\n        <template is="dom-if" if="[[__inputboolean]]">\n          <paper-checkbox id="input" checked="{{value}}"\n            >[[label]]</paper-checkbox\n          >\n        </template>\n        <template is="dom-if" if="[[__inputflipboolean]]">\n          <paper-checkbox id="input" checked="{{value}}"\n            >[[label]]</paper-checkbox\n          >\n        </template>\n        <template is="dom-if" if="[[__inputcolorpicker]]">\n          <span>[[label]]</span>\n          <simple-colors-picker\n            id="input"\n            value="{{value}}"\n          ></simple-colors-picker>\n        </template>\n      </span>\n      <paper-tooltip for="input" position="top" offset="14">\n        [[description]]\n      </paper-tooltip>\n      <hax-context-item\n        id="updatebutton"\n        icon="subdirectory-arrow-right"\n        label\\$="Update [[label]]"\n        event-name="hax-update-tap"\n      ></hax-context-item>\n    </div>\n  ']);return I=function(){return e},e}function D(){var e=T(['\n    <style include="simple-colors hax-shared-styles">\n      @import url("https://fonts.googleapis.com/css?family=Noto+Serif");\n      :host {\n        display: block;\n        min-height: 32px;\n        min-width: 32px;\n      }\n      :host #bodycontainer ::slotted(.hax-context-menu) {\n        padding: 0;\n        margin: 0;\n        position: absolute;\n        visibility: hidden;\n        opacity: 0;\n        transition: all 0.3s ease;\n        z-index: 100;\n        float: left;\n        display: block;\n      }\n      :host #bodycontainer ::slotted(#haxinputmixer) {\n        z-index: 10000000;\n      }\n      :host #bodycontainer ::slotted(.hax-context-visible) {\n        visibility: visible;\n        opacity: 1;\n      }\n      :host #bodycontainer ::slotted(*) {\n        font-size: 16px;\n        font-family: "Noto Serif", serif;\n        color: #444;\n        padding: 14px;\n        margin: 2px;\n      }\n\n      :host([edit-mode]) #bodycontainer ::slotted(*[data-editable]) {\n        outline: none;\n        transition: 0.6s width ease-in-out, 0.6s height ease-in-out,\n          0.6s margin ease-in-out;\n      }\n      :host([edit-mode]) #bodycontainer ::slotted(p):empty {\n        background: #f1f1f1;\n      }\n      :host([edit-mode]) #bodycontainer ::slotted(*[data-editable]:hover) {\n        outline: 1px solid var(--hax-color-accent1);\n      }\n      :host([edit-mode])\n        #bodycontainer\n        ::slotted(*:not(.hax-active)[data-editable]:hover):after {\n        content: attr(data-hax-ray) " " attr(content);\n        font-size: 16px;\n        font-family: "Noto Serif", serif;\n        left: unset;\n        right: unset;\n        top: unset;\n        background-color: var(--hax-color-accent1);\n        color: var(--hax-color-accent1-text);\n        bottom: unset;\n        width: auto;\n        padding: 8px;\n        margin: 0;\n        z-index: 100;\n        margin: -14px -14px 0 0;\n        float: right;\n        line-height: 16px;\n      }\n\n      :host([edit-mode]) #bodycontainer ::slotted(* [data-editable]:hover) {\n        outline: 1px solid #e2e4e7;\n        outline-offset: 2px;\n      }\n      :host([edit-mode]) #bodycontainer ::slotted(*[data-editable]:before) {\n        content: "";\n        display: block;\n        position: absolute;\n        top: 0;\n        left: 0;\n        bottom: 0;\n        width: 32px;\n        transition: 0.3s all ease;\n      }\n      :host([edit-mode])\n        #bodycontainer\n        ::slotted(*[data-editable]:hover:before) {\n        content: "";\n        display: block;\n        position: absolute;\n        top: 0;\n        left: 0;\n        bottom: 0;\n        width: 32px;\n        transition: 0.3s all ease;\n      }\n      :host([edit-mode]) #bodycontainer ::slotted(*.hax-active[data-editable]) {\n        cursor: text !important;\n        outline: 1px solid rgba(145, 151, 162, 0.25);\n      }\n      :host([edit-mode])\n        #bodycontainer\n        ::slotted(*[data-editable] .hax-active) {\n        cursor: text !important;\n        outline: 1px solid rgba(145, 151, 162, 0.25);\n      }\n      :host([edit-mode])\n        #bodycontainer\n        ::slotted(*.hax-active[data-editable]:before) {\n        content: "";\n        display: block;\n        position: absolute;\n        top: 0;\n        left: 0;\n        bottom: 0;\n        width: 32px;\n        transition: 0.3s all ease;\n      }\n      :host([edit-mode])\n        #bodycontainer\n        ::slotted(code.hax-active[data-editable]) {\n        display: block;\n      }\n      :host([edit-mode]) #bodycontainer ::slotted(hr[data-editable]) {\n        height: 4px;\n        background-color: #eeeeee;\n        padding-top: 8px;\n        padding-bottom: 8px;\n      }\n      /** Fix to support safari as it defaults to none */\n      :host([edit-mode]) #bodycontainer ::slotted(*[data-editable]) {\n        -webkit-user-select: text;\n        cursor: pointer;\n      }\n\n      :host([edit-mode])\n        #bodycontainer\n        ::slotted(*[data-editable]::-moz-selection),\n      :host([edit-mode])\n        #bodycontainer\n        ::slotted(*[data-editable] *::-moz-selection) {\n        background-color: var(--hax-body-highlight, --paper-yellow-300);\n        color: black;\n      }\n      :host([edit-mode]) #bodycontainer ::slotted(*[data-editable]::selection),\n      :host([edit-mode])\n        #bodycontainer\n        ::slotted(*[data-editable] *::selection) {\n        background-color: var(--hax-body-highlight, --paper-yellow-300);\n        color: black;\n      }\n      #bodycontainer {\n        -webkit-user-select: text;\n        user-select: text;\n      }\n\n      #contextcontainer {\n        display: none;\n      }\n      :host([edit-mode][hax-ray-mode])\n        #bodycontainer\n        ::slotted(*[data-editable]) {\n        outline: 1px dashed #d3d3d3;\n        outline-offset: 4px;\n      }\n      :host([edit-mode][hax-ray-mode])\n        #bodycontainer\n        ::slotted(*[data-editable]):before {\n        content: attr(data-hax-ray) " " attr(resource) " " attr(typeof) " "\n          attr(property) " " attr(content);\n        font-size: 10px;\n        font-style: italic;\n        left: unset;\n        right: unset;\n        top: unset;\n        background-color: #d3d3d3;\n        color: #000000;\n        bottom: unset;\n        width: auto;\n        padding: 8px;\n        margin: 0;\n        z-index: 1;\n        margin: -16px 0 0 0;\n        float: left;\n        line-height: 2;\n      }\n    </style>\n    <div id="bodycontainer" class="ignore-activation">\n      <slot id="body"></slot>\n    </div>\n    <div id="contextcontainer">\n      <hax-text-context\n        id="textcontextmenu"\n        class="hax-context-menu ignore-activation"\n      ></hax-text-context>\n      <hax-ce-context\n        id="cecontextmenu"\n        class="hax-context-menu ignore-activation"\n      ></hax-ce-context>\n      <hax-plate-context\n        id="platecontextmenu"\n        class="hax-context-menu ignore-activation"\n      ></hax-plate-context>\n      <hax-input-mixer\n        id="haxinputmixer"\n        class="hax-context-menu ignore-activation"\n      ></hax-input-mixer>\n    </div>\n    <iron-a11y-keys\n      target="[[activeContainerNode]]"\n      keys="esc"\n      on-keys-pressed="_escKeyPressed"\n      stop-keyboard-event-propagation=""\n    ></iron-a11y-keys>\n    <iron-a11y-keys\n      target="[[activeContainerNode]]"\n      keys="del backspace"\n      on-keys-pressed="_delKeyPressed"\n    ></iron-a11y-keys>\n    <iron-a11y-keys\n      target="[[activeContainerNode]]"\n      keys="shift+tab"\n      on-keys-pressed="_tabBackKeyPressed"\n      stop-keyboard-event-propagation=""\n    ></iron-a11y-keys>\n    <iron-a11y-keys\n      target="[[activeContainerNode]]"\n      keys="tab"\n      on-keys-pressed="_tabKeyPressed"\n      stop-keyboard-event-propagation=""\n    ></iron-a11y-keys>\n    <iron-a11y-keys\n      target="[[activeContainerNode]]"\n      keys="up"\n      on-keys-pressed="_upKeyPressed"\n      stop-keyboard-event-propagation=""\n    ></iron-a11y-keys>\n    <iron-a11y-keys\n      target="[[activeContainerNode]]"\n      keys="down"\n      on-keys-pressed="_downKeyPressed"\n      stop-keyboard-event-propagation=""\n    ></iron-a11y-keys>\n  ']);return D=function(){return e},e}L.innerHTML="<template>\n  <style>\n  :host, :host * ::slotted(*) {\n    --hax-color-bg: #ffffff;\n    --hax-color-bg-accent: #f1f1f1;\n    --hax-color-border-outline: #191e23;\n    --hax-color-menu-heading-bg: #f3f4f5;\n    --hax-color-text: #191e23;\n    --hax-color-accent-text: #555d66;\n    --hax-color-accent1: var(--simple-colors-default-theme-light-blue-7, #0085ba);\n    --hax-color-accent1-text: #FFFFFF;\n    font-size: 16px;\n    font-family: 'Noto Serif', serif;\n    line-height: 1.8;\n  }\n  :host ul, :host * ::slotted(ul),\n  :host ol, :host * ::slotted(ol) {\n    padding-left: 20px;\n    margin-left: 20px;\n  }\n  :host ul, :host * ::slotted(ul) {\n    list-style-type: disc;\n  }\n  :host li, :host * ::slotted(li) {\n    margin-bottom: 6px;\n  }\n</style>\n</template>",L.register("hax-shared-styles"),t.Polymer({_template:t.html(M()),is:"hax-toolbar-item",properties:{corner:{type:String,reflectToAttribute:!0,value:""},disabled:{type:Boolean,value:!1,reflectToAttribute:!0},dark:{type:Boolean,reflectToAttribute:!0,value:!1},menu:{type:Boolean,value:!1,reflectToAttribute:!0},mini:{type:Boolean,reflectToAttribute:!0,value:!1},icon:{type:String,value:!1},label:{type:String,value:!1},tooltip:{type:String,value:"",observer:"_tooltipChanged"},tooltipDirection:{type:String,value:"top"},default:{type:Boolean,value:!1,reflectToAttribute:!0}},_tooltipChanged:function(e,t){""==e||null==e?this.$.tooltip.setAttribute("aria-hidden","true"):this.$.tooltip.setAttribute("aria-hidden","false")}}),t.Polymer({_template:t.html(j()),is:"hax-toolbar-menu",listeners:{tap:"_menubuttonTap"},properties:{corner:{type:String,reflectToAttribute:!0,value:""},resetOnSelect:{type:Boolean,value:!1},tooltip:{type:String,value:""},tooltipDirection:{type:String,value:""},selected:{type:String,value:"",notify:!0,observer:"_selectChanged"}},_selectChanged:function(e){this.$.button.focus()},_menubuttonTap:function(e){this.$.listbox.style.display="inherit",this.resetOnSelect&&(this.selected="")},hideMenu:function(){this.$.listbox.style.display="none"}}),t.Polymer({_template:t.html(P()),is:"hax-context-item-menu",properties:{_blockEvent:{type:Boolean,value:!1},resetOnSelect:{type:Boolean,value:!1},selectedValue:{type:Number,reflectToAttribute:!0,notify:!0,value:0,observer:"_selectedUpdated"},direction:{type:String,value:"top"},icon:{type:String,value:"editor:text-fields",reflectToAttribute:!0},label:{type:String,value:"editor:text-fields",reflectToAttribute:!0},eventName:{type:String,value:"button",reflectToAttribute:!0}},_selectedUpdated:function(e,t){if(H(e)!==H(null)&&"undefined"!==H(t)&&H(t)!==H(null)){for(var o=n.dom(this).children,i=new Object,a=0,r=0,l=o.length;r<l;r++)if("PAPER-ITEM"===o[r].tagName){if(a===e){i=o[r],l=r;continue}a++}this._blockEvent||"undefined"===H(i.attributes)||"undefined"===H(i.attributes.value)||"undefined"===H(i.attributes.value.value)||(this.$.menu.hideMenu(),this.fire("hax-context-item-selected",{target:i,eventName:i.attributes.value.value})),this._blockEvent&&(this._blockEvent=!1)}}}),t.Polymer({_template:t.html($()),is:"hax-context-item",properties:{light:{type:Boolean,value:!1},disabled:{type:Boolean,value:!1,reflectToAttribute:!0},mini:{type:Boolean,value:!1},menu:{type:Boolean,value:!1},direction:{type:String,value:"top"},icon:{type:String,value:"editor:text-fields",reflectToAttribute:!0},iconClass:{type:String,value:"",reflectToAttribute:!0},label:{type:String,value:"",reflectToAttribute:!0},eventName:{type:String,value:"button",reflectToAttribute:!0},inputMethod:{type:String,value:null,reflectToAttribute:!0},propertyToBind:{type:String,value:null,reflectToAttribute:!0},slotToBind:{type:String,value:null,reflectToAttribute:!0},description:{type:String,reflectToAttribute:!0},default:{type:Boolean,value:!1},value:{type:String,value:""}},_storeSelection:function(e){window.HaxStore._tmpSelection=window.HaxStore.getSelection()},_fireEvent:function(e){this.fire("hax-context-item-selected",{target:this,eventName:this.eventName,value:this.value})}}),t.Polymer({_template:t.html(A()),is:"hax-context-item-textop",properties:{target:{type:Object},light:{type:Boolean,value:!1},mini:{type:Boolean,value:!1},menu:{type:Boolean,value:!1},direction:{type:String,value:"top"},icon:{type:String,value:"editor:text-fields",reflectToAttribute:!0},label:{type:String,reflectToAttribute:!0},eventName:{type:String,value:"button",reflectToAttribute:!0},inputMethod:{type:String,value:null,reflectToAttribute:!0},propertyToBind:{type:String,value:null,reflectToAttribute:!0},slotToBind:{type:String,value:null,reflectToAttribute:!0},description:{type:String,reflectToAttribute:!0}},attached:function(){this.target=this.$.button},_fireEvent:function(e){this.fire("hax-context-item-selected",{target:this,eventName:this.eventName})}}),t.Polymer({_template:t.html(E()),is:"hax-toolbar",listeners:{"hax-context-item-selected":"_haxContextOperation"},properties:{hideTransform:{type:Boolean,value:!1},selected:{type:Boolean,value:!1,reflectToAttritue:!0},haxProperties:{type:Object,value:{},observer:"_haxPropertiesChanged"},hideMore:{type:Boolean,value:!1},size:{type:Number,value:100,notify:!0},justifyIcon:{type:String,value:"editor:format-align-left"},inline:{type:Boolean,value:!1,reflectToAttritue:!0},justifyValue:{type:String,value:"",notify:!0}},_haxPropertiesChanged:function(e,t){"undefined"!==H(window.HaxStore.instance.activeNode)&&(""!=window.HaxStore.instance.activeNode.style.width?this.size=window.HaxStore.instance.activeNode.style.width.replace("%",""):this.size=100,"0px auto"==window.HaxStore.instance.activeNode.style.margin&&"block"==window.HaxStore.instance.activeNode.style.display?(this.justifyValue="hax-align-center",this.justifyIcon="editor:format-align-center"):(this.justifyValue="hax-align-left",this.justifyIcon="editor:format-align-left"))},_haxContextOperation:function(e){var t=e.detail;switch(t.eventName){case"hax-align-left":case"hax-align-center":this.justifyIcon=t.target.icon;break;case"close-menu":this.$.moremenu.$.menu.hideMenu(),this.$.justify.$.menu.hideMenu()}}}),t.Polymer({_template:t.html(z()),is:"hax-text-context",listeners:{"hax-context-item-selected":"_haxContextOperation"},properties:{polyfillSafe:{type:Boolean},selectedValue:{type:String,value:"p",notify:!0},selection:{type:Boolean,value:!1},isSafari:{type:Boolean,notify:!0,computed:"_isSafari()"}},ready:function(){this.polyfillSafe=window.HaxStore.instance.computePolyfillSafe()},_haxContextOperation:function(e){var t=e.detail,n=window.HaxStore.getSelection();switch(t.eventName){case"close-menu":this.$.formatsize.$.menu.hideMenu();break;case"insert-inline-gizmo":if(window.HaxStore._tmpSelection&&window.HaxStore.instance.editMode)try{"HAX-BODY"!==window.HaxStore._tmpRange.startContainer.parentNode.parentNode.tagName&&"HAX-BODY"!==window.HaxStore._tmpRange.startContainer.parentNode.parentNode.parentNode.tagName||window.HaxStore.write("activePlaceHolder",window.HaxStore._tmpRange,this)}catch(e){}if(null!=window.HaxStore.instance.activePlaceHolder){var o={text:window.HaxStore.instance.activePlaceHolder.toString()},i=window.HaxStore.guessGizmo("inline",o);i.length>0&&window.HaxStore.instance.haxAppPicker.presentOptions(i,"inline","Transform selected text to..","gizmo")}break;case"text-bold":document.execCommand("bold");break;case"text-italic":document.execCommand("italic");break;case"text-underline":document.execCommand("underline"),this.$.toolbar.$.moremenu.$.menu.hideMenu();break;case"text-subscript":document.execCommand("subscript"),this.$.toolbar.$.moremenu.$.menu.hideMenu();break;case"text-superscript":document.execCommand("superscript"),this.$.toolbar.$.moremenu.$.menu.hideMenu();break;case"text-remove-format":document.execCommand("removeFormat");break;case"text-strikethrough":document.execCommand("strikeThrough"),this.$.toolbar.$.moremenu.$.menu.hideMenu();break;case"text-link":var a="";"undefined"!==H(n.focusNode.parentNode.href)&&(a=n.focusNode.parentNode.href);var r=prompt("Enter a URL:",a);r&&document.execCommand("createLink",!1,r);break;case"text-unlink":document.execCommand("unlink");break;case"text-indent":document.execCommand("indent");break;case"text-outdent":document.execCommand("outdent");break;case"text-list-numbered":document.execCommand("insertOrderedList");break;case"text-list-bulleted":document.execCommand("insertUnorderedList")}},_isSafari:function(){var e=navigator.userAgent.toLowerCase();return!(-1==e.indexOf("safari")||e.indexOf("chrome")>-1)}}),t.Polymer({_template:t.html(B()),is:"simple-colors-picker-swatch",properties:{disabled:{type:Boolean,value:!1,reflectToAttribute:!0},hex:{type:String,value:null,reflectToAttribute:!0},label:{type:String,value:null,reflectToAttribute:!0},level:{type:Number,value:null,reflectToAttribute:!0},order:{type:Number,value:null,reflectToAttribute:!0},selected:{type:Boolean,value:!1,reflectToAttribute:!0}},ready:function(){var e=this;e.level>5&&e.setAttribute("dark","dark"),e.style.backgroundColor=e.hex,e.addEventListener("click",function(t){e.fire("click-swatch",e)}),e.addEventListener("keyup",function(t){13===t.keyCode||32===t.keyCode?e.fire("click-swatch",e):37===t.keyCode?e.fire("previous-swatch",e):39===t.keyCode?e.fire("next-swatch",e):38===t.keyCode?e.fire("next-level",e):40===t.keyCode&&e.fire("previous-level",e)})}}),t.Polymer({_template:t.html(q()),is:"simple-colors-picker",listeners:{"click-swatch":"_onClickSwatch","previous-swatch":"_onPreviousSwatch","next-swatch":"_onNextSwatch","previous-level":"_onPreviousLevel","next-level":"_onNextLevel"},properties:{theme:{type:String,value:null},contrast:{type:String,value:null},contrastLargeText:{type:Boolean,value:!1},disabled:{type:Boolean,value:!1,reflectToAttribute:!0},collapsed:{type:Boolean,value:!0,reflectToAttribute:!0},label:{type:String,value:"Pick a color."},swatches:{type:Array,value:[]},value:{type:Object,value:null,notify:!0},selectedStyle:{type:String,computed:"_setSelectedStyle(value)"}},ready:function(){var e=this;e.updateSwatches(e.contrast,e.contrastLargeText),e.$.button.addEventListener("click",function(){e.toggleCollapse()}),e.$.button.addEventListener("keyup",function(t){13!==t.keyCode&&32!==t.keyCode||e.toggleCollapse(!1)})},updateSwatches:function(e,t){e=null!==e?e:this.contrast,t=null!==t?t:this.contrastLargeText,this.contrast=e,this.contrastLargeText=t;var n=null!=e,o=!1,i=1,a=!0,r=[],l=0;if(void 0!==this.__hexCodes&&null!==this.__hexCodes){if(n){var s=e.replace("--simple-colors-","").split("-theme-"),d=(s.length>1&&s[0],s[s.length-1].split("-"));o=d[0].length>1;var c=d[d.length-1];a=c.indexOf("foreground")>-1,size=!t,i=c[c.length-1]}for(var p=0;p<this.__hexCodes.colorLevels.length;p++){var h=[];for(var u in this.__hexCodes){var x=o||"grey"!==u?this.__wcagaa.colors:this.__wcagaa.greys,m=t?x.large[parseInt(i)-1]:x.small[parseInt(i)-1];if("colorLevels"!==u&&"accent"!==u&&this.__hexCodes.hasOwnProperty(u)){var b=o&&"grey"!==u,f=!1,v="light"===this.theme&&a||"dark"===this.theme&&!a;!v&&(p<5||10-p>m)?f=!0:v&&(p>4||p+1>m)&&(f=!0),n&&(b||f)||(h.push({label:u,level:p+1,hex:this.__hexCodes[u][p],selected:!1}),l++)}}r.push(h)}}this.$.empty.style.display=l>0?"none":"block",this.$.rows.style.display=0===l?"none":"block",this._updateSelection(r)},_onClickSwatch:function(e){console.log("_onClickSwatch",e);var t,n,o="dark"===this.theme,i=null===this.theme?"":"-"+this.theme+"-theme",a=e.detail.label.replace(/([a-z])([A-Z])/g,"$1-$2").toLowerCase(),r=parseInt(e.detail.level),l=e.detail.hex;o?e.detail.level<6?t=!1:(t=!0,r=11-r):e.detail.level<6?t=!0:(t=!1,r=11-r),"dark"===i&&(t=!t),a="grey"===a?"":a,n=t?"foreground":"background",this.value={cssVariable:"--simple-colors"+i+"-"+a+"-"+n+r,hexCode:l},this._updateSelection(this.swatches),this.toggleCollapse(!0)},_updateSelection:function(e){var t=void 0!==this.value&&null!==this.value&&void 0!==this.value.hexCode;if(void 0!==e&&e.length>0){for(var n=[],o=0;o<e.length;o++){for(var i=[],a=0;a<e[o].length;a++){var r=e[o][a];r.selected=t&&this.value.hexCode===r.hex,i.push(r)}n.push(i)}this.set("swatches",[]),this.$.rows.render(),this.set("swatches",n),this.$.rows.render()}},_onPreviousSwatch:function(e){var t=this.shadowRoot.querySelector('simple-colors-picker-swatch[order="'+(e.detail.order-1)+'"][level="'+e.detail.level+'"]');null!==t&&t.focus()},_onNextSwatch:function(e){var t=this.shadowRoot.querySelector('simple-colors-picker-swatch[order="'+(e.detail.order+1)+'"][level="'+e.detail.level+'"]');null!==t&&t.focus()},_onPreviousLevel:function(e){var t=this.shadowRoot.querySelector('simple-colors-picker-swatch[order="'+e.detail.order+'"][level="'+(e.detail.level+1)+'"]');null!==t&&t.focus()},_onNextLevel:function(e){var t=this.shadowRoot.querySelector('simple-colors-picker-swatch[order="'+e.detail.order+'"][level="'+(e.detail.level-1)+'"]');null!==t&&t.focus()},_setSelectedStyle:function(e){var t=null!==e?e.hexCode:"transparent";return this.$.texture.style.display=null!==e?"none":"block",void 0!==this.__init?this.__init=!0:this.fire("change",this.value),"background: "+t+";"},toggleCollapse:function(e){e=void 0!==e?e:!this.collapsed,this.collapsed=e,this.fire("toggleCollapse",this)}}),t.Polymer({_template:t.html(O()),is:"hax-ce-context",properties:{ceSize:{type:Number,value:100,observer:"_ceSizeChanged"},haxProperties:{type:Object,value:{},observer:"_haxPropertiesChanged"},humanName:{type:String}},setHaxProperties:function(e){this.set("haxProperties",{}),this.set("haxProperties",e)},_ceSizeChanged:function(e,t){"undefined"!==H(e)&&"undefined"!==H(t)&&this.fire("hax-context-item-selected",{eventName:"hax-size-change",value:e})},_haxPropertiesChanged:function(e,t){if("undefined"!==H(t)&&"undefined"!==H(e.settings)){for(var o=n.dom(this);null!==o.firstChild;)o.removeChild(o.firstChild);var i,a=e.settings.quick,r=e.settings.configure,l=e.settings.advanced;if((r.length||l.length)&&"HR"!==e.element.tagName?this.__hasSettingsForm=!0:this.__hasSettingsForm=!1,this.__hasParentSettingsForm=!1,window.HaxStore.instance.activeContainerNode!==window.HaxStore.instance.activeNode)switch(this.__hasParentSettingsForm=!0,window.HaxStore.instance.activeContainerNode.tagName){case"P":case"UL":case"OL":case"DIV":this.__parentName="Text block settings";break;case"GRID-PLATE":this.__parentName="Layout settings";break;default:this.__parentName=window.HaxStore.instance.activeContainerNode.tagName.replace("-"," ").toLowerCase()}"undefined"===H(e.gizmo.title)?this.humanName=window.HaxStore.instance.activeNode.tagName.replace("-"," ").toLowerCase():this.humanName=e.gizmo.title;for(var s=0;s<a.length;s++){var d=a[s];(i=document.createElement("hax-context-item")).eventName="hax-edit-property",i.label=d.title,i.options=d.options,i.icon=d.icon,i.inputMethod=d.inputMethod,i.required=d.required,i.options=d.options,i.validation=d.validation,i.validationType=d.validationType,i.description=d.description,"undefined"!==H(d.property)?i.propertyToBind=d.property:"undefined"!==H(d.attribute)?i.propertyToBind=d.attribute:i.slotToBind=d.slot,o.appendChild(i)}}}}),t.Polymer({_template:t.html(R()),is:"hax-plate-context"}),t.Polymer({_template:t.html(I()),is:"hax-input-mixer",listeners:{"hax-context-item-selected":"_haxContextOperation"},properties:{value:{type:String,value:null},label:{type:String,reflectToAttribute:!0},validation:{type:String,reflectToAttribute:!0},validationType:{type:String,reflectToAttribute:!0},required:{type:Boolean,reflectToAttribute:!0},options:{type:Object,value:{},reflectToAttribute:!0},icon:{type:String,value:"android",reflectToAttribute:!0},description:{type:String,reflectToAttribute:!0},inputMethod:{type:String,value:null,reflectToAttribute:!0,observer:"_inputMethodChanged"},propertyToBind:{type:String,reflectToAttribute:!0},slotToBind:{type:String,reflectToAttribute:!0}},ready:function(){this._resetInputMethods()},_inputMethodChanged:function(e,t){var o=this;if(null!=e&&"undefined"!==H(t)){var i=e;if(this.validInputMethods().includes(i)){this._resetInputMethods(),this["__input"+i]=!0;for(var a,r=n.dom(this);null!==r.firstChild;)r.removeChild(r.firstChild);if("select"===i&&"undefined"!==H(this.options))for(var l in this.options)(a=document.createElement("paper-item")).attributes.value=l,a.innerHTML=this.options[l],r.appendChild(a.cloneNode(!0));setTimeout(function(){"function"==typeof o.shadowRoot.querySelector("#input").hideMenu&&o.shadowRoot.querySelector("#input").hideMenu(),o.shadowRoot.querySelector("#input").focus()},200)}}},validInputMethods:function(){return["flipboolean","boolean","select","confirm","textfield","textarea","datepicker","colorpicker","number"]},_resetInputMethods:function(){for(var e=this.validInputMethods(),t=0;t<e.length;t++)this["__input"+e[t]]=!1},_haxContextOperation:function(e){switch(e.detail.eventName){case"hax-update-tap":if("boolean"==this.inputMethod)this.value=this.value;else if("flipboolean"==this.inputMethod)this.value=!this.value;else if("select"==this.inputMethod){var t=0;for(var n in this.options)t==this.__selectedValue&&(this.value=n),t++}var o={value:this.value,propertyToBind:this.propertyToBind,slotToBind:this.slotToBind};this.fire("hax-input-mixer-update",{inputMixer:o})}}});var V=t.Polymer({is:"hax-body",_template:t.html(D()),listeners:{focusin:"_focusIn",mousedown:"_focusIn","hax-context-item-selected":"_haxContextOperation","hax-input-mixer-update":"_haxInputMixerOperation","place-holder-replace":"replacePlaceholder"},properties:{editMode:{type:Boolean,value:!1,reflectToAttribute:!0,observer:"_editModeChanged"},globalPreferences:{type:Object,value:{},observer:"_globalPreferencesUpdated"},haxRayMode:{type:Boolean,value:!1,reflectToAttribute:!0},activeNode:{type:Object,value:null,notify:!0,observer:"_activeNodeChanged"},activeContainerNode:{type:Object,value:null,notify:!0,observer:"_activeContainerNodeChanged"}},ready:function(){var e=this;this.polyfillSafe=window.HaxStore.instance.computePolyfillSafe(),this._observer=new o.FlattenedNodesObserver(this,function(t){i.flush(),t.addedNodes.length>0&&t.addedNodes.map(function(t){if(e._haxElementTest(t)){e._HTMLPrimativeTest(t)&&(t.contentEditable=e.editMode),t.setAttribute("data-editable",e.editMode);var n=t.tagName.replace("-"," ").toLowerCase(),o=window.HaxStore.instance.gizmoList.findIndex(function(e){return e.tag===t.tagName.toLowerCase()});-1!==o&&(n=window.HaxStore.instance.gizmoList[o].title),t.setAttribute("data-hax-ray",n),e.fire("hax-body-tag-added",{node:t})}}),t.removedNodes.length>0&&t.removedNodes.map(function(t){e._haxElementTest(t)&&!t.classList.contains("hax-active")&&e.fire("hax-body-tag-removed",{node:t})})})},attached:function(){this.shadowRoot.querySelector("slot").addEventListener("mouseup",function(e){var t=window.HaxStore.getSelection();window.HaxStore._tmpSelection=t;try{var n=window.HaxStore._tmpSelection.getRangeAt(0);window.HaxStore._tmpRange=n.cloneRange()}catch(e){}}),this.shadowRoot.querySelector("slot").addEventListener("paste",function(e){if(window.HaxStore.instance.isTextElement(window.HaxStore.instance.activeNode)&&!window.HaxStore.instance.haxManager.opened){e.preventDefault();var t,n,o="";e.clipboardData||e.originalEvent.clipboardData?o=(e.originalEvent||e).clipboardData.getData("text/plain"):window.clipboardData&&(o=window.clipboardData.getData("Text")),window.HaxStore.instance.activeHaxBody.shadowRoot.getSelection?(t=window.HaxStore.instance.activeHaxBody.shadowRoot.getSelection()).getRangeAt&&t.rangeCount&&((n=t.getRangeAt(0)).deleteContents(),n.insertNode(document.createTextNode(o))):document.selection&&document.selection.createRange&&(document.selection.createRange().text=o)}}),this.__tabTrap=!1,this.fire("hax-register-body",this),document.body.addEventListener("hax-store-property-updated",this._haxStorePropertyUpdated.bind(this)),window.addEventListener("scroll",this._keepContextVisible.bind(this))},detached:function(){this.shadowRoot.querySelector("slot").removeEventListener("mouseup",function(e){window.HaxStore._tmpSelection=window.HaxStore.getSelection()}),this.shadowRoot.querySelector("slot").removeEventListener("paste",function(e){if(window.HaxStore.instance.isTextElement(window.HaxStore.instance.activeNode)&&!window.HaxStore.instance.haxManager.opened){e.preventDefault();var t,n,o="";e.clipboardData||e.originalEvent.clipboardData?o=(e.originalEvent||e).clipboardData.getData("text/plain"):window.clipboardData&&(o=window.clipboardData.getData("Text")),window.HaxStore.instance.activeHaxBody.shadowRoot.getSelection?(t=window.HaxStore.instance.activeHaxBody.shadowRoot.getSelection()).getRangeAt&&t.rangeCount&&((n=t.getRangeAt(0)).deleteContents(),n.insertNode(document.createTextNode(o))):document.selection&&document.selection.createRange&&(document.selection.createRange().text=o)}}),document.body.removeEventListener("hax-store-property-updated",this._haxStorePropertyUpdated.bind(this)),window.removeEventListener("scroll",this._keepContextVisible.bind(this))},_keepContextVisible:function(e){var t=!1;this.$.textcontextmenu.classList.contains("hax-context-visible")?t=this.$.textcontextmenu:this.$.cecontextmenu.classList.contains("hax-context-visible")&&(t=this.$.cecontextmenu),t&&(this.elementInViewport(t)?(t.classList.remove("hax-context-pin-bottom"),t.classList.remove("hax-context-pin-top")):this.__OffBottom?t.classList.add("hax-context-pin-top"):t.classList.add("hax-context-pin-bottom"))},elementInViewport:function(e){for(var t=e.offsetTop-32-window.HaxStore.instance.haxPanel.$.drawer.offsetHeight,n=e.offsetLeft,o=e.offsetWidth,i=e.offsetHeight;e.offsetParent;)t+=(e=e.offsetParent).offsetTop,n+=e.offsetLeft;return this.__OffBottom=t<window.pageYOffset+window.innerHeight,t<window.pageYOffset+window.innerHeight&&n<window.pageXOffset+window.innerWidth&&t+i>window.pageYOffset&&n+o>window.pageXOffset},replacePlaceholder:function(e){var t=this;if("text"===e.detail){var o=document.createElement("p");this.haxReplaceNode(this.activeNode,o,n.dom(this.activeNode).parentNode),setTimeout(function(){window.HaxStore.write("activeNode",o,t),o.focus()},100)}else this.replaceElementWorkflow()},replaceElementWorkflow:function(){var e=window.HaxStore.nodeToHaxElement(this.activeNode,null),t="*",n=!1;"place-holder"===e.tag&&"undefined"!==H(e.properties.type)&&(t=e.properties.type,n=!0);var o={};if("undefined"!==H(window.HaxStore.instance.elementList[e.tag])&&!1!==window.HaxStore.instance.elementList[e.tag].gizmo&&"undefined"!==H(window.HaxStore.instance.elementList[e.tag].gizmo.handles)&&window.HaxStore.instance.elementList[e.tag].gizmo.handles.length>0)for(var i=window.HaxStore.instance.elementList[e.tag].gizmo,a=0;a<i.handles.length;a++)for(var r in i.handles[a])"type"!==r&&"undefined"!==H(e.properties[i.handles[a][r]])&&(o[r]=e.properties[i.handles[a][r]]);var l=window.HaxStore.guessGizmo(t,o,n);if(l.length>0){var s=this.activeNode.tagName.toLowerCase(),d=s.replace("-"," ");"undefined"!==H(window.HaxStore.instance.elementList[s])&&!1!==window.HaxStore.instance.elementList[s].gizmo&&(d=window.HaxStore.instance.elementList[s].gizmo.title),window.HaxStore.instance.haxAppPicker.presentOptions(l,"__convert","Transform ".concat(d," to.."),"gizmo")}else window.HaxStore.toast("Sorry, this can not be transformed!",5e3)},_globalPreferencesUpdated:function(e,t){"undefined"!==H(e)&&null!=e&&(this.haxRayMode=e.haxRayMode)},_haxStorePropertyUpdated:function(e){e.detail&&"undefined"!==H(e.detail.value)&&e.detail.property&&("object"===H(e.detail.value)&&this.set(e.detail.property,null),this.set(e.detail.property,e.detail.value))},haxClearBody:function(){var e=!0;(!(arguments.length>0&&void 0!==arguments[0])||arguments[0])&&(e=prompt("Are you sure you want to delete all content?")),e&&window.HaxStore.wipeSlot(this)},haxInsert:function(e,t){var o=this,i=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{},a=!(arguments.length>3&&void 0!==arguments[3])||arguments[3];if(window.HaxStore.instance.validTagList.includes(e)){var r=document.createElement(e);r.innerHTML=t;var l=r.cloneNode(!0);for(var s in i){var d=window.HaxStore.camelToDash(s);i.hasOwnProperty(s)&&(!0===i[s]?l.setAttribute(d,i[s]):!1===i[s]?l.removeAttribute(d):(null==i[s]||i[s].constructor!==Array||l.properties[s].readOnly)&&(null==i[s]||i[s].constructor!==Object||l.properties[s].readOnly)?l.setAttribute(d,i[s]):l.set(d,i[s]))}return null!==window.HaxStore.instance.activePlaceHolder&&"undefined"!==H(window.HaxStore.instance.activePlaceHolder.style)?(l.style.width=window.HaxStore.instance.activePlaceHolder.style.width,l.style.float=window.HaxStore.instance.activePlaceHolder.style.float,l.style.margin=window.HaxStore.instance.activePlaceHolder.style.margin,l.style.display=window.HaxStore.instance.activePlaceHolder.style.display,this.haxReplaceNode(window.HaxStore.instance.activePlaceHolder,l,n.dom(window.HaxStore.instance.activePlaceHolder).parentNode),window.HaxStore.instance.activePlaceHolder=null):null!==this.activeContainerNode?"GRID-PLATE"!==l.tagName&&"GRID-PLATE"===this.activeContainerNode.tagName&&this.activeContainerNode!==this.activeNode?(l.setAttribute("slot",this.activeNode.getAttribute("slot")),n.dom(this.activeContainerNode).insertBefore(l,this.activeNode)):n.dom(this).insertBefore(l,this.activeContainerNode.nextElementSibling):n.dom(this).appendChild(l),this.$.textcontextmenu.highlightOps=!1,this.__updateLockFocus=l,a&&setTimeout(function(){o.breakUpdateLock()},300),!0}return!1},breakUpdateLock:function(){window.HaxStore.write("activeContainerNode",this.__updateLockFocus,this),window.HaxStore.write("activeNode",this.__updateLockFocus,this),this.__updateLockFocus.focus(),"function"==typeof this.__updateLockFocus.scrollIntoViewIfNeeded?this.__updateLockFocus.scrollIntoViewIfNeeded(!0):this.__updateLockFocus.scrollIntoView({behavior:"smooth",inline:"center"})},haxToContent:function(){this.hideContextMenus();var e=this.activeNode;window.HaxStore.write("activeNode",null,this),window.HaxStore.write("activeContainerNode",null,this);var t=n.dom(this.$.body).getDistributedNodes();this.globalPreferences.haxDeveloperMode&&console.log(t);for(var o="",i=0,a=t.length;i<a;i++)this._haxElementTest(t[i])?(t[i].removeAttribute("data-editable"),t[i].removeAttribute("data-hax-ray"),t[i].contentEditable=!1,o+=window.HaxStore.haxNodeToContent(t[i]),"grid-plate"===t[i].tagName.toLowerCase()&&this._applyContentEditable(this.editMode,t[i])):8===t[i].nodeType?o+="\x3c!-- "+t[i].textContent+" --\x3e":1!==t[i].nodeType&&"undefined"!==H(t[i].textContent)&&"undefined"!==t[i].textContent&&(o+=t[i].textContent);if(o=(o=(o=(o=(o=(o=(o=(o=(o=o.replace(/\scontenteditable=\"false\"/g,"")).replace(/\sdata-editable=\"true\"/g,"")).replace(/\sdata-editable=\"false\"/g,"")).replace(/\sdata-editable=\""/g,"")).replace(/\sdata-editable/g,"")).replace(/\scontenteditable/g,"")).replace(/\sdraggable/g,"")).replace(/\sdata-draggable/g,"")).replace(/\sdata-hax-ray=\".*?\"/g,""),this.parentNode.tagName){var r=this.parentNode.tagName.toLowerCase(),l="style-scope "+r+" x-scope",s=new RegExp(l,"g");o=o.replace(s,""),l="style-scope "+r,s=new RegExp(l,"g"),o=o.replace(s,""),l="x-scope "+r+"-0",s=new RegExp(l,"g"),o=o.replace(s,"");var d=window.HaxStore.instance.validTagList;for(var i in d.push("hax-preview"),d)l="style-scope "+d[i],s=new RegExp(l,"g"),o=o.replace(s,""),l="x-scope "+d[i]+"-0 ",s=new RegExp(l,"g"),o=o.replace(s,""),l="x-scope "+d[i]+"-0",s=new RegExp(l,"g"),o=o.replace(s,"")}return o=(o=o.replace(/\sclass=\"\"/g,"")).replace(/\sclass=\"\s\"/g,""),this._applyContentEditable(this.editMode),window.HaxStore.write("activeNode",e,this),window.HaxStore.write("activeContainerNode",e,this),o=window.HaxStore.encapScript(o),this.globalPreferences.haxDeveloperMode&&console.log(o),o},haxDuplicateNode:function(e){var t=this,o=arguments.length>1&&void 0!==arguments[1]?arguments[1]:this;this.hideContextMenus();var i=n.dom(e).cloneNode(!0);return"webview"===i.tagName.toLowerCase()&&window.HaxStore.instance._isSandboxed&&"undefined"!==H(i.guestinstance)&&delete i.guestinstance,null!==e?n.dom(o).insertBefore(i,n.dom(e).nextSibling):n.dom(o).appendChild(i),setTimeout(function(){o===t&&window.HaxStore.write("activeContainerNode",i,t),window.HaxStore.write("activeNode",i,t)},100),!0},hideContextMenus:function(){this._hideContextMenu(this.$.textcontextmenu),this._hideContextMenu(this.$.cecontextmenu),this._hideContextMenu(this.$.platecontextmenu),this._hideContextMenu(this.$.haxinputmixer),this.$.textcontextmenu.highlightOps=!1},positionContextMenus:function(e,t){var n=e.tagName.toLowerCase();window.HaxStore.instance._isSandboxed&&"webview"===n&&(n="iframe");var o=window.HaxStore.instance.elementList[n],i=-39,a=-31;Math.max(document.documentElement.clientWidth,window.innerWidth||0)<800&&(i=0,a=0),"undefined"!==H(o)&&"P"!==e.tagName?(this.__activeContextType=this.$.cecontextmenu,o.element=e,this.__activeContextType.setHaxProperties(o)):this.__activeContextType=this.$.textcontextmenu,this._positionContextMenu(this.__activeContextType,t,i,-37),this._positionContextMenu(this.$.platecontextmenu,t,a,0,!1),this._HTMLPrimativeTest(e)||e===t?this._HTMLPrimativeTest(t)&&(t.contentEditable=!0):t.contentEditable=!1},haxMoveGridPlate:function(e,t,o){switch(this.hideContextMenus(),e){case"first":null!==o.previousElementSibling&&n.dom(this).insertBefore(o,n.dom(this).firstChild);break;case"up":null!==o.previousElementSibling&&n.dom(this).insertBefore(o,o.previousElementSibling);break;case"down":null!==o.nextElementSibling&&n.dom(this).insertBefore(o.nextElementSibling,o);break;case"last":null!==o.nextElementSibling&&n.dom(this).appendChild(o)}return this.positionContextMenus(t,o),setTimeout(function(){"function"==typeof o.scrollIntoViewIfNeeded?o.scrollIntoViewIfNeeded(!0):o.scrollIntoView({behavior:"smooth",inline:"center"})},100),!0},haxReplaceNode:function(e,t){var o=arguments.length>2&&void 0!==arguments[2]?arguments[2]:this;this.hideContextMenus();try{null!=e.getAttribute("slot")&&t.setAttribute("slot",e.getAttribute("slot")),n.dom(o).replaceChild(t,e)}catch(e){console.log(e)}return t},haxChangeTagName:function(e,t,o){this.hideContextMenus();for(var i=document.createElement(t),a=0,r=e.attributes.length;a<r;++a){var l=e.attributes.item(a).nodeName,s=e.attributes.item(a).value;i.setAttribute(l,s)}return i.innerHTML=e.innerHTML,n.dom(this).replaceChild(i,e),i},haxDeleteNode:function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:this;if(this.hideContextMenus(),null!=this.activeContainerNode&&null!==this.activeContainerNode.previousElementSibling){if(this.activeContainerNode.previousElementSibling.focus(),null!=this.activeContainerNode&&window.HaxStore.instance.isTextElement(this.activeContainerNode)&&""!==n.dom(this.activeContainerNode).textContent)try{var o=document.createRange(),i=window.HaxStore.getSelection();o.setStart(this.activeContainerNode,1),o.collapse(!0),i.removeAllRanges(),i.addRange(o),this.activeContainerNode.focus()}catch(e){console.log(e)}}else null!=this.activeContainerNode&&null!==this.activeContainerNode.nextElementSibling?this.activeContainerNode.nextElementSibling.focus():(window.HaxStore.write("activeContainerNode",null,this),window.HaxStore.write("activeNode",null,this));try{return n.dom(t).removeChild(e)}catch(e){console.log(e)}},importContent:function(e){var t=this;(!(arguments.length>1&&void 0!==arguments[1])||arguments[1])&&window.HaxStore.wipeSlot(this,"*"),setTimeout(function(){e=window.HaxStore.encapScript(e);var o=window.HaxStore.instance.validTagList,i=document.createElement("div");for(i.insertAdjacentHTML("beforeend",e);null!==i.firstChild;)if("undefined"!==H(i.firstChild.tagName)&&o.includes(i.firstChild.tagName.toLowerCase()))if(window.HaxStore.instance._isSandboxed&&"iframe"===i.firstChild.tagName.toLowerCase()){for(var a=document.createElement("webview"),r=0,l=i.firstChild.attributes.length;r<l;++r){var s=i.firstChild.attributes.item(r).nodeName,d=i.firstChild.attributes.item(r).value;"height"!==s&&"width"!==s||a.style[s],a.setAttribute(s,d)}n.dom(t).appendChild(a)}else n.dom(t).appendChild(i.firstChild);else i.removeChild(i.firstChild)},100)},_haxContextOperation:function(e){var t,n=this,o=e.detail;switch(o.eventName){case"p":case"h2":case"h3":case"h4":case"h5":case"h6":case"code":case"blockquote":this.$.textcontextmenu.selectedValue=o.eventName,window.HaxStore.write("activeContainerNode",this.haxChangeTagName(this.activeContainerNode,o.eventName),this),this.positionContextMenus(this.activeNode,this.activeContainerNode);break;case"text-align-left":this.activeNode.style.textAlign=null,this.positionContextMenus(this.activeNode,this.activeContainerNode);break;case"grid-plate-convert":this.replaceElementWorkflow();break;case"grid-plate-duplicate":this.activeNode===this.activeContainerNode?this.haxDuplicateNode(this.activeNode):this.haxDuplicateNode(this.activeNode,this.activeContainerNode);break;case"grid-plate-delete":var i=this.activeNode.tagName.toLowerCase(),a=i.replace("-"," ");"undefined"!==H(window.HaxStore.instance.elementList[i])&&!1!==window.HaxStore.instance.elementList[i].gizmo&&(a=window.HaxStore.instance.elementList[i].gizmo.title),window.HaxStore.instance.haxAppPicker.presentOptions([{icon:"thumb-up",color:"green",title:"Yes"},{icon:"thumb-down",color:"red",title:"No"}],"","Remove this `".concat(a,"`?"),"delete");break;case"grid-plate-first":this.haxMoveGridPlate("first",this.activeNode,this.activeContainerNode);break;case"grid-plate-up":this.haxMoveGridPlate("up",this.activeNode,this.activeContainerNode);break;case"hax-manager-open":window.HaxStore.write("activeHaxElement",{},this),window.HaxStore.instance.haxManager.resetManager(parseInt(o.value)),window.HaxStore.instance.haxManager.toggleDialog();break;case"grid-plate-down":this.haxMoveGridPlate("down",this.activeNode,this.activeContainerNode);break;case"grid-plate-last":this.haxMoveGridPlate("last",this.activeNode,this.activeContainerNode);break;case"close-menu":window.HaxStore.write("activeContainerNode",null,this),window.HaxStore.write("activeNode",null,this);break;case"hax-edit-property":var r=this.$.haxinputmixer;r.label=o.target.label,r.options=o.target.options,r.icon=o.target.icon,r.description=o.target.description,r.required=o.target.required,r.validation=o.target.validation,r.validationType=o.target.validationType,r.inputMethod=o.target.inputMethod,r.value="","undefined"!==H(o.target.propertyToBind)&&null!=o.target.propertyToBind&&0!=o.target.propertyToBind&&(r.propertyToBind=o.target.propertyToBind,"undefined"!==H(this.activeNode[o.target.propertyToBind])?r.value=this.activeNode[o.target.propertyToBind]:r.value=this.activeNode.getAttribute(o.target.propertyToBind)),this._positionContextMenu(r,this.$.cecontextmenu,0,0),r.style.width=null;break;case"hax-align-left":this.activeNode.style.float=null,this.activeNode.style.margin=null,this.activeNode.style.display=null,this.positionContextMenus(this.activeNode,this.activeContainerNode);break;case"hax-align-center":this.activeNode.style.float=null,this.activeNode.style.margin="0 auto",this.activeNode.style.display="block",this.positionContextMenus(this.activeNode,this.activeContainerNode);break;case"hax-size-change":this.activeNode.style.width=o.value+"%",setTimeout(function(){n.positionContextMenus(n.activeNode,n.activeContainerNode)},500);break;case"hax-manager-configure":this._hideContextMenu(this.$.haxinputmixer),window.HaxStore.instance.haxManager.resetManager(),t=window.HaxStore.nodeToHaxElement(window.HaxStore.instance.activeNode),window.HaxStore.write("activeHaxElement",t,this),window.HaxStore.instance.haxManager.editExistingNode=!0,window.HaxStore.instance.haxManager.selectStep("configure"),window.HaxStore.instance.haxManager.toggleDialog(),setTimeout(function(){window.HaxStore.instance.haxManager.$.preview.$.configurebutton.focus()},325);break;case"hax-manager-configure-container":window.HaxStore.write("activeNode",window.HaxStore.instance.activeContainerNode,this),this._hideContextMenu(this.$.haxinputmixer),window.HaxStore.instance.haxManager.resetManager(),t=window.HaxStore.nodeToHaxElement(window.HaxStore.instance.activeNode),window.HaxStore.write("activeHaxElement",t,this),window.HaxStore.instance.haxManager.editExistingNode=!0,window.HaxStore.instance.haxManager.selectStep("configure"),window.HaxStore.instance.haxManager.toggleDialog(),setTimeout(function(){window.HaxStore.instance.haxManager.$.preview.$.configurebutton.focus()},325)}},_haxInputMixerOperation:function(e){var t=e.detail.inputMixer;null!=t.propertyToBind?this.activeNode[t.propertyToBind]=t.value:null!=t.slotToBind&&(item=document.createElement("span"),item.style.height="inherit",item.innerHTML=t.value,item.slot=t.slotToBind,this.activeNode.appendChild(item)),this._hideContextMenu(this.$.haxinputmixer)},_focusIn:function(e){var t=this;if(this.editMode&&!this.__tabTrap){var o=n.dom(e).localTarget,i=window.HaxStore.instance.validTagList,a=o,r=null;if(this._haxElementTest(a)&&null!=a.parentNode){for(;"HAX-BODY"!=a.parentNode.tagName;)null===r&&i.includes(a.tagName.toLowerCase())&&"LI"!==a.tagName&&"B"!==a.tagName&&"I"!==a.tagName&&"STRONG"!==a.tagName&&"EM"!==a.tagName&&(r=a),a=a.parentNode;null===r?r=a:window.HaxStore.instance.isGridPlateElement(a)?["UL","OL","LI","P","GRID-PLATE"].includes(a.tagName)&&["UL","OL","LI"].includes(r.tagName)&&(r=a):r=a,this.activeContainerNode!==a&&i.includes(a.tagName.toLowerCase())&&!a.classList.contains("ignore-activation")?(window.HaxStore.write("activeContainerNode",a,this),e.stopPropagation()):a.classList.contains("ignore-activation")&&e.stopPropagation(),this.activeNode!==r&&i.includes(a.tagName.toLowerCase())&&!r.classList.contains("ignore-activation")&&(setTimeout(function(){window.HaxStore.write("activeNode",r,t)},50),e.stopPropagation())}}else this.__tabTrap=!1},_editModeChanged:function(e,t){"undefined"!==H(t)&&(this._applyContentEditable(e),!1!==e&&"undefined"!==H(this.activeNode)&&null!==this.activeNode&&this.positionContextMenus(this.activeNode,this.activeContainerNode)),!1===e&&this.hideContextMenus()},_haxResolvePreviousElement:function(e){for(e=n.dom(e).previousElementSibling;null!=e&&"undefined"!==H(e.tagName)&&"HAX-"===e.tagName.substring(0,4);)e=n.dom(e).previousElementSibling;return e},_haxElementTest:function(e){return"undefined"!==H(e.tagName)&&"HAX-"!==e.tagName.substring(0,4)},_HTMLPrimativeTest:function(e){return"undefined"!==H(e.tagName)&&-1==e.tagName.indexOf("-")},_applyContentEditable:function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:this.$.body,o=n.dom(t).getDistributedNodes();0===o.length&&(o=n.dom(t).getEffectiveChildNodes());for(var i=0,a=o.length;i<a;i++)if(this._HTMLPrimativeTest(o[i])&&(o[i].contentEditable=e),this._haxElementTest(o[i]))if(e){o[i].setAttribute("data-editable",e);var r=o[i].tagName.replace("-"," ").toLowerCase(),l=window.HaxStore.instance.gizmoList.findIndex(function(e){return e.tag===o[i].tagName.toLowerCase()});-1!==l&&(r=window.HaxStore.instance.gizmoList[l].title),o[i].setAttribute("data-hax-ray",r)}else o[i].removeAttribute("data-editable"),o[i].removeAttribute("data-hax-ray")},_activeContainerNodeChanged:function(e,t){this.editMode&&"undefined"!==H(e)&&null!==e&&("grid-plate"===e.tagName.toLowerCase()&&(e.editMode=this.editMode,this._applyContentEditable(this.editMode,e)))},_activeNodeChanged:function(e,t){var n=this;if("undefined"!==H(t)&&null!=t&&t.classList.remove("hax-active"),this.editMode&&"undefined"!==H(e)&&null!==e){var o=e.tagName.toLowerCase();e.classList.add("hax-active"),this.$.textcontextmenu.selectedValue=o,setTimeout(function(){n.positionContextMenus(e,window.HaxStore.instance.activeContainerNode)},25),"left"==e.style.textAlign?(this.$.textcontextmenu.justifyIcon="editor:format-align-left",this.$.textcontextmenu.justifyValue="text-align-left"):"left"==e.style.float?(this.$.cecontextmenu.justifyIcon="editor:format-align-left",this.$.cecontextmenu.justifyValue="hax-align-left"):"0 auto"==e.style.margin&&(this.$.cecontextmenu.justifyIcon="editor:format-align-center",this.$.cecontextmenu.justifyValue="hax-align-center")}else null===e&&(this.hideContextMenus(),this.$.textcontextmenu.justifyIcon="editor:format-align-left",this.$.textcontextmenu.justifyValue="text-align-left")},_positionContextMenu:function(e,t,o,i){var r=!(arguments.length>4&&void 0!==arguments[4])||arguments[4];try{n.dom(this).insertBefore(e,t)}catch(o){try{n.dom(t.parentNode).insertBefore(e,t)}catch(e){}}r&&(e.style.width=t.style.width);var l=t.currentStyle||window.getComputedStyle(t);0!=parseInt(l.marginLeft)?o+=parseInt(l.marginLeft):o=o+parseInt(t.offsetLeft)-this.offsetLeft,null!=o&&(e.style["margin-left"]=o+"px"),null!=i&&(e.style["margin-top"]=i+"px"),e.classList.add("hax-context-visible"),a.microTask.run(this._keepContextVisible())},_hideContextMenu:function(e){e.classList.remove("hax-context-visible"),e.classList.remove("hax-context-pin-top"),e.classList.remove("hax-context-pin-bottom"),n.dom(this.$.contextcontainer).appendChild(e)},_escKeyPressed:function(e){this.editMode&&(e.preventDefault(),e.stopPropagation(),this.$.textcontextmenu.highlightOps?(this.$.textcontextmenu.highlightOps=!1,window.HaxStore.write("activeNode",this.activeContainerNode,this),this.activeContainerNode.focus()):this.activeNode===this.activeContainerNode?(window.HaxStore.write("activeContainerNode",null,this),window.HaxStore.write("activeNode",null,this),document.body.focus()):(window.HaxStore.write("activeNode",this.activeContainerNode,this),this.activeContainerNode.focus()))},_delKeyPressed:function(e){var t=this;if(this.editMode)if(""===n.dom(this.activeContainerNode).textContent)e.preventDefault(),e.stopPropagation(),this.haxDeleteNode(this.activeContainerNode);else if(window.HaxStore.instance.isTextElement(this._haxResolvePreviousElement(this.activeContainerNode))){var o=window.HaxStore.getSelection().getRangeAt(0).cloneRange(),i=o.commonAncestorContainer.tagName;if("undefined"===H(i)&&(i=o.commonAncestorContainer.parentNode.tagName),0===o.startOffset&&0===o.endOffset&&!["UL","OL","LI"].includes(i)){for(e.preventDefault(),e.stopPropagation();this.activeContainerNode.firstChild;)this._haxResolvePreviousElement(this.activeContainerNode).appendChild(this.activeContainerNode.firstChild);setTimeout(function(){t.haxDeleteNode(t.activeContainerNode)},100)}}},_upKeyPressed:function(e){if(this.editMode&&""===n.dom(this.activeContainerNode).textContent){var t=this._haxResolvePreviousElement(this.activeContainerNode);try{t.focus()}catch(e){}}},_downKeyPressed:function(e){if(this.editMode&&""===n.dom(this.activeContainerNode).textContent){var t=n.dom(this.activeContainerNode);try{t.nextElementSibling.focus()}catch(e){}}},_tabKeyPressed:function(e){if(this.editMode){e.preventDefault(),e.stopPropagation(),e.stopImmediatePropagation();var t=!1,o=this.activeContainerNode,i=this.activeContainerNode.tagName;try{var a=window.HaxStore.getSelection().getRangeAt(0).cloneRange(),r=a.commonAncestorContainer.tagName;if("undefined"===H(r)&&(r=a.commonAncestorContainer.parentNode.tagName),["UL","OL","LI"].includes(i)||["UL","OL","LI"].includes(r))this.polyfillSafe&&(document.execCommand("indent"),this.__tabTrap=!0);else for(;!t;)null==n.dom(o).nextSibling?t=!0:"function"===n.dom(o).nextSibling.focus?(n.dom(o).nextSibling.focus(),t=!0):o=n.dom(o).nextSibling}catch(e){}}},_tabBackKeyPressed:function(e){if(this.editMode){e.preventDefault(),e.stopPropagation(),e.stopImmediatePropagation();var t=n.dom(this.activeContainerNode).previousSibling,o=this.activeContainerNode.tagName,i=window.HaxStore.getSelection();try{var a=i.getRangeAt(0).cloneRange();if(["UL","OL","LI"].includes(o)||["UL","OL","LI"].includes(a.commonAncestorContainer.parentElement.tagName))this.polyfillSafe&&(document.execCommand("outdent"),this.__tabTrap=!0);else{if(null!=t)for(;null!=t&&!this._haxElementTest(t);)t=n.dom(t).previousSibling;null!=t&&setTimeout(function(){t.focus()},100)}}catch(e){}}}});e.HaxBody=V,Object.defineProperty(e,"__esModule",{value:!0})});
-//# sourceMappingURL=hax-body.umd.js.map
+import { html, css } from "lit-element/lit-element.js";
+// LitElement based
+import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
+import {
+  encapScript,
+  wipeSlot,
+  generateResourceID
+} from "@lrnwebcomponents/utils/utils.js";
+// variables required as part of the gravity drag and scroll
+var gravityScrollTimer = null;
+const maxStep = 25;
+const edgeSize = 100;
+
+/**
+ * `hax-body`
+ * Manager of the body area that can be modified
+ * 
+### Styling
+`<hax-bodys>` provides following custom properties
+for styling:
+
+Custom property | Description | Default
+----------------|-------------|--------
+--haxcms-base-styles-body-font-size |   | 16px
+--haxcms-base-styles-body-font-family, 'Noto Serif' |   | serif
+--haxcms-base-styles-body-line-height |   | 1.8
+--haxcms-base-styles-body-letter-spacing |   | .5px
+--hax-ui-headings |   | #d4ff77;
+--hax-color-text | default text color | #000
+--hax-contextual-action-text-color |  | --simple-colors-default-theme-grey-1
+--hax-contextual-action-color |  | --simple-colors-default-theme-cyan-7
+--hax-contextual-action-hover-color |  | 
+--hax-body-target-background-color: --simple-colors-default-theme-cyan-2
+--hax-body-possible-target-background-color: --simple-colors-default-theme-grey-2
+
+####Outlines
+Custom property | Description | Default
+----------------|-------------|--------
+--hax-body-editable-outline |   | 1px solid --simple-colors-default-theme-deep-orange
+--hax-body-active-outline-hover: 1px solid --hax-contextual-action-color
+--hax-body-active-outline: 3px solid  --hax-contextual-action-color
+
+####Headings
+Custom property | Description | Default
+----------------|-------------|--------
+--hax-base-styles-h1-font-size |   | 2.5em
+--hax-base-styles-h1-line-height |   | 2.5em
+--hax-base-styles-h2-font-size |   | 2em
+--hax-base-styles-h3-font-size |   | 1.75em
+--hax-base-styles-h4-font-size |   | 1.5em
+--hax-base-styles-h5-font-size |   | 1.25em
+--hax-base-styles-h6-font-size |   | 1.25em
+--hax-base-styles-p-min-height |   | 43px
+--hax-base-styles-p-font-size |   | 24px
+--hax-base-styles-p-line-height |   | 1.8
+--hax-base-styles-p-letter-spacing |   | 0.5px
+
+####Links
+Custom property | Description | Default
+----------------|-------------|--------
+--hax-base-styles-a-color |  | --simple-colors-default-theme-grey-12
+--hax-base-styles-a-font-size |   | 24px
+--hax-base-styles-a-font-weight |   | normal
+--hax-base-styles-a-color-visited |   | --simple-colors-default-theme-light-blue
+--hax-base-styles-a-color-active |   | --simple-colors-default-theme-light-blue
+--hax-base-styles-a-font-weight-active |   | normal
+
+####Lists
+Custom property | Description | Default
+----------------|-------------|--------
+--hax-base-styles-list-padding-bottom |   | 1.5em
+--hax-base-styles-list-line-height |   | 40px
+--hax-base-styles-list-font-size |   | 24px
+--hax-base-styles-list-max-width |   | 28em
+--hax-base-styles-list-last-child-padding-bottom |   | 1em
+--hax-base-styles-list-padding-left |   | 20px
+--hax-base-styles-list-margin-left |   | 20px
+ * 
+ * @microcopy - the mental model for this element
+ *  - body is effectively a body of content that can be manipulated in the browser. This is for other HAX elements ultimately to interface with and reside in. It is the controller of input and output for all of HAX as it exists in a document. body is not the <body> tag but we need a similar mental model container for all our other elements.
+ *  - text-context - the context menu that shows up when an item is active so it can have text based operations performed to it.
+ *  - plate/grid plate - a plate or grid plate is a container that we can operate on in HAX. it can also have layout / "global" type of body operations performed on it such as delete, duplicate and higher level format styling.
+ * 
+ * @demo demo/index.html
+ * @LitElement
+ * @element hax-body
+ */
+class HaxBody extends SimpleColors {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        :host,
+        :host * ::slotted(*) {
+          line-height: 1.8;
+        }
+        :host ul,
+        :host * ::slotted(ul),
+        :host ol,
+        :host * ::slotted(ol) {
+          padding-left: 20px;
+          margin-left: 20px;
+        }
+        :host ul,
+        :host * ::slotted(ul) {
+          list-style-type: disc;
+        }
+        :host li,
+        :host * ::slotted(li) {
+          margin-bottom: 6px;
+        }
+        :host {
+          display: block;
+          position: relative;
+          min-height: 32px;
+          min-width: 32px;
+          outline: none;
+          --hax-contextual-action-text-color: var(
+            --simple-colors-default-theme-grey-1,
+            #fff
+          );
+          --hax-contextual-action-hover-color: var(
+            --simple-colors-default-theme-cyan-7,
+            #009dc7
+          );
+          --hax-contextual-action-color: var(
+            --simple-colors-default-theme-cyan-8,
+            #007999
+          );
+          --hax-body-editable-outline: 1px solid
+            var(--simple-colors-default-theme-deep-orange, #ff8a64);
+          --hax-body-active-outline-hover: 1px solid
+            var(
+              --hax-contextual-action-hover-color,
+              var(--simple-colors-default-theme-cyan-7, #009dc7)
+            );
+          --hax-body-active-outline: 3px solid
+            var(
+              --hax-contextual-action-hover-color,
+              var(--simple-colors-default-theme-cyan-7, #009dc7)
+            );
+          --hax-body-target-background-color: var(
+            --simple-colors-default-theme-cyan-2,
+            #9beaff
+          );
+          --hax-body-possible-target-background-color: var(
+            --simple-colors-default-theme-grey-2,
+            #dddddd;
+          );
+        }
+        .hax-context-menu {
+          padding: 0;
+          margin-left: -5000px;
+          position: fixed;
+          visibility: hidden;
+          opacity: 0;
+          z-index: 1000;
+          float: left;
+          display: block;
+          pointer-events: none;
+          transition: 0.2s top ease-in-out, 0.2s left ease-in-out,
+            0.2s visibility ease-in-out, 0.2s opacity ease-in-out;
+        }
+        #textcontextmenu.hax-context-menu {
+          z-index: 1000;
+        }
+        .hax-context-visible {
+          position: absolute;
+          visibility: visible;
+          pointer-events: all;
+          opacity: 1;
+        }
+        .hax-context-visible.hax-active-hover {
+          margin-left: unset;
+        }
+        :host #bodycontainer ::slotted(h1) {
+          font-size: var(--hax-base-styles-h1-font-size, 2.5em);
+          line-height: var(--hax-base-styles-h1-line-height, 2.5em);
+        }
+        :host #bodycontainer ::slotted(h2) {
+          font-size: var(--hax-base-styles-h2-font-size, 2em);
+        }
+        :host #bodycontainer ::slotted(h3) {
+          font-size: var(--hax-base-styles-h3-font-size, 1.75em);
+        }
+        :host #bodycontainer ::slotted(h4) {
+          font-size: var(--hax-base-styles-h4-font-size, 1.5em);
+        }
+        :host #bodycontainer ::slotted(h5) {
+          font-size: var(--hax-base-styles-h5-font-size, 1.25em);
+        }
+        :host #bodycontainer ::slotted(h6) {
+          font-size: var(--hax-base-styles-h6-font-size, 1.25em);
+        }
+        :host #bodycontainer ::slotted(p) {
+          min-height: var(--hax-base-styles-p-min-height, 43px);
+          font-size: var(--hax-base-styles-p-font-size, 24px);
+          line-height: var(--hax-base-styles-p-line-height, 1.8);
+          letter-spacing: var(--hax-base-styles-p-letter-spacing, 0.5px);
+        }
+        :host #bodycontainer ::slotted(a) {
+          color: var(
+            --hax-base-styles-a-color,
+            var(--simple-colors-default-theme-grey-12, #000)
+          );
+          font-size: var(--hax-base-styles-a-font-size, 24px);
+          font-weight: var(--hax-base-styles-a-font-weight, normal);
+        }
+        :host #bodycontainer ::slotted(a:visited) {
+          color: var(
+            --hax-base-styles-a-color-visited,
+            var(--simple-colors-default-theme-light-blue, #007ffc)
+          );
+        }
+        :host #bodycontainer ::slotted(a:active),
+        :host #bodycontainer ::slotted(a:focus),
+        :host #bodycontainer ::slotted(a:hover) {
+          color: var(
+            --hax-base-styles-a-color-active,
+            var(--simple-colors-default-theme-light-blue, #007ffc)
+          );
+          font-weight: var(--hax-base-styles-a-font-weight-active, normal);
+        }
+        :host #bodycontainer ::slotted(ol),
+        :host #bodycontainer ::slotted(ul),
+        :host #bodycontainer ::slotted(li) {
+          padding-bottom: var(--hax-base-styles-list-padding-bottom, 1.5em);
+          line-height: var(--hax-base-styles-list-line-height, 40px);
+          font-size: var(--hax-base-styles-list-font-size, 24px);
+          max-width: var(--hax-base-styles-list-max-width, 28em);
+        }
+        :host #bodycontainer ::slotted(ol > li:last-child),
+        :host #bodycontainer ::slotted(ul > li:last-child) {
+          padding-bottom: var(
+            --hax-base-styles-list-last-child-padding-bottom,
+            1em
+          );
+        }
+        :host #bodycontainer ::slotted(ul),
+        :host #bodycontainer ::slotted(ol) {
+          padding-left: var(--hax-base-styles-list-padding-left, 20px);
+          padding-left: var(--hax-base-styles-list-margin-left, 20px);
+        }
+
+        :host([edit-mode]) #bodycontainer ::slotted(*[data-editable]) {
+          outline: none;
+          caret-color: var(--hax-color-text);
+        }
+        :host([edit-mode])
+          #bodycontainer
+          ::slotted(*:not(grid-plate)[data-editable]:hover) {
+          outline: var(--hax-body-active-outline-hover);
+          caret-color: #000000;
+        }
+        :host([edit-mode])
+          #bodycontainer
+          ::slotted(*.hax-active[data-editable]:hover) {
+          cursor: text !important;
+          outline: var(--hax-body-active-outline-hover);
+        }
+        :host([edit-mode])
+          #bodycontainer
+          ::slotted(*:not(grid-plate)[data-editable] .hax-active:hover) {
+          cursor: text !important;
+          outline: var(--hax-body-active-outline-hover);
+        }
+        :host([edit-mode])
+          #bodycontainer
+          ::slotted(code.hax-active[data-editable]) {
+          display: block;
+        }
+        :host([edit-mode])
+          #bodycontainer
+          ::slotted(*.hax-active[data-editable]) {
+          outline: var(--hax-body-active-outline) !important;
+        }
+        :host([edit-mode]) #bodycontainer ::slotted(hr[data-editable]) {
+          height: 2px;
+          background-color: #eeeeee;
+          padding-top: 4px;
+          padding-bottom: 4px;
+        }
+        /** Fix to support safari as it defaults to none */
+        :host([edit-mode]) #bodycontainer ::slotted(*[data-editable]) {
+          -webkit-user-select: text;
+          cursor: pointer;
+        }
+
+        :host([edit-mode])
+          #bodycontainer
+          ::slotted(*[data-editable]::-moz-selection),
+        :host([edit-mode])
+          #bodycontainer
+          ::slotted(*[data-editable] *::-moz-selection) {
+          background-color: var(--hax-body-highlight, --paper-yellow-300);
+          color: black;
+        }
+        :host([edit-mode])
+          #bodycontainer
+          ::slotted(*[data-editable]::selection),
+        :host([edit-mode])
+          #bodycontainer
+          ::slotted(*[data-editable] *::selection) {
+          background-color: var(--hax-body-highlight, --paper-yellow-300);
+          color: black;
+        }
+        #bodycontainer {
+          -webkit-user-select: text;
+          user-select: text;
+        }
+        :host([edit-mode][hax-ray-mode])
+          #bodycontainer
+          ::slotted(*[data-editable]):before {
+          content: attr(data-hax-ray) " " attr(resource) " " attr(typeof) " "
+            attr(property) " " attr(content);
+          font-size: 12px;
+          line-height: 12px;
+          left: unset;
+          right: unset;
+          top: unset;
+          background-color: var(--simple-colors-default-theme-cyan-7, #3b97e3);
+          color: #ffffff;
+          bottom: unset;
+          width: auto;
+          padding: 6px;
+          margin: -2px;
+          z-index: 1;
+          margin: 0;
+          float: right;
+        }
+        /* drag and drop */
+        :host([edit-mode]) #bodycontainer ::slotted(*.hax-mover):before {
+          outline: var(--hax-body-editable-outline);
+          background-color: var(--hax-body-possible-target-background-color);
+          content: " ";
+          width: 100%;
+          display: block;
+          position: relative;
+          margin: -30px 0 0 0;
+          z-index: 2;
+          height: 30px;
+        }
+        :host([edit-mode]) #bodycontainer ::slotted(*.hax-moving) {
+          outline: var(--hax-body-active-outline);
+          background-color: #eeeeee;
+        }
+        :host([edit-mode]) #bodycontainer ::slotted(*.hax-hovered):before {
+          background-color: var(--hax-body-target-background-color) !important;
+          outline: var(--hax-body-active-outline);
+        }
+        .hax-context-menu:not(:defined) {
+          display: none;
+        }
+      `
+    ];
+  }
+  /**
+   * HTMLElement
+   */
+  constructor() {
+    super();
+    // lock to ensure we don't flood events on hitting the up / down arrows
+    // as we use a mutation observer to manage draggable bindings
+    this.___moveLock = false;
+    this.editMode = false;
+    this.globalPreferences = {};
+    // xray goggles for tags visualized in context, developer thing
+    this.haxRayMode = false;
+    this.activeNode = null;
+    this.haxSelectedText = "";
+    this.activeContainerNode = null;
+    setTimeout(() => {
+      import("./lib/hax-text-context.js");
+      import("./lib/hax-ce-context.js");
+      import("./lib/hax-plate-context.js");
+      import("@lrnwebcomponents/grid-plate/grid-plate.js");
+      this.polyfillSafe = window.HaxStore.instance.computePolyfillSafe();
+      this.addEventListener(
+        "hax-context-item-selected",
+        this._haxContextOperation.bind(this)
+      );
+      this.addEventListener(
+        "place-holder-replace",
+        this.replacePlaceholder.bind(this)
+      );
+      this.addEventListener("focusin", this._focusIn.bind(this));
+      this.addEventListener("mousedown", this._focusIn.bind(this));
+      this.addEventListener("dragenter", this.dragEnterBody.bind(this));
+      this.addEventListener("drop", this.dropEvent.bind(this));
+    }, 0);
+  }
+  static get tag() {
+    return "hax-body";
+  }
+  /**
+   * Activation allowed from outside this grid as far as drop areas
+   */
+  dragEnterBody(e) {
+    const children = this.childNodes;
+    // walk the children and apply the draggable state needed
+    for (var i in children) {
+      if (children[i].classList && children[i] !== this.activeItem) {
+        children[i].classList.add("hax-mover");
+      }
+    }
+  }
+  /**
+   * LitElement render
+   */
+  render() {
+    return html`
+      <div id="bodycontainer" class="ignore-activation">
+        <slot id="body"></slot>
+      </div>
+      <hax-text-context
+        id="textcontextmenu"
+        class="hax-context-menu ignore-activation"
+      ></hax-text-context>
+      <hax-ce-context
+        id="cecontextmenu"
+        class="hax-context-menu ignore-activation"
+      ></hax-ce-context>
+      <hax-plate-context
+        id="platecontextmenu"
+        class="hax-context-menu ignore-activation"
+      ></hax-plate-context>
+    `;
+  }
+  /**
+   * LitElement / popular convention
+   */
+  static get properties() {
+    return {
+      ...super.properties,
+      openDrawer: {
+        type: Object
+      },
+      /**
+       * Text hax-store has detected is selected currently.
+       */
+      haxSelectedText: {
+        type: String
+      },
+      /**
+       * State of if we are editing or not.
+       */
+      editMode: {
+        type: Boolean,
+        reflect: true,
+        attribute: "edit-mode"
+      },
+      /**
+       * Bust out the HAX Ray mode
+       */
+      haxRayMode: {
+        type: Boolean,
+        reflect: true,
+        attribute: "hax-ray-mode"
+      },
+      /**
+       * Access to the global properties object.
+       */
+      globalPreferences: {
+        type: Object
+      },
+      /**
+       * A reference to the active node in the slot.
+       */
+      activeNode: {
+        type: Object
+      },
+      /**
+       * A reference to the active node in the slot.
+       */
+      activeContainerNode: {
+        type: Object
+      }
+    };
+  }
+  /**
+   * LitElement life cycle - ready
+   */
+  firstUpdated(changedProperties) {
+    this.dispatchEvent(
+      new CustomEvent("hax-register-body", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        detail: this
+      })
+    );
+    // try to normalize paragraph insert on enter
+    try {
+      document.execCommand("enableObjectResizing", false, false);
+      document.execCommand("defaultParagraphSeparator", false, "p");
+    } catch (e) {
+      console.warn(e);
+    }
+    this.shadowRoot
+      .querySelector("slot")
+      .addEventListener("mousemove", this.hoverEvent.bind(this));
+    this.shadowRoot.querySelector("slot").addEventListener("mouseup", e => {
+      if (!this.openDrawer && this.editMode) {
+        setTimeout(() => {
+          const tmp = window.HaxStore.getSelection();
+          window.HaxStore._tmpSelection = tmp;
+          window.HaxStore.write("haxSelectedText", tmp.toString(), this);
+          try {
+            const range = window.HaxStore.getRange();
+            if (range.cloneRange) {
+              window.HaxStore._tmpRange = range.cloneRange();
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+        }, 10);
+      }
+    });
+    // in case we miss this on the initial setup. possible in auto opening environments.
+    this.editMode = window.HaxStore.instance.editMode;
+    // ensure this resets every append
+    this.__tabTrap = false;
+    this.__ready = true;
+  }
+  /**
+   * LitElement life cycle - properties changed callback
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "editMode") {
+        this._editModeChanged(this[propName], oldValue);
+      }
+      if (propName == "globalPreferences") {
+        this._globalPreferencesUpdated(this[propName], oldValue);
+      }
+      if (propName == "activeNode" && this.__ready) {
+        this._activeNodeChanged(this[propName], oldValue);
+        // notify
+        this.dispatchEvent(
+          new CustomEvent("active-node-changed", {
+            detail: {
+              value: this[propName]
+            }
+          })
+        );
+      }
+      if (propName == "activeContainerNode" && this.__ready) {
+        this._activeContainerNodeChanged(this[propName], oldValue);
+        // notify
+        this.dispatchEvent(
+          new CustomEvent("active-container-node-changed", {
+            detail: {
+              value: this[propName]
+            }
+          })
+        );
+      }
+    });
+  }
+  /**
+   * HTMLElement
+   */
+  connectedCallback() {
+    super.connectedCallback();
+    // mutation observer that ensures state of hax applied correctly
+    this._observer = new MutationObserver(mutations => {
+      var mutFind = false;
+      mutations.forEach(mutation => {
+        // if we've got new nodes, we have to react to that
+        if (mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach(node => {
+            if (this._validElementTest(node)) {
+              // edge case, thing is moved around in the dom so let's do the opposite
+              // this is something that has PART of these applies
+              // let's make sure that we maintain state associated with contenteditable
+              if (
+                this.editMode &&
+                (node.getAttribute("contenteditable") == "true" ||
+                  node.getAttribute("contenteditable") === true ||
+                  node.getAttribute("contenteditable") == "contenteditable")
+              ) {
+                this.__applyNodeEditableState(node, !this.editMode);
+              }
+              this.__applyNodeEditableState(node, this.editMode);
+              this.dispatchEvent(
+                new CustomEvent("hax-body-tag-added", {
+                  bubbles: true,
+                  cancelable: true,
+                  composed: true,
+                  detail: { node: node }
+                })
+              );
+              // special support for Header tags showing up w.o. identifiers
+              // this way it's easier to anchor to them in the future
+              if (
+                ["H1", "H2", "H3", "H4", "H5", "H6"].includes(node.tagName) &&
+                node.getAttribute("id") == null
+              ) {
+                node.setAttribute("id", generateResourceID("header-"));
+              }
+              // set new nodes to be the active one
+              // only if we didn't just do a grid plate move
+              // if multiple mutations, only accept the 1st one in a group
+              if (!this.___moveLock && !mutFind) {
+                mutFind = true;
+                this.activeNode = node;
+                window.HaxStore.write("activeNode", node, this);
+              } else {
+                this.___moveLock = false;
+              }
+            }
+          });
+        }
+        // if we dropped nodes via the UI (delete event basically)
+        if (mutation.removedNodes.length > 0) {
+          // handle removing items... not sure we need to do anything here
+          mutation.removedNodes.forEach(node => {
+            if (
+              this._validElementTest(node) &&
+              !node.classList.contains("hax-active")
+            ) {
+              this.dispatchEvent(
+                new CustomEvent("hax-body-tag-removed", {
+                  bubbles: true,
+                  cancelable: true,
+                  composed: true,
+                  detail: { node: node }
+                })
+              );
+            }
+          });
+        }
+      });
+    });
+    this._observer.observe(this, {
+      childList: true
+    });
+    setTimeout(() => {
+      window.addEventListener("keydown", this._onKeyDown.bind(this));
+      window.addEventListener("keypress", this._onKeyPress.bind(this));
+      document.body.addEventListener(
+        "hax-store-property-updated",
+        this._haxStorePropertyUpdated.bind(this)
+      );
+      window.addEventListener("scroll", this._keepContextVisible.bind(this));
+      window.addEventListener("resize", this._keepContextVisible.bind(this));
+    }, 0);
+  }
+  /**
+   * HTMLElement
+   */
+  disconnectedCallback() {
+    window.removeEventListener("keydown", this._onKeyDown.bind(this));
+    window.removeEventListener("keypress", this._onKeyPress.bind(this));
+    document.body.removeEventListener(
+      "hax-store-property-updated",
+      this._haxStorePropertyUpdated.bind(this)
+    );
+    window.removeEventListener("scroll", this._keepContextVisible.bind(this));
+    window.removeEventListener("resize", this._keepContextVisible.bind(this));
+    this._observer.disconnect();
+    super.disconnectedCallback();
+  }
+  /**
+   * Keep the context menu visible if needed
+   */
+  _keepContextVisible(e = null) {
+    if (!this.openDrawer && this.editMode) {
+      clearTimeout(this.__contextVisibleLock);
+      this.__contextVisibleLock = setTimeout(() => {
+        // see if the text context menu is visible
+        let el = false;
+        if (
+          this.shadowRoot
+            .querySelector("#textcontextmenu")
+            .classList.contains("hax-context-visible")
+        ) {
+          el = this.shadowRoot.querySelector("#textcontextmenu");
+        } else if (
+          this.shadowRoot
+            .querySelector("#cecontextmenu")
+            .classList.contains("hax-context-visible")
+        ) {
+          el = this.shadowRoot.querySelector("#cecontextmenu");
+        }
+        // if we see it, ensure we don't have the pin
+        if (el) {
+          if (this.elementMidViewport()) {
+            el.classList.add("hax-context-pin-top");
+            this.shadowRoot
+              .querySelector("#platecontextmenu")
+              .classList.add("hax-context-pin-top");
+          } else {
+            el.classList.remove("hax-context-pin-top");
+            this.shadowRoot
+              .querySelector("#platecontextmenu")
+              .classList.remove("hax-context-pin-top");
+          }
+          this.positionContextMenus();
+        }
+      }, 50);
+    }
+  }
+  _onKeyDown(e) {
+    if (
+      !this.openDrawer &&
+      this.editMode &&
+      this.getAttribute("contenteditable")
+    ) {
+      let sel = window.HaxStore.getSelection();
+      if (sel.anchorNode != null) {
+        switch (e.key) {
+          case "Tab":
+            if (window.HaxStore.instance.isTextElement(this.activeNode)) {
+              if (e.detail.keyboardEvent) {
+                e.detail.keyboardEvent.preventDefault();
+                e.detail.keyboardEvent.stopPropagation();
+                e.detail.keyboardEvent.stopImmediatePropagation();
+              }
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+              if (e.shiftKey) {
+                this._tabBackKeyPressed();
+              } else {
+                this._tabKeyPressed();
+              }
+            }
+            break;
+          case "Enter":
+            this.setAttribute("contenteditable", true);
+          case "Backspace":
+          case "Delete":
+          case "ArrowUp":
+          case "ArrowDown":
+          case "ArrowLeft":
+          case "ArrowRight":
+            clearTimeout(this.__keyPress);
+            this.__keyPress = setTimeout(() => {
+              const tmp = window.HaxStore.getSelection();
+              window.HaxStore._tmpSelection = tmp;
+              window.HaxStore.write("haxSelectedText", tmp.toString(), this);
+              const rng = window.HaxStore.getRange();
+              if (
+                rng.commonAncestorContainer &&
+                this.activeNode !== rng.commonAncestorContainer &&
+                typeof rng.commonAncestorContainer.focus === "function"
+              ) {
+                if (rng.commonAncestorContainer.tagName !== "HAX-BODY") {
+                  if (
+                    window.HaxStore.instance.isTextElement(
+                      rng.commonAncestorContainer
+                    )
+                  ) {
+                    this.setAttribute("contenteditable", true);
+                  } else {
+                    this.removeAttribute("contenteditable");
+                  }
+                  rng.commonAncestorContainer.focus();
+                  this.__focusLogic(rng.commonAncestorContainer);
+                }
+              }
+              // need to check on the parent too if this was a text node
+              else if (
+                rng.commonAncestorContainer &&
+                rng.commonAncestorContainer.parentNode &&
+                this.activeNode !== rng.commonAncestorContainer.parentNode &&
+                typeof rng.commonAncestorContainer.parentNode.focus ===
+                  "function"
+              ) {
+                if (
+                  rng.commonAncestorContainer.parentNode.tagName !== "HAX-BODY"
+                ) {
+                  if (
+                    window.HaxStore.instance.isTextElement(
+                      rng.commonAncestorContainer.parentNode
+                    )
+                  ) {
+                    this.setAttribute("contenteditable", true);
+                  } else {
+                    this.removeAttribute("contenteditable");
+                  }
+                  rng.commonAncestorContainer.parentNode.focus();
+                  this.__focusLogic(rng.commonAncestorContainer.parentNode);
+                } else {
+                  this.activeNode = rng.commonAncestorContainer;
+                  this.activeContainerNode = this.activeNode;
+                  window.HaxStore.write(
+                    "activeNode",
+                    rng.commonAncestorContainer,
+                    this
+                  );
+                  window.HaxStore.write(
+                    "activeContainerNode",
+                    rng.commonAncestorContainer,
+                    this
+                  );
+                  setTimeout(() => {
+                    this.positionContextMenus();
+                  }, 0);
+                }
+              } else {
+              }
+            }, 50);
+            break;
+        }
+        if (
+          this.shadowRoot
+            .querySelector("#platecontextmenu")
+            .classList.contains("hax-active-hover")
+        ) {
+          this.__dropActiveHover();
+        }
+      }
+    }
+  }
+  _onKeyPress(e) {
+    clearTimeout(this.__keyPress);
+    this.__keyPress = setTimeout(() => {
+      if (
+        !this.openDrawer &&
+        this.editMode &&
+        this.shadowRoot
+          .querySelector("#textcontextmenu")
+          .classList.contains("hax-active-hover") &&
+        this.activeNode &&
+        window.HaxStore.instance.isTextElement(this.activeNode)
+      ) {
+        this.__dropActiveHover();
+      } else if (
+        !this.openDrawer &&
+        this.editMode &&
+        this.activeNode &&
+        window.HaxStore.instance.isTextElement(this.activeNode)
+      ) {
+        // If the user has paused for awhile, show the menu
+        clearTimeout(this.__positionContextTimer);
+        this.__positionContextTimer = setTimeout(() => {
+          // always on active if we were just typing
+          this.positionContextMenus();
+        }, 1500);
+      }
+    }, 50);
+  }
+  /**
+   * on mouse over then fire the hax ray value if we have one
+   */
+  hoverEvent(e) {
+    if (!this.openDrawer && this.editMode) {
+      if (e.target && e.target.getAttribute("data-hax-ray") != null) {
+        this.__activeHover = e.target;
+      } else if (
+        e.target &&
+        e.target.parentNode &&
+        e.target.parentNode.getAttribute("data-hax-ray") != null
+      ) {
+        this.__activeHover = e.target.parentNode;
+      }
+      if (
+        !this.shadowRoot
+          .querySelector("#platecontextmenu")
+          .classList.contains("hax-active-hover")
+      ) {
+        let local = e.target;
+        // see if the target is relevent when showing the edit menu operations
+        if (
+          e.target === this.shadowRoot.querySelector("#cecontextmenu") ||
+          e.target === this.shadowRoot.querySelector("#textcontextmenu") ||
+          e.target === this.shadowRoot.querySelector("#platecontextmenu") ||
+          local === this.activeNode ||
+          local === this.activeContainerNode ||
+          e.target === this.activeNode ||
+          e.target === this.activeContainerNode ||
+          local.parentNode === this.activeContainerNode ||
+          local.parentNode.parentNode === this.activeContainerNode ||
+          local.parentNode.parentNode.parentNode === this.activeContainerNode
+        ) {
+          this.positionContextMenus();
+          this.__addActiveHover();
+          this.__typeLock = false;
+        } else {
+          this.__dropActiveHover();
+        }
+      }
+    }
+  }
+  __addActiveHover() {
+    this.shadowRoot
+      .querySelector("#cecontextmenu")
+      .classList.add("hax-active-hover");
+    this.shadowRoot
+      .querySelector("#textcontextmenu")
+      .classList.add("hax-active-hover");
+    this.shadowRoot
+      .querySelector("#platecontextmenu")
+      .classList.add("hax-active-hover");
+  }
+  __dropActiveHover() {
+    this.shadowRoot
+      .querySelector("#cecontextmenu")
+      .classList.remove("hax-active-hover");
+    this.shadowRoot
+      .querySelector("#textcontextmenu")
+      .classList.remove("hax-active-hover");
+    this.shadowRoot
+      .querySelector("#platecontextmenu")
+      .classList.remove("hax-active-hover");
+  }
+  /**
+   * Only true if we are scrolling and part way through an element
+   */
+  elementMidViewport() {
+    const y = this.activeNode.getBoundingClientRect().y;
+    return y < 0 && y > -1 * this.activeNode.offsetHeight + 140;
+  }
+  /**
+   * Replace place holder after an event has called for it in the element itself
+   */
+  replacePlaceholder(e) {
+    // generate a paragraph of text here on click
+    if (e.detail === "text") {
+      // make sure text just escalates to a paragraph tag
+      let p = document.createElement("p");
+      p.innerHTML = "<br/>";
+      this.haxReplaceNode(this.activeNode, p);
+      // allow swap out to happen
+      setTimeout(() => {
+        // set active to this p tag
+        this.activeNode = p;
+        window.HaxStore.write("activeNode", p, this);
+        this.activeContainerNode.setAttribute("contenteditable", true);
+        // focus on it
+        p.focus();
+        this.__focusLogic(p);
+      }, 210);
+    } else {
+      this.replaceElementWorkflow();
+    }
+  }
+  canTansformNode(node = null) {
+    return this.replaceElementWorkflow(node, true).length > 0 ? true : false;
+  }
+  /**
+   * Whole workflow of replacing something in place contextually.
+   * This can fire for things like events needing this workflow to
+   * invoke whether it's a "convert" event or a "replace placeholder" event
+   */
+  replaceElementWorkflow(activeNode = null, testOnly = false) {
+    // support for tests with things other than activeNode
+    if (activeNode == null) {
+      activeNode = this.activeNode;
+    }
+    let element = window.HaxStore.nodeToHaxElement(activeNode, null);
+    let type = "*";
+    let skipPropMatch = false;
+    // special support for place holder which defines exactly
+    // what the user wants this replaced with
+    if (
+      element.tag === "place-holder" &&
+      typeof element.properties["type"] !== typeof undefined
+    ) {
+      type = element.properties["type"];
+      skipPropMatch = true;
+    }
+    var props = {};
+    // see if we have a gizmo as it's not a requirement to registration
+    // as well as having handlers since mapping is not required either
+    if (
+      typeof window.HaxStore.instance.elementList[element.tag] !==
+        typeof undefined &&
+      window.HaxStore.instance.elementList[element.tag].gizmo !== false &&
+      typeof window.HaxStore.instance.elementList[element.tag].gizmo.handles !==
+        typeof undefined &&
+      window.HaxStore.instance.elementList[element.tag].gizmo.handles.length > 0
+    ) {
+      // get the haxProperties for this item
+      let gizmo = window.HaxStore.instance.elementList[element.tag].gizmo;
+      // walk through each handler
+      for (var i = 0; i < gizmo.handles.length; i++) {
+        // walk the properties defined as they would be to the
+        // left side of the ledger and tell us which property to
+        // mesh with. This effectively rehydrates / inverts that
+        // relationship where we have an element and want to say
+        // "oh ya, but what could have handled this" so that we
+        // can use that translation to offer up convertion to a
+        // new element. This is insane.
+        for (var prop in gizmo.handles[i]) {
+          // type is a reserved handler but any other property
+          // which we actually have in our element let's go for it
+          if (
+            prop !== "type" &&
+            typeof element.properties[gizmo.handles[i][prop]] !==
+              typeof undefined
+          ) {
+            // The cake is a lie... oh wait... no it's not.
+            // This will completely bend your mind when it comes to
+            // what HTML is, how it should operate and what universe
+            // we can now contort as a result. This effectively allows
+            // reverse engineering any element on the page into any
+            // other compatible element based on the properties in
+            // each element claiming to be compatible.
+            props[prop] = element.properties[gizmo.handles[i][prop]];
+          }
+        }
+      }
+    }
+    let haxElements = window.HaxStore.guessGizmo(type, props, skipPropMatch);
+    // see if we got anything
+    if (haxElements.length > 0) {
+      // hand off to hax-app-picker to deal with the rest of this
+      let tag = activeNode.tagName.toLowerCase();
+      let humanName = tag.replace("-", " ");
+      if (
+        typeof window.HaxStore.instance.elementList[tag] !== typeof undefined &&
+        window.HaxStore.instance.elementList[tag].gizmo !== false
+      ) {
+        humanName = window.HaxStore.instance.elementList[tag].gizmo.title;
+      }
+      if (!testOnly) {
+        window.HaxStore.instance.activePlaceHolder = this.activeNode;
+        window.HaxStore.instance.haxAppPicker.presentOptions(
+          haxElements,
+          "__convert",
+          `Transform ${humanName} to..`,
+          "gizmo"
+        );
+      }
+    } else {
+      if (!testOnly) {
+        window.HaxStore.toast("Sorry, this can not be transformed!", 5000);
+      }
+    }
+    return haxElements;
+  }
+  /**
+   * Global prefs updated, let's visualize stuff from hax-ray
+   */
+  _globalPreferencesUpdated(newValue, oldValue) {
+    if (typeof newValue !== typeof undefined && newValue != null) {
+      this.haxRayMode = newValue.haxRayMode;
+    }
+  }
+  /**
+   * Store updated, sync.
+   */
+  _haxStorePropertyUpdated(e) {
+    if (
+      e.detail &&
+      typeof e.detail.value !== typeof undefined &&
+      e.detail.property
+    ) {
+      this[e.detail.property] = e.detail.value;
+    }
+  }
+  /**
+   * Clear area.
+   */
+  haxClearBody(confirm = true) {
+    let status = true;
+    // only confirm if asked so we can support wipes without it
+    if (confirm) {
+      status = prompt("Are you sure you want to delete all content?");
+    }
+    // ensure they said yes
+    if (status) {
+      wipeSlot(this);
+    }
+  }
+  /**
+   * Insert new tag + content into the local DOM as a node.
+   */
+  haxInsert(tag, content, properties = {}) {
+    this.__activeHover = null;
+    // verify this tag is a valid one
+    // create a new element fragment w/ content in it
+    // if this is a custom-element it won't expand though
+    var frag = document.createElement(tag);
+    // set text forcibly
+    //frag.innerText = content;
+    // now set html forcibly which would overwrite the other one
+    frag.innerHTML = content;
+    // clone the fragment which will force an escalation to full node
+    const newNode = frag.cloneNode(true);
+    // support for properties if they exist
+    for (var property in properties) {
+      let attributeName = window.HaxStore.camelToDash(property);
+      if (properties.hasOwnProperty(property)) {
+        // special supporting for boolean because html is weird :p
+        if (properties[property] === true) {
+          newNode.setAttribute(attributeName, attributeName);
+        } else if (properties[property] === false) {
+          newNode.removeAttribute(attributeName);
+        } else if (
+          properties[property] != null &&
+          properties[property].constructor === Array
+        ) {
+          if (newNode.properties && newNode.properties[property].readOnly) {
+          } else {
+            if (newNode.set) {
+              newNode.set(attributeName, properties[property]);
+            } else {
+              newNode[attributeName] = properties[property];
+            }
+          }
+        } else if (
+          properties[property] != null &&
+          properties[property].constructor === Object
+        ) {
+          if (newNode.properties && newNode.properties[property].readOnly) {
+          } else {
+            if (newNode.set) {
+              newNode.set(attributeName, properties[property]);
+            } else {
+              newNode[attributeName] = properties[property];
+            }
+          }
+        } else {
+          newNode.setAttribute(attributeName, properties[property]);
+        }
+      }
+    }
+    // special support for a drag and drop into a place-holder tag
+    // as this is a more aggressive operation then the others
+    if (
+      window.HaxStore.instance.activePlaceHolder !== null &&
+      typeof window.HaxStore.instance.activePlaceHolder.style !==
+        typeof undefined
+    ) {
+      // replicate styles so that it doesn't jar the UI
+      newNode.style.width =
+        window.HaxStore.instance.activePlaceHolder.style.width;
+      newNode.style.float =
+        window.HaxStore.instance.activePlaceHolder.style.float;
+      newNode.style.margin =
+        window.HaxStore.instance.activePlaceHolder.style.margin;
+      newNode.style.display =
+        window.HaxStore.instance.activePlaceHolder.style.display;
+      this.haxReplaceNode(window.HaxStore.instance.activePlaceHolder, newNode);
+      window.HaxStore.instance.activePlaceHolder = null;
+    }
+    // insert at active insert point if we have one
+    else if (this.activeContainerNode != null) {
+      // allow for inserting things into things but not grid plate
+      if (
+        this.activeContainerNode.tagName === "GRID-PLATE" &&
+        this.activeContainerNode !== this.activeNode
+      ) {
+        if (this.activeNode.getAttribute("slot") != null) {
+          newNode.setAttribute("slot", this.activeNode.getAttribute("slot"));
+        }
+        if (this.activeNode.parentNode == this.activeContainerNode) {
+          this.activeContainerNode.insertBefore(newNode, this.activeNode);
+        } else {
+          this.activeContainerNode.appendChild(newNode);
+        }
+      } else {
+        if (
+          this.activeContainerNode &&
+          this.activeContainerNode.nextElementSibling
+        ) {
+          this.activeContainerNode.nextElementSibling.parentNode.insertBefore(
+            newNode,
+            this.activeContainerNode.nextElementSibling
+          );
+        } else if (this.activeContainerNode.parentNode) {
+          this.activeContainerNode.parentNode.insertBefore(
+            newNode,
+            this.activeContainerNode
+          );
+        } else if (this.activeNode.parentNode) {
+          this.activeNode.parentNode.insertBefore(newNode, this.activeNode);
+        } else {
+          // something odd happened let's just make sure we insert this safely
+          this.appendChild(newNode);
+        }
+      }
+    } else {
+      // send this into the root, which should filter it back down into the slot
+      this.appendChild(newNode);
+    }
+    this.shadowRoot.querySelector("#textcontextmenu").highlightOps = false;
+    this.activeContainerNode = newNode.parentNode;
+    this.activeNode = newNode;
+    window.HaxStore.write("activeContainerNode", newNode.parentNode, this);
+    window.HaxStore.write("activeNode", newNode, this);
+    // wait so that the DOM can have the node to then attach to
+    setTimeout(() => {
+      // scroll to it
+      if (typeof newNode.scrollIntoViewIfNeeded === "function") {
+        newNode.scrollIntoViewIfNeeded(true);
+      } else {
+        newNode.scrollIntoView({
+          behavior: "smooth",
+          inline: "center"
+        });
+      }
+      this.positionContextMenus();
+    }, 10);
+    return true;
+  }
+  /**
+   * Return the current hax content area as text that could be
+   * inserted into something.
+   */
+  haxToContent() {
+    this.hideContextMenus();
+    var __active = this.activeNode;
+    // null this to drop hax based classes
+    this.activeNode = null;
+    this.activeContainerNode = null;
+    window.HaxStore.write("activeNode", null, this);
+    window.HaxStore.write("activeContainerNode", null, this);
+    let children =
+      this.shadowRoot.querySelector("#body").localName === "slot"
+        ? this.shadowRoot.querySelector("#body").assignedNodes({
+            flatten: true
+          })
+        : [];
+    var content = "";
+    for (var i = 0, len = children.length; i < len; i++) {
+      // some mild front-end sanitization
+      if (this._validElementTest(children[i])) {
+        children[i].removeAttribute("data-editable");
+        children[i].removeAttribute("data-hax-ray");
+        // remove some of the protected classes though they shouldn't leak through
+        children[i].classList.remove(
+          "hax-mover",
+          "hax-moving",
+          "hax-hovered",
+          "grid-plate-active-item"
+        );
+        children[i].contentEditable = false;
+        content += window.HaxStore.nodeToContent(children[i]);
+        if (children[i].tagName.toLowerCase() === "grid-plate") {
+          this._applyContentEditable(this.editMode, children[i]);
+        }
+      }
+      // keep comments with a special case since they need wrapped
+      else if (children[i].nodeType === 8) {
+        content += "<!-- " + children[i].textContent + " -->";
+      }
+      // keep everything NOT an element at this point, this helps
+      // preserve whitespace because we're crazy about accuracy
+      else if (
+        children[i].nodeType !== 1 &&
+        typeof children[i].textContent !== typeof undefined &&
+        children[i].textContent !== "undefined"
+      ) {
+        content += children[i].textContent;
+      }
+    }
+    // remove the contenteditable attribute
+    content = content.replace(/\scontenteditable=\"false\"/g, "");
+    // remove the data-editable attribute
+    content = content.replace(/\sdata-editable=\"true\"/g, "");
+    content = content.replace(/\sdata-editable=\"false\"/g, "");
+    content = content.replace(/\sdata-editable=\""/g, "");
+    // remove other attributes that can linger in slots
+    content = content.replace(/\sdata-editable/g, "");
+    content = content.replace(/\scontenteditable/g, "");
+    content = content.replace(/\sdraggable/g, "");
+    // clean up stray hax-ray leftovers
+    content = content.replace(/\sdata-hax-ray=\".*?\"/g, "");
+    // remove HAX specific classes / scoping classes
+    if (this.parentNode.tagName) {
+      let parentTag = this.parentNode.tagName.toLowerCase();
+      let string = "style-scope " + parentTag + " x-scope";
+      let re = new RegExp(string, "g");
+      content = content.replace(re, "");
+      // remove without the deeeper scope as well for primitives
+      string = "style-scope " + parentTag;
+      re = new RegExp(string, "g");
+      content = content.replace(re, "");
+      // remove the last common one unpacked
+      string = "x-scope " + parentTag + "-0";
+      re = new RegExp(string, "g");
+      content = content.replace(re, "");
+      // now all tags we have defined as valid
+      let tags = window.HaxStore.instance.validTagList;
+      for (var i in tags) {
+        string = "style-scope " + tags[i];
+        re = new RegExp(string, "g");
+        content = content.replace(re, "");
+        string = "x-scope " + tags[i] + "-0 ";
+        re = new RegExp(string, "g");
+        content = content.replace(re, "");
+        string = "x-scope " + tags[i] + "-0";
+        re = new RegExp(string, "g");
+        content = content.replace(re, "");
+      }
+    }
+    // remove empty class structures
+    content = content.replace(/\sclass=\"\"/g, "");
+    content = content.replace(/\sclass=\"\s\"/g, "");
+    // re-apply contenteditable if needed
+    this._applyContentEditable(this.editMode);
+    // set active again
+    window.HaxStore.write("activeNode", __active, this);
+    window.HaxStore.write("activeContainerNode", __active, this);
+    // oh one last thing. escape all script/style tags
+    content = encapScript(content);
+    return content;
+  }
+  /**
+   * Duplicate node into the local DOM below the current item if we can.
+   */
+  haxDuplicateNode(node, parent = this) {
+    // move the context menu before duplicating!!!!
+    this.hideContextMenus(false);
+    // convert the node to a hax element
+    let haxElement = window.HaxStore.nodeToHaxElement(node, null);
+    // support for deep API call to clean up special elements
+    if (typeof node.preProcessHaxInsertContent !== typeof undefined) {
+      haxElement = node.preProcessHaxInsertContent(haxElement);
+    }
+    if (haxElement.content == haxElement.properties.innerHTML) {
+      delete haxElement.properties.innerHTML;
+    }
+    // convert it back to a clone, seems odd I'm sure but this ensures that all props are copied
+    // correctly and that we get a brand new object
+    var nodeClone = window.HaxStore.haxElementToNode(
+      haxElement.tag,
+      haxElement.content,
+      haxElement.properties
+    );
+    if (
+      nodeClone.tagName.toLowerCase() === "webview" &&
+      window.HaxStore.instance._isSandboxed &&
+      typeof nodeClone.guestinstance !== typeof undefined
+    ) {
+      delete nodeClone.guestinstance;
+    }
+    // shouldn't be possible but might as well check
+    if (node !== null) {
+      parent.insertBefore(nodeClone, node.nextSibling);
+    } else {
+      parent.appendChild(nodeClone);
+    }
+    setTimeout(() => {
+      // test for a grid plate clone
+      if (parent === this) {
+        window.HaxStore.write("activeContainerNode", nodeClone, this);
+      }
+      window.HaxStore.write("activeNode", nodeClone, this);
+    }, 100);
+    return true;
+  }
+  /**
+   * Hide all context menus.
+   */
+  hideContextMenus(hidePlate = true) {
+    // clear the timeouts for anything that could cause these to reapear
+    clearTimeout(gravityScrollTimer);
+    clearTimeout(this.__keyPress);
+    clearTimeout(this.__contextVisibleLock);
+    clearTimeout(this.__positionContextTimer);
+    // primary context menus
+    this._hideContextMenu(this.shadowRoot.querySelector("#textcontextmenu"));
+    this._hideContextMenu(this.shadowRoot.querySelector("#cecontextmenu"));
+    // secondary menus and clean up areas
+    if (hidePlate) {
+      this._hideContextMenu(this.shadowRoot.querySelector("#platecontextmenu"));
+    }
+    // force context menu state to closed
+    this.shadowRoot.querySelector("#textcontextmenu").highlightOps = false;
+  }
+  /**
+   * Reposition context menus to match an element.
+   */
+  positionContextMenus(node = this.activeNode, container = this.activeNode) {
+    // sanity chekc and ensure we are not told to lock position of all menus
+    clearTimeout(this.__positionContextTimer);
+    this.__positionContextTimer = setTimeout(() => {
+      if (
+        node &&
+        !window.HaxStore.instance._lockContextPosition &&
+        this.__ready
+      ) {
+        // menu width starts out w/ the plate context which is a set size
+        let menuWidth = 140;
+        let tag = node.tagName.toLowerCase();
+        if (window.HaxStore.instance._isSandboxed && tag === "webview") {
+          tag = "iframe";
+        }
+        let props = window.HaxStore.instance.elementList[tag];
+        // try and work against anything NOT a P tag
+        if (
+          typeof props !== typeof undefined &&
+          !window.HaxStore.instance.isTextElement(node)
+        ) {
+          this._hideContextMenu(
+            this.shadowRoot.querySelector("#textcontextmenu")
+          );
+          props.element = node;
+          this._positionContextMenu(
+            this.shadowRoot.querySelector("#cecontextmenu"),
+            container,
+            -1,
+            -30
+          );
+          menuWidth += 28;
+        } else {
+          this._hideContextMenu(
+            this.shadowRoot.querySelector("#cecontextmenu")
+          );
+          this._positionContextMenu(
+            this.shadowRoot.querySelector("#textcontextmenu"),
+            container,
+            -1,
+            -30
+          );
+          // text menu can expand based on selection
+          let textRect = this.shadowRoot
+            .querySelector("#textcontextmenu")
+            .getBoundingClientRect();
+          menuWidth += textRect.width;
+        }
+        if (container) {
+          let activeRect = container.getBoundingClientRect();
+          // need to account for the item being small than the menu
+          if (Math.round(menuWidth) >= Math.round(activeRect.width)) {
+            this._positionContextMenu(
+              this.shadowRoot.querySelector("#platecontextmenu"),
+              container,
+              -1,
+              -58
+            );
+          } else {
+            this._positionContextMenu(
+              this.shadowRoot.querySelector("#platecontextmenu"),
+              container,
+              activeRect.width -
+                this.shadowRoot
+                  .querySelector("#platecontextmenu")
+                  .getBoundingClientRect().width +
+                2,
+              -28
+            );
+          }
+        }
+        // special case for node not matching container yet it being editable
+        if (
+          container &&
+          !window.HaxStore.instance.isTextElement(node) &&
+          node !== container
+        ) {
+          container.removeAttribute("contenteditable");
+        } else if (container) {
+          container.setAttribute("contenteditable", true);
+        }
+      }
+    }, 10);
+  }
+  /**
+   * Move grid plate around
+   */
+  haxMoveGridPlate(direction, node, container) {
+    // menu is actually in the element for render purposes
+    // support moving things multiple directions
+    this.___moveLock = true;
+    switch (direction) {
+      case "first":
+        // ensure we can go up, first being a mode of up
+        if (container.previousElementSibling !== null) {
+          this.insertBefore(container, this.firstChild);
+        }
+        break;
+      case "up":
+        // ensure we can go up
+        if (container.previousElementSibling !== null) {
+          this.insertBefore(container, container.previousElementSibling);
+        }
+        break;
+      case "down":
+        if (container.nextElementSibling !== null) {
+          this.insertBefore(container.nextElementSibling, container);
+        }
+        break;
+      case "last":
+        if (container.nextElementSibling !== null) {
+          this.appendChild(container);
+        }
+        break;
+    }
+    setTimeout(() => {
+      if (typeof node.scrollIntoViewIfNeeded === "function") {
+        node.scrollIntoViewIfNeeded(true);
+      } else {
+        node.scrollIntoView({ behavior: "smooth", inline: "center" });
+      }
+      this.positionContextMenus(node, node);
+    }, 10);
+    return true;
+  }
+  /**
+   * Inject / modify a grid plate where something currently lives
+   */
+  async haxGridPlateOps(node, side, add = true) {
+    // allow splitting the grid plate that is already there
+    let changed = false;
+    if (node.tagName === "GRID-PLATE") {
+      if (add) {
+        switch (node.layout) {
+          case "1":
+            node.layout = "1-1";
+            changed = true;
+            break;
+          case "1-1":
+            node.layout = "1-1-1";
+            changed = true;
+            break;
+          case "1-1-1":
+            node.layout = "1-1-1-1";
+            changed = true;
+            break;
+          case "1-1-1-1":
+            node.layout = "1-1-1-1-1";
+            changed = true;
+            break;
+          case "1-1-1-1-1":
+            node.layout = "1-1-1-1-1-1";
+            changed = true;
+            break;
+        }
+      } else {
+        switch (node.layout) {
+          case "1-1":
+            // implies we are removing the grid plate
+            let cloneEl;
+            await node.childNodes.forEach(el => {
+              // verify its a tag
+              if (el.tagName) {
+                // remove slot name
+                cloneEl = el.cloneNode(true);
+                cloneEl.removeAttribute("slot");
+                cloneEl.classList.remove("hax-mover");
+                cloneEl.classList.remove("hax-moving");
+                node.parentNode.insertBefore(cloneEl, node);
+              }
+            });
+            // whatever was moved out last use as active now
+            this.activeNode = cloneEl;
+            this.activeContainerNode = cloneEl;
+            window.HaxStore.write("activeNode", cloneEl, this);
+            window.HaxStore.write("activeContainerNode", cloneEl, this);
+            setTimeout(() => {
+              node.remove();
+            }, 0);
+            changed = true;
+            break;
+          case "1-1-1":
+            node.layout = "1-1";
+            changed = true;
+            break;
+          case "1-1-1-1":
+            node.layout = "1-1-1";
+            changed = true;
+            break;
+          case "1-1-1-1-1":
+            node.layout = "1-1-1-1";
+            changed = true;
+            break;
+          case "1-1-1-1-1-1":
+            node.layout = "1-1-1-1-1";
+            changed = true;
+            break;
+        }
+      }
+      // if left, nudge everything over 1, right simple
+      if (changed) {
+        let platecontextmenu = this.shadowRoot.querySelector(
+          "#platecontextmenu"
+        );
+        let right = platecontextmenu.shadowRoot.querySelector("#right");
+        let rightremove = platecontextmenu.shadowRoot.querySelector(
+          "#rightremove"
+        );
+        right.disabled = false;
+        rightremove.disabled = false;
+        if (node.layout == "1-1-1-1-1-1") {
+          right.disabled = true;
+        }
+        if (side == "left") {
+          node.childNodes.forEach(el => {
+            if (el.tagName) {
+              let s =
+                parseInt(el.getAttribute("slot").replace("col-", ""), 10) + 1;
+              el.setAttribute("slot", `col-${s}`);
+            }
+          });
+        }
+      }
+    } else {
+      let grid = document.createElement("grid-plate");
+      grid.layout = "1-1";
+      this.insertBefore(grid, node);
+      let col = "2";
+      if (side == "right") {
+        col = "1";
+      }
+      setTimeout(() => {
+        grid.appendChild(node);
+        this.activeContainerNode = grid;
+        window.HaxStore.write("activeContainerNode", grid, this);
+        node.setAttribute("slot", "col-" + col);
+      }, 0);
+    }
+  }
+  /**
+   * Convert an element from one tag to another.
+   */
+  haxReplaceNode(node, replacement) {
+    // Switch, try loop in case we screwed up elsewhere
+    try {
+      if (node == null) {
+        node = this.__oldActiveNode;
+      }
+      node.replaceWith(replacement);
+      // test for slots to match
+      if (node && node.getAttribute && node.getAttribute("slot") != null) {
+        replacement.setAttribute("slot", node.getAttribute("slot"));
+      }
+    } catch (e) {
+      console.warn(e);
+    }
+    return replacement;
+  }
+  /**
+   * Convert an element from one tag to another.
+   */
+  haxChangeTagName(node, tagName) {
+    // Create a replacement tag of the desired type
+    var replacement = document.createElement(tagName);
+    // Grab all of the original's attributes, and pass them to the replacement
+    for (var i = 0, l = node.attributes.length; i < l; ++i) {
+      var nodeName = node.attributes.item(i).nodeName;
+      var value = node.attributes.item(i).value;
+      replacement.setAttribute(nodeName, value);
+    }
+    // Persist contents
+    // account for empty list and ordered list items
+    replacement.innerHTML = node.innerHTML.trim();
+    if (tagName == "ul" || tagName == "ol") {
+      if (replacement.innerHTML == "") {
+        replacement.innerHTML = "<li></li>";
+      } else if (
+        !(
+          node.tagName.toLowerCase() == "ul" ||
+          node.tagName.toLowerCase() == "ol"
+        )
+      ) {
+        replacement.innerHTML =
+          "<li>" +
+          node.innerHTML
+            .trim()
+            .replace(/<br\/>/g, "</li>\n<li>")
+            .replace(/<br>/g, "</li>\n<li>") +
+          "</li>";
+      }
+    } else if (
+      node.tagName.toLowerCase() == "ul" ||
+      node.tagName.toLowerCase() == "ol"
+    ) {
+      // if we're coming from ul or ol strip out the li tags
+      replacement.innerHTML = replacement.innerHTML
+        .replace(/<ul>/g, "")
+        .replace(/<\/ul>/g, "")
+        .replace(/<li><\/li>/g, "")
+        .replace(/<li>/g, "")
+        .replace(/<\/li>/g, "<br/>");
+    }
+    // Switch!
+    try {
+      node.replaceWith(replacement);
+      // focus on the thing switched to
+      setTimeout(() => {
+        let children = replacement.children;
+        // see if there's a child element and focus that instead if there is
+        if (children[0] && children.tagName) {
+          children[0].focus();
+        } else {
+          replacement.focus();
+        }
+      }, 50);
+    } catch (e) {
+      console.warn(e);
+      console.warn(replacement);
+      console.warn(node);
+    }
+    return replacement;
+  }
+  /**
+   * Delete the node passed in
+   */
+  haxDeleteNode(node, parent = this) {
+    // move the context menu before deleting!!!!
+    this.hideContextMenus();
+    this.activeNode = null;
+    this.activeContainerNode = null;
+    window.HaxStore.write("activeNode", null, this);
+    window.HaxStore.write("activeContainerNode", null, this);
+    try {
+      return node.remove();
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+  /**
+   * Bulk import HTML with option to clear what is currently
+   * in the slot of this tag. This also validates tags
+   * that are being inserted for security based on the
+   * internal whitelist.
+   */
+  importContent(html, clear = true) {
+    // kill the slot of the active body, all of it
+    if (clear) {
+      wipeSlot(this, "*");
+    }
+    // pause quickly to ensure wipe goes through successfully
+    setTimeout(() => {
+      html = encapScript(html);
+      let fragment = document.createElement("div");
+      fragment.insertAdjacentHTML("beforeend", html);
+      while (fragment.firstChild !== null) {
+        if (typeof fragment.firstChild.tagName !== typeof undefined) {
+          // ensure import doesn't import non-sandbox safe things!
+          if (
+            window.HaxStore.instance._isSandboxed &&
+            fragment.firstChild.tagName.toLowerCase() === "iframe"
+          ) {
+            // Create a replacement tag of the desired type
+            var replacement = document.createElement("webview");
+            // Grab all of the original's attributes, and pass them to the replacement
+            for (
+              var j = 0, l = fragment.firstChild.attributes.length;
+              j < l;
+              ++j
+            ) {
+              var nodeName = fragment.firstChild.attributes.item(j).nodeName;
+              var value = fragment.firstChild.attributes.item(j).value;
+              if (nodeName === "height" || nodeName === "width") {
+                replacement.style[nodeName] == value;
+              }
+              replacement.setAttribute(nodeName, value);
+            }
+            this.appendChild(replacement);
+          } else {
+            this.appendChild(fragment.firstChild);
+          }
+        } else {
+          // @todo might want to support appending or keeping track of comments / non tags
+          // but this is not a must have
+          fragment.removeChild(fragment.firstChild);
+        }
+      }
+    }, 50);
+  }
+  /**
+   * Respond to hax operations.
+   */
+  _haxContextOperation(e) {
+    let detail = e.detail;
+    // support a simple insert event to bubble up or everything else
+    switch (detail.eventName) {
+      // text based operations for primatives
+      case "text-tag":
+        // trigger the default selected value in context menu to match
+        this.shadowRoot.querySelector("#textcontextmenu").realSelectedValue =
+          detail.value;
+        this.activeNode = this.haxChangeTagName(this.activeNode, detail.value);
+        window.HaxStore.write("activeNode", this.activeNode, this);
+        setTimeout(() => {
+          this.positionContextMenus();
+        }, 100);
+        break;
+      case "text-tag-ul":
+        // trigger the default selected value in context menu to match
+        this.shadowRoot.querySelector("#textcontextmenu").realSelectedValue =
+          "ul";
+        this.activeNode = this.haxChangeTagName(this.activeNode, "ul");
+        window.HaxStore.write("activeNode", this.activeNode, this);
+        setTimeout(() => {
+          this.positionContextMenus();
+        }, 100);
+        break;
+      case "text-tag-ol":
+        // trigger the default selected value in context menu to match
+        this.shadowRoot.querySelector("#textcontextmenu").realSelectedValue =
+          "ol";
+        this.activeNode = this.haxChangeTagName(this.activeNode, "ol");
+        window.HaxStore.write("activeNode", this.activeNode, this);
+        setTimeout(() => {
+          this.positionContextMenus();
+        }, 100);
+        break;
+      case "hax-plate-add-element":
+        // support for the Other call, otherwise its a specific element + props
+        if (detail.value == "other") {
+          window.HaxStore.instance.haxInsertAnything({});
+          return true;
+        }
+        // insert from here
+        let addData = JSON.parse(detail.value);
+        this.haxInsert(addData.tag, addData.content, addData.properties, false);
+        // focus on 1st row w/ cursor if this a text element
+        if (window.HaxStore.instance.isTextElement(addData)) {
+          setTimeout(() => {
+            try {
+              var range = document.createRange();
+              var sel = window.HaxStore.getSelection();
+              range.setStart(this.activeNode, 0);
+              range.collapse(true);
+              sel.removeAllRanges();
+              sel.addRange(range);
+              this.activeNode.focus();
+              this.activeContainerNode = this.activeNode;
+              window.HaxStore.write(
+                "activeContainerNode",
+                this.activeContainerNode,
+                this
+              );
+            } catch (e) {
+              console.warn(e);
+            }
+          }, 0);
+        }
+        break;
+      case "text-align-left":
+        this.activeNode.style.textAlign = null;
+        break;
+      // grid plate based operations
+      // allow for transforming this haxElement into another one
+      case "hax-transform-node":
+        this.replaceElementWorkflow();
+        break;
+      // grid plate based operations
+      // allow for transforming this haxElement into another one
+      case "hax-plate-create-right":
+        this.haxGridPlateOps(this.activeContainerNode, "right");
+        break;
+      case "hax-plate-remove-right":
+        this.haxGridPlateOps(this.activeContainerNode, "right", false);
+        break;
+      // duplicate the active item or container
+      case "hax-plate-duplicate":
+        if (this.activeNode === this.activeContainerNode) {
+          this.haxDuplicateNode(this.activeNode);
+        } else {
+          this.haxDuplicateNode(this.activeNode, this.activeContainerNode);
+        }
+        break;
+      case "hax-plate-delete":
+        if (this.activeNode != null) {
+          let options = [
+            {
+              icon: "thumb-up",
+              color: "green",
+              title: "Yes"
+            },
+            {
+              icon: "thumb-down",
+              color: "red",
+              title: "No"
+            }
+          ];
+          let tag = this.activeNode.tagName.toLowerCase();
+          let humanName = tag.replace("-", " ");
+          if (
+            typeof window.HaxStore.instance.elementList[tag] !==
+              typeof undefined &&
+            window.HaxStore.instance.elementList[tag].gizmo !== false
+          ) {
+            humanName = window.HaxStore.instance.elementList[tag].gizmo.title;
+          }
+          window.HaxStore.instance.haxAppPicker.presentOptions(
+            options,
+            "",
+            `Remove this \`${humanName}\`?`,
+            "delete"
+          );
+        }
+        break;
+      case "hax-plate-first":
+        this.haxMoveGridPlate(
+          "first",
+          this.activeNode,
+          this.activeContainerNode
+        );
+        break;
+      case "hax-plate-up":
+        this.haxMoveGridPlate("up", this.activeNode, this.activeContainerNode);
+        break;
+      case "hax-plate-down":
+        this.haxMoveGridPlate(
+          "down",
+          this.activeNode,
+          this.activeContainerNode
+        );
+        break;
+      case "hax-plate-last":
+        this.haxMoveGridPlate(
+          "last",
+          this.activeNode,
+          this.activeContainerNode
+        );
+        break;
+      case "close-menu":
+        this.activeNode = null;
+        this.activeContainerNode = null;
+        window.HaxStore.write("activeNode", null, this);
+        window.HaxStore.write("activeContainerNode", null, this);
+        break;
+    }
+  }
+  /**
+   * Item has gained focus, change active element to match
+   */
+  _focusIn(e) {
+    if (this.__focusLogic(e.target)) {
+      e.stopPropagation();
+    }
+  }
+  /**
+   * Focus a target and update the data model to reflect this.
+   * This helps ensure that keyboard and non click based focusing
+   * registers the same as click events
+   */
+  __focusLogic(target) {
+    let stopProp = false;
+    // only worry about these when we are in edit mode
+    // and there is no drawer open
+    if (!this.openDrawer && this.editMode && !this.__tabTrap) {
+      let containerNode = target;
+      // edge case, thing selected is inside a paragraph tag
+      // HTML is stupid and allows this
+      if (
+        containerNode.tagName === "SPAN" &&
+        window.HaxStore.instance.isTextElement(target.parentNode)
+      ) {
+        containerNode = target.parentNode;
+      }
+      let activeNode = null;
+      // ensure this is valid
+      if (
+        this._validElementTest(containerNode) &&
+        containerNode.parentNode &&
+        containerNode.parentNode.tagName
+      ) {
+        // keep looking til we are juuuust below the container
+        // @notice this is where we force a selection on highest level
+        // of the document
+        while (
+          containerNode.parentNode.tagName &&
+          containerNode.parentNode.tagName != "HAX-BODY"
+        ) {
+          // make sure active is set after closest legit element
+          if (
+            activeNode === null &&
+            containerNode.tagName !== "LI" &&
+            containerNode.tagName !== "B" &&
+            containerNode.tagName !== "I" &&
+            containerNode.tagName !== "STRONG" &&
+            containerNode.tagName !== "EM"
+          ) {
+            activeNode = containerNode;
+          }
+          containerNode = containerNode.parentNode;
+        }
+        // case with simple element
+        if (activeNode === null) {
+          activeNode = containerNode;
+        }
+        // we only allow disconnected node from container when
+        // the container is a grid plate
+        else if (!window.HaxStore.instance.isGridPlateElement(containerNode)) {
+          activeNode = containerNode;
+        }
+        // won't deal with lists inside of p tags
+        else if (
+          ["UL", "OL", "LI", "P", "GRID-PLATE"].includes(
+            containerNode.tagName
+          ) &&
+          ["UL", "OL", "LI"].includes(activeNode.tagName)
+        ) {
+          activeNode = containerNode;
+        }
+        // ensure this is a tag we care about / have support for and
+        // that it is a new value
+        if (
+          this.activeContainerNode !== containerNode &&
+          !containerNode.classList.contains("ignore-activation")
+        ) {
+          this.activeContainerNode = containerNode;
+          window.HaxStore.write("activeContainerNode", containerNode, this);
+          stopProp = true;
+        } else if (containerNode.classList.contains("ignore-activation")) {
+          stopProp = true;
+        }
+        // test for active node changing
+        if (
+          this.activeNode !== activeNode &&
+          !activeNode.classList.contains("ignore-activation")
+        ) {
+          this.activeNode = activeNode;
+          window.HaxStore.write("activeNode", activeNode, this);
+          setTimeout(() => {
+            this.positionContextMenus(activeNode, activeNode);
+          }, 0);
+          stopProp = true;
+        }
+      }
+    } else {
+      this.__tabTrap = false;
+    }
+    return stopProp;
+  }
+  /**
+   * Notice the change between states for editing.
+   */
+  _editModeChanged(newValue, oldValue) {
+    // fire above that we have changed states so things can react if needed
+    if (typeof oldValue !== typeof undefined) {
+      this._applyContentEditable(newValue);
+      if (newValue) {
+        // minor timeout here to see if we have children or not. the slight delay helps w/
+        // timing in scenarios where this is inside of other systems which are setting default
+        // attributes and what not
+        setTimeout(() => {
+          if (this.children && this.children[0] && this.children[0].focus) {
+            this.activeNode = this.children[0];
+            this.activeContainerNode = this.activeNode;
+            window.HaxStore.write("activeNode", this.children[0], this);
+            window.HaxStore.write(
+              "activeContainerNode",
+              this.children[0],
+              this
+            );
+            setTimeout(() => {
+              if (window.HaxStore.instance.isTextElement(this.activeNode)) {
+                try {
+                  var range = document.createRange();
+                  var sel = window.HaxStore.getSelection();
+                  range.setStart(this.activeNode, 0);
+                  range.collapse(true);
+                  sel.removeAllRanges();
+                  sel.addRange(range);
+                  this.activeNode.focus();
+                } catch (e) {
+                  console.warn(e);
+                }
+                this.positionContextMenus();
+              }
+            }, 0);
+          } else {
+            this.haxInsert("p", "", {}, false);
+            setTimeout(() => {
+              try {
+                var range = document.createRange();
+                var sel = window.HaxStore.getSelection();
+                range.setStart(this.activeNode, 0);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                this.activeNode.focus();
+                this.activeContainerNode = this.activeNode;
+                window.HaxStore.write(
+                  "activeContainerNode",
+                  this.activeContainerNode,
+                  this
+                );
+              } catch (e) {
+                console.warn(e);
+              }
+              this.positionContextMenus();
+            }, 0);
+          }
+        }, 100);
+      }
+    }
+    // hide menus when state changes
+    if (newValue == false) {
+      this.removeAttribute("contenteditable");
+      setTimeout(() => {
+        this.hideContextMenus();
+      }, 50);
+    }
+  }
+  /**
+   * Test if this is a HAX element or not
+   */
+  _haxResolvePreviousElement(node) {
+    node = node.previousElementSibling;
+    while (
+      node != null &&
+      typeof node.tagName !== typeof undefined &&
+      node.tagName.substring(0, 4) === "HAX-"
+    ) {
+      node = node.previousElementSibling;
+    }
+    return node;
+  }
+  /**
+   * Test if this is a HAX element or not
+   * true means its a valid element for selection
+   * We have special support for the hax-logo because it's hax.
+   */
+  _validElementTest(node) {
+    if (typeof node.tagName !== typeof undefined) {
+      if (
+        node.tagName.substring(0, 4) !== "HAX-" ||
+        node.tagName === "HAX-LOGO"
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /**
+   * Test if this is an HTML primative
+   */
+  _HTMLPrimativeTest(node) {
+    if (
+      node != null &&
+      typeof node.tagName !== typeof undefined &&
+      node.tagName.indexOf("-") == -1
+    ) {
+      return true;
+    }
+    return false;
+  }
+  /**
+   * Walk everything we find and either enable or disable editable state.
+   */
+  _applyContentEditable(
+    status,
+    target = this.shadowRoot.querySelector("#body")
+  ) {
+    let children =
+      target.localName === "slot"
+        ? target.assignedNodes({ flatten: true })
+        : [];
+    // fallback for content nodes if not polymer managed nodes above
+    if (children.length === 0) {
+      children = target.children;
+    }
+    for (var i = 0, len = children.length; i < len; i++) {
+      // sanity check for being a valid element / not a "hax" element
+      if (this._validElementTest(children[i])) {
+        // correctly add or remove listeners
+        if (
+          !status ||
+          (children[i].getAttribute("contenteditable") !== true &&
+            children[i].getAttribute("contenteditable") != "true" &&
+            children[i].getAttribute("contenteditable") != "contenteditable")
+        ) {
+          this.__applyNodeEditableState(children[i], status);
+        }
+      }
+    }
+  }
+  /**
+   * Apply the node editable state correctly so we can do drag and drop / editing uniformly
+   */
+  __applyNodeEditableState(node, status = true) {
+    let listenerMethod;
+    // create the hax-ray x ray googles thing
+    let haxRay = node.tagName.replace("-", " ").toLowerCase();
+    let i = window.HaxStore.instance.gizmoList.findIndex(j => {
+      if (j) {
+        return j.tag === node.tagName.toLowerCase();
+      }
+    });
+    if (i !== -1) {
+      haxRay = window.HaxStore.instance.gizmoList[i].title;
+    }
+    // oooooo snap, drag and drop..
+    if (status) {
+      node.setAttribute("data-editable", status);
+      node.setAttribute("data-hax-ray", haxRay);
+      listenerMethod = "addEventListener";
+    } else {
+      node.removeAttribute("data-editable");
+      node.removeAttribute("data-hax-ray");
+      listenerMethod = "removeEventListener";
+    }
+    node[listenerMethod]("drop", this.dropEvent.bind(this));
+    node[listenerMethod]("dragenter", this.dragEnter.bind(this));
+    node[listenerMethod]("dragleave", this.dragLeave.bind(this));
+    node[listenerMethod]("dragover", function(e) {
+      e.preventDefault();
+    });
+    // additional things for text based elements
+    if (this._HTMLPrimativeTest(node)) {
+      if (status) {
+        node.setAttribute("contenteditable", status);
+      } else {
+        node.removeAttribute("contenteditable");
+      }
+      if (node.querySelectorAll("a").length > 0) {
+        let links = node.querySelectorAll("a");
+        for (var j = 0, len2 = links.length; j < len2; j++) {
+          if (status) {
+            links[j].setAttribute("contenteditable", status);
+            links[j].setAttribute("data-editable", status);
+          } else {
+            links[j].removeAttribute("contenteditable");
+            links[j].removeAttribute("data-editable");
+          }
+          links[j][listenerMethod]("click", e => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+          });
+        }
+      }
+    }
+  }
+  /**
+   * Drop an item onto another
+   */
+  dropEvent(e) {
+    if (!this.openDrawer && this.editMode) {
+      window.HaxStore.instance._lockContextPosition = false;
+      // trick the tray into forcing active to be Configure
+      window.HaxStore.instance.haxTray.activeTab = "item-1";
+      // establish an activeNode /container based on drop poisition
+      this.activeNode = e.path[0];
+      window.HaxStore.write("activeNode", e.path[0], this);
+      if (
+        e.path[0].parentNode &&
+        e.path[0].parentNode.tagName === "GRID-PLATE"
+      ) {
+        this.activeContainerNode = e.path[0].parentNode;
+        window.HaxStore.write(
+          "activeContainerNode",
+          e.path[0].parentNode,
+          this
+        );
+      } else {
+        this.activeContainerNode = e.path[0].parentNode;
+        window.HaxStore.write("activeContainerNode", e.path[0], this);
+      }
+      // esnure we clear the gravity scrolling drag effect
+      clearTimeout(gravityScrollTimer);
+      // walk the children and remove the draggable state needed
+      setTimeout(() => {
+        let children = this.querySelectorAll(
+          ".hax-mover, .hax-hovered, .hax-moving, .grid-plate-active-item"
+        );
+        for (var i in children) {
+          if (typeof children[i].classList !== typeof undefined) {
+            children[i].classList.remove(
+              "hax-mover",
+              "hax-hovered",
+              "hax-moving",
+              "grid-plate-active-item"
+            );
+            // special support for grid plates as they manage internal drag/drop
+            if (children[i].tagName === "GRID-PLATE") {
+              children[i].dropEvent(e);
+              for (var j = 1; j <= children[i].columns; j++) {
+                if (
+                  children[i].shadowRoot.querySelector("#col" + j) !== undefined
+                ) {
+                  children[i].shadowRoot
+                    .querySelector("#col" + j)
+                    .classList.remove("hax-mover");
+                }
+              }
+            }
+          }
+        }
+      }, 100);
+      // this helps ensure that what gets drag and dropped is a file
+      // this prevents issues with selecting and dragging text (which triggers drag/drop)
+      // as well as compatibility with things that are legit in a draggable state
+      try {
+        // see if we are dropping a file
+        if (
+          e.dataTransfer &&
+          e.dataTransfer.items &&
+          e.dataTransfer.items.length > 0 &&
+          e.dataTransfer.items[0].kind === "file"
+        ) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          // inject a placeholder P tag which we will then immediately replace
+          let tmp = document.createElement("p");
+          this.activeNode.parentNode.insertBefore(tmp, this.activeNode);
+          // this placeholder will be immediately replaced
+          e.placeHolderElement = tmp;
+          // fire this specialized event up so things like HAX can intercept
+          this.dispatchEvent(
+            new CustomEvent("place-holder-file-drop", {
+              bubbles: true,
+              cancelable: true,
+              composed: true,
+              detail: e
+            })
+          );
+        } else {
+          // set taget based on drag target
+          var target = window.HaxStore.instance.__dragTarget;
+          var local = e.target;
+          // if we have a slot on what we dropped into then we need to mirror that item
+          // and place ourselves below it in the DOM
+          if (
+            (target &&
+              target.removeAttribute &&
+              target !== null &&
+              typeof local !== typeof undefined &&
+              target !== local &&
+              target !== local.parentNode &&
+              target.parentNode === this) ||
+            local.parentNode === this
+          ) {
+            // incase this came from a grid plate, drop the slot so it works
+            target.removeAttribute("slot");
+            try {
+              local.parentNode.insertBefore(target, local);
+            } catch (e) {
+              console.warn(e);
+            }
+            // ensure that if we caught this event we process it
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          // position arrows / set focus in case the DOM got updated above
+          if (target && typeof target.focus === "function") {
+            this.activeNode = target;
+            if (
+              this.activeNode &&
+              this.activeNode.parentNode &&
+              this.activeNode.parentNode.tagName === "GRID-PLATE"
+            ) {
+              this.activeContainerNode = this.activeNode.parentNode;
+            }
+            window.HaxStore.write("activeNode", this.activeNode, this);
+            window.HaxStore.write(
+              "activeContainerNode",
+              this.activeContainerNode,
+              this
+            );
+            setTimeout(() => {
+              this.positionContextMenus();
+            }, 100);
+          }
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+  }
+  /**
+   * Enter an element, meaning we've over it while dragging
+   */
+  dragEnter(e) {
+    if (!this.openDrawer && this.editMode && e.target) {
+      e.preventDefault();
+      e.target.classList.add("hax-hovered");
+      // perform check for edge of screen
+      this.handleMousemove(e);
+    }
+  }
+  // refactored from https://github.com/bennadel/JavaScript-Demos/blob/master/demos/window-edge-scrolling/index.htm
+  // I adjust the window scrolling in response to the given mousemove event.
+  handleMousemove(e) {
+    // NOTE: Much of the information here, with regard to document dimensions,
+    // viewport dimensions, and window scrolling is derived from JavaScript.info.
+    // I am consuming it here primarily as NOTE TO SELF.
+    // --
+    // Read More: https://javascript.info/size-and-scroll-window
+    // --
+    // CAUTION: The viewport and document dimensions can all be CACHED and then
+    // recalculated on window-resize events (for the most part). I am keeping it
+    // all here in the mousemove event handler to remove as many of the moving
+    // parts as possible and keep the demo as simple as possible.
+
+    // Get the viewport-relative coordinates of the mousemove event.
+    var viewportX = e.clientX;
+    var viewportY = e.clientY;
+
+    // Get the viewport dimensions.
+    var viewportWidth = document.documentElement.clientWidth;
+    var viewportHeight = document.documentElement.clientHeight;
+
+    // Next, we need to determine if the mouse is within the "edge" of the
+    // viewport, which may require scrolling the window. To do this, we need to
+    // calculate the boundaries of the edge in the viewport (these coordinates
+    // are relative to the viewport grid system).
+    var edgeTop = edgeSize;
+    var edgeLeft = edgeSize;
+    var edgeBottom = viewportHeight - edgeSize;
+    var edgeRight = viewportWidth - edgeSize;
+
+    var isInLeftEdge = viewportX < edgeLeft;
+    var isInRightEdge = viewportX > edgeRight;
+    var isInTopEdge = viewportY < edgeTop;
+    var isInBottomEdge = viewportY > edgeBottom;
+
+    // If the mouse is not in the viewport edge, there's no need to calculate
+    // anything else.
+    if (!(isInLeftEdge || isInRightEdge || isInTopEdge || isInBottomEdge)) {
+      clearTimeout(gravityScrollTimer);
+      return;
+    }
+
+    // If we made it this far, the user's mouse is located within the edge of the
+    // viewport. As such, we need to check to see if scrolling needs to be done.
+
+    // Get the document dimensions.
+    // --
+    // NOTE: The various property reads here are for cross-browser compatibility
+    // as outlined in the JavaScript.info site (link provided above).
+    var documentWidth = Math.max(
+      document.body.scrollWidth,
+      document.body.offsetWidth,
+      document.body.clientWidth,
+      document.documentElement.scrollWidth,
+      document.documentElement.offsetWidth,
+      document.documentElement.clientWidth
+    );
+    var documentHeight = Math.max(
+      document.body.scrollHeight,
+      document.body.offsetHeight,
+      document.body.clientHeight,
+      document.documentElement.scrollHeight,
+      document.documentElement.offsetHeight,
+      document.documentElement.clientHeight
+    );
+
+    // Calculate the maximum scroll offset in each direction. Since you can only
+    // scroll the overflow portion of the document, the maximum represents the
+    // length of the document that is NOT in the viewport.
+    var maxScrollX = documentWidth - viewportWidth;
+    var maxScrollY = documentHeight - viewportHeight;
+
+    // As we examine the mousemove event, we want to adjust the window scroll in
+    // immediate response to the event; but, we also want to continue adjusting
+    // the window scroll if the user rests their mouse in the edge boundary. To
+    // do this, we'll invoke the adjustment logic immediately. Then, we'll setup
+    // a timer that continues to invoke the adjustment logic while the window can
+    // still be scrolled in a particular direction.
+    // --
+    // NOTE: There are probably better ways to handle the ongoing animation
+    // check. But, the point of this demo is really about the math logic, not so
+    // much about the interval logic.
+    (function checkForWindowScroll() {
+      clearTimeout(gravityScrollTimer);
+
+      if (adjustWindowScroll()) {
+        gravityScrollTimer = setTimeout(checkForWindowScroll, 30);
+      }
+    })();
+    // Adjust the window scroll based on the user's mouse position. Returns True
+    // or False depending on whether or not the window scroll was changed.
+    function adjustWindowScroll() {
+      // Get the current scroll position of the document.
+      var currentScrollX = window.pageXOffset;
+      var currentScrollY = window.pageYOffset;
+
+      // Determine if the window can be scrolled in any particular direction.
+      var canScrollUp = currentScrollY > 0;
+      var canScrollDown = currentScrollY < maxScrollY;
+      var canScrollLeft = currentScrollX > 0;
+      var canScrollRight = currentScrollX < maxScrollX;
+
+      // Since we can potentially scroll in two directions at the same time,
+      // let's keep track of the next scroll, starting with the current scroll.
+      // Each of these values can then be adjusted independently in the logic
+      // below.
+      var nextScrollX = currentScrollX;
+      var nextScrollY = currentScrollY;
+
+      // As we examine the mouse position within the edge, we want to make the
+      // incremental scroll changes more "intense" the closer that the user
+      // gets the viewport edge. As such, we'll calculate the percentage that
+      // the user has made it "through the edge" when calculating the delta.
+      // Then, that use that percentage to back-off from the "max" step value.
+
+      // Should we scroll left?
+      if (isInLeftEdge && canScrollLeft) {
+        var intensity = (edgeLeft - viewportX) / edgeSize;
+
+        nextScrollX = nextScrollX - maxStep * intensity;
+
+        // Should we scroll right?
+      } else if (isInRightEdge && canScrollRight) {
+        var intensity = (viewportX - edgeRight) / edgeSize;
+
+        nextScrollX = nextScrollX + maxStep * intensity;
+      }
+
+      // Should we scroll up?
+      if (isInTopEdge && canScrollUp) {
+        var intensity = (edgeTop - viewportY) / edgeSize;
+
+        nextScrollY = nextScrollY - maxStep * intensity;
+
+        // Should we scroll down?
+      } else if (isInBottomEdge && canScrollDown) {
+        var intensity = (viewportY - edgeBottom) / edgeSize;
+
+        nextScrollY = nextScrollY + maxStep * intensity;
+      }
+
+      // Sanitize invalid maximums. An invalid scroll offset won't break the
+      // subsequent .scrollTo() call; however, it will make it harder to
+      // determine if the .scrollTo() method should have been called in the
+      // first place.
+      nextScrollX = Math.max(0, Math.min(maxScrollX, nextScrollX));
+      nextScrollY = Math.max(0, Math.min(maxScrollY, nextScrollY));
+
+      if (nextScrollX !== currentScrollX || nextScrollY !== currentScrollY) {
+        window.scrollTo(nextScrollX, nextScrollY);
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  /**
+   * Leaving an element while dragging.
+   */
+  dragLeave(e) {
+    if (!this.openDrawer && this.editMode) {
+      e.target.classList.remove("hax-hovered");
+    }
+  }
+  /**
+   * Container has changed
+   */
+  _activeContainerNodeChanged(newValue, oldValue) {
+    if (
+      this.editMode &&
+      typeof newValue !== typeof undefined &&
+      newValue != null &&
+      newValue.tagName != null
+    ) {
+      if (
+        window.HaxStore.instance.isTextElement(newValue) ||
+        window.HaxStore.instance.isGridPlateElement(newValue)
+      ) {
+        newValue.setAttribute("contenteditable", true);
+        this.setAttribute("contenteditable", true);
+      } else {
+        newValue.removeAttribute("contenteditable");
+        this.removeAttribute("contenteditable");
+      }
+      // @notice this is a bit of a state hack between grid plate and hax
+      // this forces the active item to be dropped so that we can
+      // correctly regain focus with the keyboard
+      if (oldValue && oldValue.tagName == "GRID-PLATE") {
+        oldValue.activeItem = null;
+      }
+      let tag = newValue.tagName.toLowerCase();
+      // special case for the grid plate since it brings in nodes
+      // nested in it and needs to be put into an editMode
+      if (tag === "grid-plate") {
+        newValue.editMode = this.editMode;
+        this._applyContentEditable(this.editMode, newValue);
+      }
+    }
+  }
+  /**
+   * React to a new node being set to active.
+   */
+  _activeNodeChanged(newValue, oldValue) {
+    // remove anything currently with the active class
+    this.querySelectorAll(".hax-active").forEach(el => {
+      el.classList.remove("hax-active");
+    });
+    if (
+      this.editMode &&
+      typeof newValue !== typeof undefined &&
+      newValue !== null &&
+      newValue.parentNode
+    ) {
+      let tag = newValue.tagName.toLowerCase();
+      // remove the menu, establish the new active, then reapply
+      // this is nessecary because the context menu gets appended into
+      // the document
+      // only hide if we change containers
+      newValue.classList.add("hax-active");
+      if (
+        window.HaxStore.instance.isTextElement(newValue) ||
+        window.HaxStore.instance.isGridPlateElement(newValue)
+      ) {
+        newValue.setAttribute("contenteditable", true);
+        this.setAttribute("contenteditable", true);
+      } else {
+        newValue.removeAttribute("contenteditable");
+        this.removeAttribute("contenteditable");
+      }
+      // why you no position yo?
+      this.positionContextMenus();
+      this.shadowRoot.querySelector("#textcontextmenu").realSelectedValue = tag;
+    }
+    // just hide menus if we don't have an active item
+    else if (newValue === null) {
+      this.hideContextMenus();
+      this.__oldActiveNode = oldValue;
+    }
+  }
+  /**
+   * Get position from top and left of the page based on position:relative; being
+   * set in a parent.
+   *
+   * @notice This only works correctly across browsers because hax-body
+   * is position:relative in :host.
+   */
+  _getPosition(element) {
+    let xPosition =
+      element.offsetLeft - element.scrollLeft + element.clientLeft;
+    let yPosition = element.offsetTop - element.scrollTop + element.clientTop;
+    return { x: xPosition, y: yPosition };
+  }
+  /**
+   * Handle display and position of the context menu
+   */
+  _positionContextMenu(menu, target, xoffset, yoffset) {
+    // make it account for the offset if it's floated over to one side
+    // or inside of something that's over that way
+    if (target != null) {
+      let pos = this._getPosition(target);
+      if (xoffset != null) {
+        menu.style["left"] = pos.x + xoffset + "px";
+      } else {
+        menu.style["left"] = pos.x + "px";
+      }
+      if (yoffset != null) {
+        menu.style["top"] = pos.y + yoffset + "px";
+      } else {
+        menu.style["top"] = pos.y + "px";
+      }
+    }
+    menu.setAttribute("on-screen", "on-screen");
+    menu.classList.add("hax-context-visible");
+    // text we want to operate this way
+    if (this.__activeHover) {
+      menu.classList.add("hax-active-hover");
+      menu.style.marginLeft = "";
+      this.__typeLock = false;
+    }
+  }
+  /**
+   * Simple hide / reset of whatever menu it's handed.
+   */
+  _hideContextMenu(menu) {
+    menu.removeAttribute("on-screen");
+    menu.classList.remove(
+      "hax-context-visible",
+      "hax-active-hover",
+      "hax-context-pin-top"
+    );
+  }
+  /**
+   * Find the next thing to tab forward to.
+   */
+  _tabKeyPressed() {
+    let focus = false;
+    let node = this.activeContainerNode;
+    const activeNodeTagName = this.activeContainerNode.tagName;
+    // try selection / tab block since range can cause issues
+    if (window.HaxStore.getRange().cloneRange) {
+      try {
+        let range = window.HaxStore.getRange().cloneRange();
+        var tagTest = range.commonAncestorContainer.tagName;
+        if (typeof tagTest === typeof undefined) {
+          tagTest = range.commonAncestorContainer.parentNode.tagName;
+        }
+        if (
+          ["UL", "OL", "LI"].includes(activeNodeTagName) ||
+          ["UL", "OL", "LI"].includes(tagTest)
+        ) {
+          if (this.polyfillSafe) {
+            document.execCommand("indent");
+            this.__tabTrap = true;
+          }
+        } else {
+          while (!focus) {
+            // do nothing
+            if (node.nextSibling == null) {
+              focus = true;
+            } else if (node.nextSibling.focus === "function") {
+              node.nextSibling.focus();
+              focus = true;
+            } else {
+              node = node.nextSibling;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+  }
+  /**
+   * Move back through things when tab back pressed
+   */
+  _tabBackKeyPressed() {
+    let node = this.activeContainerNode;
+    const activeNodeTagName = this.activeContainerNode.tagName;
+    // try selection / tab block since range can cause issues
+    if (window.HaxStore.getRange().cloneRange) {
+      try {
+        let range = window.HaxStore.getRange().cloneRange();
+        var tagTest = range.commonAncestorContainer.tagName;
+        if (typeof tagTest === typeof undefined) {
+          tagTest = range.commonAncestorContainer.parentNode.tagName;
+        }
+        if (
+          ["UL", "OL", "LI"].includes(activeNodeTagName) ||
+          ["UL", "OL", "LI"].includes(tagTest)
+        ) {
+          if (this.polyfillSafe) {
+            document.execCommand("outdent");
+            this.__tabTrap = true;
+          }
+        } else {
+          if (node != null) {
+            // step back ignoring hax- prefixed elements
+            while (node != null && !this._validElementTest(node)) {
+              node = node.previousSibling;
+            }
+          }
+          if (node != null) {
+            setTimeout(() => {
+              node.focus();
+            }, 50);
+          }
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+  }
+}
+window.customElements.define(HaxBody.tag, HaxBody);
+export { HaxBody };

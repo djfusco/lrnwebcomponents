@@ -2,9 +2,7 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import "@lrnwebcomponents/lrn-icons/lrn-icons.js";
-import "@polymer/iron-icon/iron-icon.js";
+import { html, css } from "lit-element/lit-element.js";
 import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
 /**
  * `elmsln-loading`
@@ -14,43 +12,17 @@ import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
  * @microcopy - language worth noting:
  *  - elmsln - an open source NGDLE to save education
  *
- * @customElement
- * @polymer
- * @polymerLegacy
  * @demo demo/index.html
+ * @element elmsln-loading
  */
-class ElmslnLoading extends PolymerElement {
-  static get tag() {
-    return "elmsln-loading";
-  }
-  static get properties() {
-    return {
-      /**
-       * materialize class names for color
-       */
-      color: {
-        type: String
-      },
-      /**
-       * Class for the color
-       */
-      hexColor: {
-        type: String,
-        computed: "_getHexColor(color)"
-      },
-      /**
-       * tiny, small, medium, large, epic sizing.
-       */
-      size: {
-        type: String,
-        reflectToAttribute: true,
-        value: "medium"
-      }
-    };
-  }
-  static get template() {
-    return html`
-      <style>
+class ElmslnLoading extends SimpleColors {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
         @-moz-keyframes spin {
           100% {
             -moz-transform: rotate(60deg);
@@ -70,6 +42,7 @@ class ElmslnLoading extends PolymerElement {
           }
         }
         :host iron-icon {
+          color: var(--simple-colors-default-theme-accent-6);
           display: block;
           -webkit-animation: spin 1.25s ease-out infinite;
           -moz-animation: spin 1.25s ease-out infinite;
@@ -110,18 +83,69 @@ class ElmslnLoading extends PolymerElement {
           -moz-animation: spin 2s ease-out infinite;
           animation: spin 2s ease-out infinite;
         }
-      </style>
-      <iron-icon icon="lrn:network" style$="color:[[hexColor]]"></iron-icon>
+      `
+    ];
+  }
+  static get tag() {
+    return "elmsln-loading";
+  }
+  /**
+   * HTMLElement
+   */
+  constructor() {
+    super();
+    this.size = "medium";
+    import("@lrnwebcomponents/lrn-icons/lrn-icons.js");
+    import("@polymer/iron-icon/iron-icon.js");
+  }
+  /**
+   * LitElement properties changed
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "color") {
+        this._getAccentColor(this[propName]);
+      }
+    });
+  }
+  /**
+   * LitElement / popular convention
+   */
+  static get properties() {
+    return {
+      ...super.properties,
+      /**
+       * color
+       */
+      color: {
+        type: String
+      },
+      /**
+       * tiny, small, medium, large, epic sizing.
+       */
+      size: {
+        type: String,
+        reflect: true
+      }
+    };
+  }
+  /**
+   * LitElement render
+   */
+  render() {
+    return html`
+      <iron-icon icon="lrn:network"></iron-icon>
     `;
   }
 
-  _getHexColor(color) {
-    let name = color.replace("-text", "");
-    let tmp = new SimpleColors();
-    if (tmp.colors[name]) {
-      return tmp.colors[name][6];
+  _getAccentColor(color) {
+    color = color.replace("-text", "");
+    if (
+      (!this.accentColor || this.accentColor === "grey") &&
+      this.colors[color]
+    ) {
+      this.accentColor = color;
     }
-    return "#000000";
   }
 }
 window.customElements.define(ElmslnLoading.tag, ElmslnLoading);

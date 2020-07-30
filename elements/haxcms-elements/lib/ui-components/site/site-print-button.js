@@ -2,72 +2,112 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
+import { HAXCMSThemeParts } from "../../core/utils/HAXCMSThemeParts";
+
 /**
  * `site-print-button`
  * `Dynamic print button to request and generate what to print`
  *
- * @customElement
- * @polymer
- * @demo demo/index.html
+
  */
-class SitePrintButton extends PolymerElement {
+class SitePrintButton extends HAXCMSThemeParts(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        :host {
+          display: inline-flex;
+          text-rendering: optimizelegibility;
+          position: relative;
+          color: var(--site-print-button-color, black);
+        }
+        paper-icon-button {
+          color: var(--site-print-button-color, black);
+        }
+        simple-tooltip {
+          --simple-tooltip-background: var(
+            --haxcms-tooltip-background-color,
+            #000000
+          );
+          --simple-tooltip-opacity: 1;
+          --simple-tooltip-text-color: var(--haxcms-tooltip-color, #ffffff);
+          --simple-tooltip-delay-in: 0;
+          --simple-tooltip-border-radius: 0;
+        }
+      `
+    ];
+  }
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "site-print-button";
   }
   constructor() {
     super();
-    import("@polymer/paper-tooltip/paper-tooltip.js");
+    this.icon = "icons:print";
+    this.position = "bottom";
+    this.type = "page";
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
     import("@polymer/paper-icon-button/paper-icon-button.js");
   }
   // render function
-  static get template() {
+  render() {
     return html`
-      <style>
-        :host {
-          display: block;
-          text-rendering: optimizelegibility;
-          position: relative;
-        }
-        paper-icon-button {
-          @apply --site-print-button-button;
-        }
-        paper-icon-button:hover,
-        paper-icon-button:focus,
-        paper-icon-button:active {
-          @apply --site-print-button-button-hover;
-        }
-        paper-tooltip {
-          @apply --site-print-button-tooltip;
-        }
-      </style>
       <paper-icon-button
-        id="btn"
-        icon="[[icon]]"
-        on-click="print"
-        title$="[[label]]"
+        .id="btn${this.type}"
+        icon="${this.icon}"
+        @click="${this.print}"
+        aria-label="${this.label}"
+        ?disabled="${this.disabled}"
+        .part="${this.editMode ? `edit-mode-active` : ``}"
       ></paper-icon-button>
-      <paper-tooltip for="btn" position="[[position]]" offset="14">
-        [[label]]
-      </paper-tooltip>
+      <simple-tooltip
+        .for="btn${this.type}"
+        position="${this.position}"
+        offset="14"
+      >
+        ${this.label}
+      </simple-tooltip>
     `;
+  }
+  updated(changedProperties) {
+    if (super.updated) {
+      super.updated(changedProperties);
+    }
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "type") {
+        this._typeChanged(this[propName], oldValue);
+      }
+      if (propName === "editMode") {
+        if (this[propName]) {
+          this.setAttribute("part", "edit-mode-active");
+        } else {
+          this.removeAttribute("part");
+        }
+      }
+    });
   }
   /**
    * Props
    */
   static get properties() {
     return {
+      ...super.properties,
       /**
        * icon
        */
       icon: {
-        type: String,
-        value: "icons:print"
+        type: String
+      },
+      disabled: {
+        type: Boolean,
+        reflect: true
       },
       /**
        * label for the button
@@ -79,16 +119,13 @@ class SitePrintButton extends PolymerElement {
        * label for the button
        */
       position: {
-        type: String,
-        value: "bottom"
+        type: String
       },
       /**
        * How much do you want to print right now
        */
       type: {
-        type: String,
-        value: "page",
-        observer: "_typeChanged"
+        type: String
       }
     };
   }
@@ -128,7 +165,7 @@ class SitePrintButton extends PolymerElement {
         true
       );
       for (var i in result) {
-        content += await fetch("pages/" + result[i].location + "/index.html")
+        content += await fetch(result[i].location)
           .then(function(response) {
             return response.text();
           })
@@ -152,7 +189,7 @@ class SitePrintButton extends PolymerElement {
         true
       );
       for (var i in result) {
-        content += await fetch("pages/" + result[i].location + "/index.html")
+        content += await fetch(result[i].location)
           .then(function(response) {
             return response.text();
           })
@@ -168,7 +205,7 @@ class SitePrintButton extends PolymerElement {
     } else if (type === "site") {
       const result = store.routerManifest.items;
       for (var i in result) {
-        content += await fetch("pages/" + result[i].location + "/index.html")
+        content += await fetch(result[i].location)
           .then(function(response) {
             return response.text();
           })

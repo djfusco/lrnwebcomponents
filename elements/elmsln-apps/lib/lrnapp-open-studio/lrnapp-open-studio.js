@@ -1,9 +1,9 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 import "@polymer/iron-list/iron-list.js";
 import "@polymer/iron-pages/iron-pages.js";
+import "../elmsln-base-deps.js";
 import "@polymer/iron-selector/iron-selector.js";
 import "@polymer/app-layout/app-toolbar/app-toolbar.js";
 import "@polymer/polymer/lib/elements/dom-repeat.js";
@@ -21,10 +21,14 @@ import "./lrnapp-open-studio-assignments.js";
 class LrnappOpenStudio extends PolymerElement {
   static get template() {
     return html`
-      <style include="materializecss-styles">
+      <style>
+        [hidden] {
+          display: none !important;
+        }
         :host {
           display: block;
           align-content: center;
+          margin-top: 26px;
         }
         #loading {
           width: 100%;
@@ -37,27 +41,24 @@ class LrnappOpenStudio extends PolymerElement {
           position: absolute;
           background-color: white;
         }
-        iron-selector {
-          line-height: 1em;
-        }
         iron-selector lrnsys-button {
           display: inline-flex;
         }
         iron-selector a {
           display: inline-block;
         }
-        paper-button.gallerycard-wrapper {
+        .gallerycard-wrapper {
           margin: 0;
           padding: 0;
         }
         lrndesign-gallerycard {
           padding: 0;
           margin: 1em;
-          height: 15em;
+          height: 16em;
           width: 14em;
         }
         app-toolbar {
-          height: 48px;
+          height: 64px;
         }
         .gallery-grid {
           margin: 0 auto;
@@ -71,7 +72,9 @@ class LrnappOpenStudio extends PolymerElement {
         .iron-list-container {
           display: flex;
           flex-direction: column;
-          min-height: 50vh;
+        }
+        lrnsys-button {
+          --lrnsys-button-height: 26px;
         }
         iron-list {
           flex: 1 1 auto;
@@ -215,26 +218,31 @@ class LrnappOpenStudio extends PolymerElement {
           role="main"
         >
           <div class="iron-list-container" name="submissions">
-            <iron-list id="ironlist" items="[[submissions]]" as="item" grid>
+            <iron-list
+              id="ironlist"
+              items="[[submissions]]"
+              as="item"
+              grid
+              scroll-target="document"
+            >
               <template>
-                <paper-button
-                  data-submission-id$="[[item.id]]"
-                  class="gallerycard-wrapper"
-                  on-click="_loadSubmissionUrl"
-                >
-                  <lrndesign-gallerycard
-                    elevation="2"
-                    data-submission-id$="[[item.id]]"
-                    title="[[item.attributes.title]]"
-                    author="[[item.relationships.author.data]]"
-                    comments="[[item.meta.comment_count]]"
-                    image="[[item.display.image]]"
-                    icon="[[item.display.icon]]"
-                    date="[[item.meta.humandate]]"
-                    class="ferpa-protect"
+                <div class="gallerycard-wrapper">
+                  <a
+                    href$="[[basePath]]lrnapp-studio-submission/submissions/[[item.id]]"
                   >
-                  </lrndesign-gallerycard>
-                </paper-button>
+                    <lrndesign-gallerycard
+                      elevation="2"
+                      data-submission-id$="[[item.id]]"
+                      title="[[item.attributes.title]]"
+                      author="[[item.relationships.author.data]]"
+                      comments="[[item.meta.comment_count]]"
+                      image="[[item.display.image]]"
+                      icon="[[item.display.icon]]"
+                      date="[[item.meta.humandate]]"
+                      class="ferpa-protect"
+                    ></lrndesign-gallerycard>
+                  </a>
+                </div>
               </template>
             </iron-list>
           </div>
@@ -258,7 +266,7 @@ class LrnappOpenStudio extends PolymerElement {
           <lrnapp-open-studio-table
             name="table"
             base-path="[[basePath]]"
-            submissions="{{submissions}}"
+            submissions="[[submissions]]"
           ></lrnapp-open-studio-table>
         </iron-pages>
       </div>
@@ -296,7 +304,7 @@ class LrnappOpenStudio extends PolymerElement {
        * The submissions to render; potentially filtered
        */
       submissions: {
-        type: Object,
+        type: Array,
         notify: true,
         computed: "_submissionsCompute(originalSubmissions, queryParams)"
       },
@@ -304,7 +312,7 @@ class LrnappOpenStudio extends PolymerElement {
        * The original submissions array; used to filter against
        */
       originalSubmissions: {
-        type: Object,
+        type: Array,
         notify: true
       },
       /**
@@ -459,6 +467,10 @@ class LrnappOpenStudio extends PolymerElement {
     }, 200);
     return filteredSubmissions;
   }
+  _tableClicked(e) {
+    this.set("route.path", this.endPoint + "/table");
+    this.notifyPath("route.path");
+  }
   /**
    * Support having a toast message because of delete or error elsewhere.
    */
@@ -496,19 +508,6 @@ class LrnappOpenStudio extends PolymerElement {
     } else {
       this._blockcycle = false;
     }
-  }
-  /**
-   * Handle tap on paper-button above to redirect to the correct submission url.
-   */
-  _loadSubmissionUrl(e) {
-    let root = this;
-    var normalizedEvent = dom(e);
-    var local = normalizedEvent.localTarget;
-    // this will have the id of the current submission
-    var active = local.getAttribute("data-submission-id");
-    // @todo need a cleaner integration but this at least goes the right place for now
-    window.location.href =
-      this.basePath + "lrnapp-studio-submission/submissions/" + active;
   }
   /**
    * Handle response for the whole projects object.
@@ -567,10 +566,6 @@ class LrnappOpenStudio extends PolymerElement {
   }
   _assignmentsClicked(e) {
     this.set("route.path", this.endPoint + "/assignments");
-    this.notifyPath("route.path");
-  }
-  _tableClicked(e) {
-    this.set("route.path", this.endPoint + "/table");
     this.notifyPath("route.path");
   }
   /**

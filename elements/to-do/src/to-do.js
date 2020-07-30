@@ -1,9 +1,8 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 /**
  * `to-do`
+ * @element to-do
  * @demo demo/index.html
  */
 class ToDo extends SchemaBehaviors(PolymerElement) {
@@ -13,10 +12,6 @@ class ToDo extends SchemaBehaviors(PolymerElement) {
     import("@polymer/paper-button/paper-button.js");
     import("@polymer/paper-card/paper-card.js");
     import("@polymer/paper-input/paper-input.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(ToDo.haxProperties, ToDo.tag, this);
-    });
   }
   static get template() {
     return html`
@@ -92,7 +87,9 @@ class ToDo extends SchemaBehaviors(PolymerElement) {
     return ["_valueChanged(items.*)"];
   }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Allow for hiding the input form for new data.
        */
@@ -126,10 +123,6 @@ class ToDo extends SchemaBehaviors(PolymerElement) {
         notify: true
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   /**
    * Ensure the values change.
@@ -172,7 +165,7 @@ class ToDo extends SchemaBehaviors(PolymerElement) {
         groups: ["List"],
         handles: [],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -198,6 +191,7 @@ class ToDo extends SchemaBehaviors(PolymerElement) {
             title: "List of items",
             description: "List of items to display in our list.",
             inputMethod: "array",
+            itemLabel: "label",
             properties: [
               {
                 property: "label",

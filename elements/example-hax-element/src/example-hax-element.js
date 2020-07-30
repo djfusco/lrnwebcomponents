@@ -2,15 +2,15 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 /**
  * `example-hax-element`
+ * @element example-hax-element
  * `Provide an example to pick apart of a working HAX element`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @demo demo/index.html
  */
 class ExampleHaxElement extends HTMLElement {
@@ -66,12 +66,6 @@ class ExampleHaxElement extends HTMLElement {
     if (this._queue.length) {
       this._processQueue();
     }
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(
-      ExampleHaxElement.haxProperties,
-      ExampleHaxElement.tag,
-      this
-    );
   }
 
   _copyAttribute(name, to) {

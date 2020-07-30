@@ -2,30 +2,28 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import "@lrnwebcomponents/materializecss-styles/lib/colors.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { materialCssStyles } from "@lrnwebcomponents/materializecss-styles/lib/colors.js";
 import "@polymer/paper-button/paper-button.js";
-import "@polymer/iron-icon/iron-icon.js";
+import "@lrnwebcomponents/elmsln-apps/lib/elmsln-base-deps.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
 /**
  * `lrnsys-button`
  * `A simple button for use in systems`
  * @demo demo/index.html
+ * @element lrnsys-button
  */
-class LrnsysButton extends PolymerElement {
-  constructor() {
-    super();
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/paper-tooltip/paper-tooltip.js");
-  }
-  static get template() {
-    return html`
-      <style include="materializecss-styles-colors">
+class LrnsysButton extends LitElement {
+  static get styles() {
+    return [
+      materialCssStyles,
+      css`
         :host {
           display: block;
-          @apply --paper-font-common-base;
-          @apply --paper-button;
           --lrnsys-button-height: 48px;
+        }
+        :host([disabled]) {
+          pointer-events: none;
         }
         a {
           text-decoration: none;
@@ -78,38 +76,73 @@ class LrnsysButton extends PolymerElement {
         .no-left-padding {
           padding-left: 0 !important;
         }
-      </style>
-      <a
-        tabindex="-1"
-        id="lrnsys-button-link"
-        href\$="[[showHref]]"
-        target\$="[[target]]"
-      >
+      `
+    ];
+  }
+  constructor() {
+    super();
+    this.href = null;
+    this.target = null;
+    this.label = "";
+    this.icon = "";
+    this.alt = "";
+    this.focusState = false;
+    this.disabled = false;
+    setTimeout(() => {
+      this.addEventListener("mousedown", this.tapEventOn.bind(this));
+      this.addEventListener("mouseover", this.tapEventOn.bind(this));
+      this.addEventListener("focusin", this.tapEventOn.bind(this));
+      this.addEventListener("focusout", this.tapEventOff.bind(this));
+      this.addEventListener("mouseout", this.tapEventOff.bind(this));
+    }, 0);
+  }
+  firstUpdated(changedProperties) {
+    this.updated(changedProperties);
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldvalue, propName) => {
+      if (this.shadowRoot && ["href", "target"].includes(propName)) {
+        if (this[propName]) {
+          this.shadowRoot.querySelector("#lrnsys-button-link")[propName] = this[
+            propName
+          ];
+        } else {
+          this.shadowRoot
+            .querySelector("#lrnsys-button-link")
+            .removeAttribute(propName);
+        }
+      }
+    });
+  }
+  render() {
+    return html`
+      <a tabindex="-1" id="lrnsys-button-link" ?disabled="${this.disabled}">
         <paper-button
           id="button"
-          title="[[alt]]"
-          raised="[[raised]]"
-          class\$="[[buttonClass]] [[color]] [[textColor]]"
-          disabled\$="[[disabled]]"
+          title="${this.alt}"
+          ?raised="${this.raised}"
+          class="${this.buttonClass} ${this.color} ${this.textColor}"
+          ?disabled="${this.disabled}"
+          @focus-changed="${this.focusToggle}"
         >
-          <div class\$="inner [[innerClass]]">
+          <div class="inner ${this.innerClass}">
             <slot name="prefix"></slot>
             <iron-icon
-              icon="[[icon]]"
+              icon="${this.icon}"
               id="icon"
-              class\$="[[iconClass]]"
-              hidden\$="[[!icon]]"
+              class="${this.iconClass}"
+              ?hidden="${!this.icon}"
             ></iron-icon>
-            <span class="label" hidden\$="[[!label]]"> [[label]] </span>
+            <span class="label" ?hidden="${!this.label}"> ${this.label} </span>
             <slot></slot>
           </div>
         </paper-button>
       </a>
-      <paper-tooltip
+      <simple-tooltip
         for="lrnsys-button-link"
         animation-delay="0"
-        hidden\$="[[!alt]]"
-        >[[alt]]</paper-tooltip
+        ?hidden="${!this.alt}"
+        >${this.alt}</simple-tooltip
       >
     `;
   }
@@ -125,86 +158,74 @@ class LrnsysButton extends PolymerElement {
        */
       href: {
         type: String,
-        value: "#",
-        reflectToAttribute: true
-      },
-      showHref: {
-        type: String,
-        value: false,
-        reflectToAttribute: true,
-        computed: "_getShowHref(href,disabled)"
+        reflect: true
       },
       /**
        * If the button should be visually lifted off the UI.
        */
       raised: {
         type: Boolean,
-        reflectToAttribute: true
+        reflect: true
       },
       /**
        * Label to place in the text area
        */
       label: {
-        type: String,
-        value: ""
+        type: String
       },
       /**
        * Support for target to open in new windows.
        */
       target: {
-        type: String,
-        value: ""
+        type: String
       },
       /**
        * iron-icon to use (with iconset if needed)
        */
       icon: {
-        type: String,
-        value: false
+        type: String
       },
       /**
        * Classes to add / subtract based on the item being hovered.
        */
       hoverClass: {
-        type: String
+        type: String,
+        attribute: "hover-class"
       },
       /**
        * Button class.
        */
       buttonClass: {
-        type: String
+        type: String,
+        attribute: "button-class"
       },
       /**
        * Icon class in the event you want it to look different from the text.
        */
       iconClass: {
-        type: String
+        type: String,
+        attribute: "icon-class"
       },
       /**
        * Inner container classes.
        */
       innerClass: {
-        type: String
+        type: String,
+        attribute: "inner-class"
       },
       /**
        * Color class work to apply
        */
       color: {
         type: String,
-        reflectToAttribute: true
+        reflect: true
       },
       /**
        * materializeCSS color class for text
        */
       textColor: {
-        type: String
-      },
-      /**
-       * Allow for prefetch data automatically
-       */
-      prefetch: {
-        type: Boolean,
-        observer: "_applyPrefetch"
+        type: String,
+        attribute: "text-color"
       },
       /**
        * Alt via tooltip.
@@ -216,83 +237,17 @@ class LrnsysButton extends PolymerElement {
        * Disabled state.
        */
       disabled: {
-        type: Boolean,
-        value: false
+        type: Boolean
       },
       /**
        * Tracks if focus state is applied
        */
       focusState: {
         type: Boolean,
-        value: false
+        attribute: "focus-state"
       }
     };
   }
-  _applyPrefetch(newValue) {
-    if (newValue && this.__ready && !this.__prefetchLink) {
-      let link = document.createElement("link");
-      link.setAttribute("rel", "prefetch");
-      link.setAttribute("href", this.href);
-      // store for disconnect so we can clean up if needed
-      this.__prefetchLink = link;
-      document.head.appendChild(link);
-    }
-  }
-  /**
-   * attached life cycle
-   */
-  ready() {
-    super.ready();
-    afterNextRender(this, function() {
-      this.addEventListener("mousedown", this.tapEventOn.bind(this));
-      this.addEventListener("mouseover", this.tapEventOn.bind(this));
-      this.addEventListener("mouseout", this.tapEventOff.bind(this));
-      this.$.button.addEventListener(
-        "focused-changed",
-        this.focusToggle.bind(this)
-      );
-    });
-  }
-  connectedCallback() {
-    super.connectedCallback();
-    this.__ready = true;
-    afterNextRender(this, function() {
-      // if we have been told to prefetch, give it a second after everything's ready
-      if (this.prefetch) {
-        setTimeout(() => {
-          this._applyPrefetch(this.prefetch);
-        }, 1000);
-      }
-    });
-  }
-  /**
-   * detached event listener
-   */
-  disconnectedCallback() {
-    if (this.__prefetchLink) {
-      document.head.removeChild(this.__prefetchLink);
-    }
-    this.removeEventListener("mousedown", this.tapEventOn.bind(this));
-    this.removeEventListener("mouseover", this.tapEventOn.bind(this));
-    this.removeEventListener("mouseout", this.tapEventOff.bind(this));
-    this.$.button.removeEventListener(
-      "focused-changed",
-      this.focusToggle.bind(this)
-    );
-    super.disconnectedCallback();
-  }
-
-  /**
-   * Generate the pass down href if it exists. This helps
-   * ensure that if a button is disabled it won't do anything
-   * even if it has a resource reference.
-   */
-  _getShowHref(href, disabled) {
-    if (href && !disabled) {
-      return href;
-    }
-  }
-
   /**
    * Class processing on un-tap / hover
    */
@@ -303,9 +258,9 @@ class LrnsysButton extends PolymerElement {
       // run through each and add or remove classes
       classes.forEach((item, index) => {
         if (item != "") {
-          this.$.button.classList.add(item);
+          this.shadowRoot.querySelector("#button").classList.add(item);
           if (item.indexOf("-") != -1) {
-            this.$.icon.classList.add(item);
+            this.shadowRoot.querySelector("#icon").classList.add(item);
           }
         }
       });
@@ -322,9 +277,9 @@ class LrnsysButton extends PolymerElement {
       // run through each and add or remove classes
       classes.forEach((item, index) => {
         if (item != "") {
-          this.$.button.classList.remove(item);
+          this.shadowRoot.querySelector("#button").classList.remove(item);
           if (item.indexOf("-") != -1) {
-            this.$.icon.classList.remove(item);
+            this.shadowRoot.querySelector("#icon").classList.remove(item);
           }
         }
       });
@@ -342,14 +297,14 @@ class LrnsysButton extends PolymerElement {
       classes.forEach((item, index) => {
         if (item != "") {
           if (!this.focusState) {
-            this.$.button.classList.add(item);
+            this.shadowRoot.querySelector("#button").classList.add(item);
             if (item.indexOf("-") != -1) {
-              this.$.icon.classList.add(item);
+              this.shadowRoot.querySelector("#icon").classList.add(item);
             }
           } else {
-            this.$.button.classList.remove(item);
+            this.shadowRoot.querySelector("#button").classList.remove(item);
             if (item.indexOf("-") != -1) {
-              this.$.icon.classList.remove(item);
+              this.shadowRoot.querySelector("#icon").classList.remove(item);
             }
           }
         }

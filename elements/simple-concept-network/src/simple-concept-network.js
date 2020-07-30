@@ -1,7 +1,5 @@
 import { html } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { SimpleColorsPolymer } from "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 import { A11yBehaviors } from "@lrnwebcomponents/a11y-behaviors/a11y-behaviors.js";
 /**
 `simple-concept-network`
@@ -11,22 +9,14 @@ a central concept, much like the ELMS:LN snowflake icon.
 @microcopy - the mental model for this element
  - ELMS:LN - The ELMS: Learning Network "snowflake" is a network diagram
 */
-class SimpleConceptNetwork extends A11yBehaviors(SimpleColors) {
+class SimpleConceptNetwork extends A11yBehaviors(SimpleColorsPolymer) {
   constructor() {
     super();
     import("@lrnwebcomponents/simple-concept-network/lib/simple-concept-network-node.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        SimpleConceptNetwork.haxProperties,
-        SimpleConceptNetwork.tag,
-        this
-      );
-    });
   }
   static get template() {
     return html`
-      <style>
+      <style include="simple-colors-shared-styles-polymer">
         :host {
           display: block;
         }
@@ -95,7 +85,9 @@ class SimpleConceptNetwork extends A11yBehaviors(SimpleColors) {
     return ["_valueChanged(nodes.*)"];
   }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Type of visualization
        */
@@ -127,10 +119,6 @@ class SimpleConceptNetwork extends A11yBehaviors(SimpleColors) {
         notify: true
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   static get haxProperties() {
     return {
@@ -154,7 +142,7 @@ class SimpleConceptNetwork extends A11yBehaviors(SimpleColors) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -190,6 +178,7 @@ class SimpleConceptNetwork extends A11yBehaviors(SimpleColors) {
             title: "Node list",
             description: "List of the items to present in the visual",
             inputMethod: "array",
+            itemLabel: "label",
             properties: [
               {
                 property: "color",

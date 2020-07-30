@@ -1,83 +1,96 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
+import "@lrnwebcomponents/a11y-compare-image/a11y-compare-image.js";
 /**
  * `image-compare-slider`
- * Layers images over each other with a slider interface to compare them
- * @microcopy - the mental model for this element
- *
- * @customElement
- * @polymer
+ * hax-wired a11y-compare-image
  * @demo demo/index.html
+ * @element image-compare-slider
  */
-class ImageCompareSlider extends SchemaBehaviors(PolymerElement) {
-  constructor() {
-    super();
-    import("@lrnwebcomponents/user-action/user-action.js");
-    import("@polymer/iron-image/iron-image.js");
-    import("@polymer/paper-slider/paper-slider.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        ImageCompareSlider.haxProperties,
-        ImageCompareSlider.tag,
-        this
-      );
-    });
-  }
-  static get template() {
-    return html`
-      <style>
+class ImageCompareSlider extends SchemaBehaviors(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: inline-flex;
-          width: 100%;
-          @apply --image-compare-slider;
         }
-        :host > div,
-        :host #container,
-        :host #top {
-          width: 100%;
+        :host([hidden]) {
+          display: none !important;
         }
-        :host #container {
-          background-size: cover;
-          overflow: visible;
-          @apply --image-compare-slider-container;
-        }
-        :host #top {
-          background-size: auto 100%;
-          overflow: hidden;
-        }
-        :host #slider {
-          width: calc(100% + 30px);
-          margin-left: -15px;
-          @apply --image-compare-slider-control;
-        }
-      </style>
-      <div>
-        <h2>[[title]]</h2>
-        <div id="container" style$="background-image: url([[bottomSrc]]);">
-          <div id="top" style$="background-image: url([[topSrc]]);"></div>
+      `
+    ];
+  }
+  constructor() {
+    super();
+    this.opacity = false;
+  }
+  render() {
+    return html`
+      <a11y-compare-image ?opacity="${this.opacity}">
+        <div slot="heading">
+          ${this.title
+            ? html`
+                <h2>${this.title}</h2>
+              `
+            : ``}
+          <slot name="heading"></slot>
         </div>
-        <user-action track="click">
-          <paper-slider id="slider" value="50"></paper-slider>
-        </user-action>
-        <div></div>
-      </div>
+        <div id="description"><slot name="description"></slot></div>
+        <img
+          slot="bottom"
+          src="${this.bottomSrc}"
+          alt="${this.bottomAlt}"
+          aria-describedby="${this.bottomDescriptionId || "description"}"
+        />
+        <img
+          slot="top"
+          src="${this.topSrc}"
+          alt="${this.topAlt}"
+          aria-describedby="${this.topDescriptionId || "description"}"
+        />
+      </a11y-compare-image>
     `;
   }
 
   static get tag() {
     return "image-compare-slider";
   }
-  static get observers() {
-    return ["_setStyles(width,height,sliderPercent)"];
-  }
 
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
       /**
-       * Title
+       * src for top image
+       */
+      bottomAlt: {
+        type: String,
+        attribute: "bottom-alt"
+      },
+      /**
+       * aria-describedby for top image
+       */
+      bottomDescriptionId: {
+        type: String,
+        attribute: "bottom-description-id"
+      },
+      /**
+       * src for top image
+       */
+      bottomSrc: {
+        type: String,
+        attribute: "bottom-src"
+      },
+      /**
+       * mode for the slider: wipe
+       */
+      opacity: {
+        type: Boolean
+      },
+      /**
+       * @deprecated Use `slot=heading`
        */
       title: {
         type: String
@@ -85,28 +98,25 @@ class ImageCompareSlider extends SchemaBehaviors(PolymerElement) {
       /**
        * src for top image
        */
-      topSrc: {
+      topAlt: {
         type: String,
-        observer: "_updateAspect"
+        attribute: "top-alt"
       },
       /**
-       * mode for the slider: wipe
+       * aria-describedby for top image
        */
-      opacity: {
-        type: Boolean,
-        value: false
+      topDescriptionId: {
+        type: String,
+        attribute: "top-description-id"
       },
       /**
        * src for top image
        */
-      bottomSrc: {
-        type: String
+      topSrc: {
+        type: String,
+        attribute: "top-src"
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   static get haxProperties() {
     return {
@@ -129,13 +139,13 @@ class ImageCompareSlider extends SchemaBehaviors(PolymerElement) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
         quick: [
           {
-            property: "title",
+            slot: "heading",
             title: "Title",
             description: "The title of the element",
             inputMethod: "textfield",
@@ -146,80 +156,113 @@ class ImageCompareSlider extends SchemaBehaviors(PolymerElement) {
             title: "Slider Behavior",
             description:
               "Do you want the slider to wipe the top image across the bottom one (default), or to adjust the opacity of the top image?",
-            inputMethod: "select",
-            options: {
-              false: "wipe across",
-              true: "adjust opacity"
-            },
+            inputMethod: "boolean",
             icon: "image:compare"
           }
         ],
         configure: [
           {
-            property: "title",
+            slot: "heading",
             title: "Title",
-            description: "The title of the element",
             inputMethod: "textfield"
+          },
+          {
+            slot: "description",
+            title: "Description",
+            description: "Recommended description for accessibility.",
+            inputMethod: "code-editor"
+          },
+          {
+            property: "topSrc",
+            title: "Top image",
+            description: "The base image to swipe over",
+            inputMethod: "haxupload",
+            validationType: "url",
+            required: true
+          },
+          {
+            property: "topAlt",
+            title: "Top image alt text",
+            description: "Required alternate text for accessibility",
+            inputMethod: "alt",
+            required: true
           },
           {
             property: "bottomSrc",
             title: "Bottom image",
             description: "The base image to swipe over",
             inputMethod: "haxupload",
-            validationType: "url"
+            validationType: "url",
+            required: true
           },
           {
-            property: "topSrc",
-            title: "Top image",
-            description: "The top image that swipes over",
-            inputMethod: "haxupload",
-            validationType: "url"
+            property: "bottomAlt",
+            title: "Bottom image alt text",
+            description: "Required alternate text for accessibility",
+            inputMethod: "alt",
+            required: true
           }
         ],
-        advanced: []
-      }
+        advanced: [
+          {
+            property: "title",
+            title: "Title (Deprecated)",
+            description: "Use heading instead",
+            inputMethod: "textfield"
+          },
+          {
+            property: "topDescriptionId",
+            title: "Top aria-decsribedby",
+            description:
+              "Space-separated id list for long descriptions that appear elsewhere",
+            inputMethod: "textfield"
+          },
+          {
+            property: "bottomDescriptionId",
+            title: "Bottom aria-decsribedby",
+            description:
+              "Space-separated id list for long descriptions that appear elsewhere",
+            inputMethod: "textfield"
+          }
+        ]
+      },
+      demoSchema: [
+        {
+          tag: "image-compare-slider",
+          properties: {
+            topSrc: "./demo/images/Matterhorn02.png",
+            topAlt: "Matterhorn no snow.",
+            topDescription: "cloudy",
+            bottomSrc: "./demo/images/Matterhorn01.png",
+            bottomAlt: "Matterhorn with snow.",
+            bottomDescription: "snowy",
+            style: "width:100%;max-width:400px"
+          },
+          content: `<h2 slot="heading">Image Compare Slider Default</h2><p slot="description">The image on the top or when slider is moved all the way to the right is the <span id="cloudy">Matterhorn on a cloudy day without snow</span>. As you move the slider to the left, the image below it reveals the <span id="snowy">Matterhorn on a clear day with snow</span>.</p>`
+        },
+        {
+          tag: "image-compare-slider",
+          properties: {
+            opacity: true,
+            topSrc: "./demo/images/Matterhorn02.png",
+            topAlt: "Matterhorn no snow.",
+            topDescriptionId: "cloudy",
+            bottomSrc: "./demo/images/Matterhorn01.png",
+            bottomAlt: "Matterhorn with snow.",
+            bottomDescriptionId: "snowy",
+            style: "width:100%;max-width:400px"
+          },
+          content: `
+            <h2 slot="heading">Image Compare Slider Opacity</h2>
+            <div slot="description">
+              The slider will fade away the top image
+              <span id="cloudy">(Matterhorn on a cloudy day without snow)</span> 
+              to reveal the bottom image
+              <span id="snowy">(Matterhorn on a clear day with snow)</span>.
+            </div>`
+        }
+      ]
     };
-  }
-  ready() {
-    super.ready();
-    this._updateAspect();
-    this._slide();
-    this.shadowRoot
-      .querySelector("#slider")
-      .addEventListener("immediate-value-changed", e => {
-        this._slide();
-      });
-  }
-  /**
-   * updates the slider
-   */
-  _slide() {
-    if (this.opacity === false) {
-      this.shadowRoot.querySelector("#top").style.width =
-        this.shadowRoot.querySelector("#slider").immediateValue + "%";
-    } else {
-      this.shadowRoot.querySelector("#top").style.opacity =
-        this.shadowRoot.querySelector("#slider").immediateValue / 100;
-    }
-  }
-  /**
-   * updates the aspect ratio
-   */
-  _updateAspect() {
-    let img = document.createElement("img"),
-      el = this.shadowRoot.querySelector("#top"),
-      getAspect = img => {
-        el.style.paddingTop = (img.height * 100) / img.width + "%";
-      };
-    this.__aspect = "75";
-    img.setAttribute("src", this.topSrc);
-    if (img.height !== undefined && img.height > 0) {
-      getAspect(img);
-    } else {
-      img.addEventListener("load", function() {
-        getAspect(img);
-      });
-    }
   }
 }
 window.customElements.define(ImageCompareSlider.tag, ImageCompareSlider);

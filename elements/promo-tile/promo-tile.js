@@ -1,9 +1,9 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 /**
  * `promo-tile`
+ * @element promo-tile
  * @demo demo/index.html
  */
 class PromoTile extends SchemaBehaviors(PolymerElement) {
@@ -12,121 +12,157 @@ class PromoTile extends SchemaBehaviors(PolymerElement) {
     import("@polymer/paper-button/paper-button.js");
     import("@polymer/iron-icon/iron-icon.js");
     import("@polymer/iron-icons/iron-icons.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(PromoTile.haxProperties, PromoTile.tag, this);
-    });
   }
   static get template() {
     return html`
       <style>
         :host {
           display: block;
-          --tile-image: "";
-          --front-title-text-shadow: #363533;
-          --title-font-size: 34px;
-          --title-font-weight: 400;
-          --back-content-font-size: 18px;
-          --back-content-font-weight: 100;
-          --font-color: #fff;
-          --hover-background-color: #e2801e;
-          --button-hover-color: #363533;
         }
 
         a {
-          text-decoration: none;
+          text-decoration: var(--promo-tile-a-text-decoration, none);
+          @apply --promo-tile-a;
         }
 
         #container {
-          width: 100%;
-          height: auto;
+          width: var(--promo-tile-container-width, 100%);
+          height: var(--promo-tile-container-height, auto);
+          @apply --promo-tile-container;
         }
 
         .back_card {
-          background-color: var(--hover-background-color);
-          height: 460px;
-          opacity: 0;
-          display: flex;
-          flex-direction: column;
+          background-color: var(
+            --promo-tile-back-card-background-color,
+            #e2801e
+          );
+          height: var(--promo-tile-back-card-height, 460px);
+          opacity: var(--promo-tile-back-card-opacity, 0);
+          display: var(--promo-tile-back-card-display, flex);
+          flex-direction: var(--promo-tile-back-card-flex-direction, column);
+          @apply --promo-tile-back-card;
         }
 
         :host([hover]) #container .back_card {
-          opacity: 0.9;
-          transition: all 0.3s ease-in-out;
+          opacity: var(--promo-tile-container-back-card-hover-opacity, 0.9);
+          transition: var(
+            --promo-tile-container-back-card-hover-transition,
+            all 0.3s ease-in-out
+          );
+          @apply --promo-tile-container-back-card-hover;
         }
 
         :host([hover]) #container .front_card .front_title {
-          opacity: 0;
-          transition: all 0.3s ease-in-out;
+          opacity: var(
+            --promo-tile-container-front-card-front-title-hover-opacity,
+            0
+          );
+          transition: var(
+            --promo-tile-container-front-card-front-title-hover-transition,
+            all 0.3s ease-in-out
+          );
+          @apply --promo-tile-container-front-card-hover;
         }
 
         .image {
-          display: flex;
-          justify-content: center;
-          background-image: var(--tile-image);
-          background-position: top center;
-          background-repeat: no-repeat;
-          background-size: cover;
-          width: 100%;
-          height: 100%;
+          display: var(--promo-tile-image-display, flex);
+          justify-content: var(--promo-tile-image-justify-content, center);
+          background-position: var(
+            --promo-tile-image-background-position,
+            top center
+          );
+          background-repeat: var(
+            --promo-tile-image-background-repeat,
+            no-repeat
+          );
+          background-size: var(--promo-tile-image-background-size, cover);
+          width: var(--promo-tile-image-width, 100%);
+          height: var(--promo-tile-image-height, 100%);
+          @apply --promo-tile-image;
         }
 
         .front_title {
-          opacity: 1;
-          position: absolute;
-          display: flex;
-          align-self: flex-end;
-          padding-bottom: 25px;
+          opacity: var(--promo-tile-front-title-opacity, 1);
+          position: var(--promo-tile-front-title-position, absolute);
+          display: var(--promo-tile-front-title-display, flex);
+          align-self: var(--promo-tile-front-title-align-self, flex-end);
+          padding: var(--promo-tile-front-title-padding, 0 0 25px 0);
+          @apply --promo-tile-front-title;
         }
 
         .front_title h1 {
-          color: var(--font-color);
-          font-size: var(--title-font-size);
-          font-weight: var(--title-font-weight);
-          text-shadow: 1px 1px 3px var(--front-title-text-shadow);
+          color: var(--promo-tile-front-title-h1-color, #ffffff);
+          font-size: var(--promo-tile-front-title-h1-font-size, 36px);
+          font-weight: var(--promo-tile-front-title-h1-font-weight, 400);
+          text-shadow: var(
+            --promo-tile-front-title-h1-text-shadow,
+            1px 1px 3px
+              var(--promo-tile-front-title-h1-text-shadow-color, #363533)
+          );
+          @apply --promo-title-front-title-h1;
         }
 
         .back_title {
-          opacity: 1;
-          display: flex;
-          justify-content: center;
-          padding: 20px 0 0;
+          opacity: var(--promo-tile-back-title-opacity, 1);
+          display: var(--promo-tile-back-title-display, flex);
+          justify-content: var(--promo-tile-back-title-justify-content, center);
+          padding: var(--promo-tile-back-title-padding, 20px 0 0 0);
+          @apply --promo-tile-back-title;
         }
 
         .back_title h1 {
-          color: var(--font-color);
-          font-size: var(--title-font-size);
-          font-weight: var(--title-font-weight);
+          color: var(--promo-tile-back-title-h1-color, #ffffff);
+          font-size: var(--promo-tile-back-title-h1-font-size, 36px);
+          font-weight: var(--promo-tile-back-title-h1-font-weight, 400);
+          @apply --promo-tile-back-title-h1;
         }
 
         .back_content {
-          color: var(--font-color);
-          font-size: var(--back-content-font-size);
-          font-weight: var(--back-content-font-weight);
-          padding: 0 20px;
+          color: var(--promo-tile-back-content-font-color, #ffffff);
+          font-size: var(--promo-tile-back-content-font-size, 18px);
+          font-weight: var(--promo-tile-back-content-font-weight, 300);
+          line-height: var(--promo-tile-back-content-line-height, 1.4);
+          padding: var(--promo-title-back-content-padding, 0 20px 0 20px);
+          text-align: justify;
+          @apply --promo-tile-back-content;
         }
 
         paper-button#learn {
-          display: flex;
-          margin-top: 180px;
-          font-size: 16px;
-          color: var(--font-color);
-          border: solid 1px #fff;
-          border-radius: 0;
-          width: 50%;
-          margin-left: auto;
-          margin-right: auto;
+          display: var(--promo-tile-paper-button-learn-display, flex);
+          margin: var(
+            --promo-tile-paper-button-learn-margin,
+            140px auto 0 auto
+          );
+          font-size: var(--promo-tile-paper-button-learn-font-size, 18px);
+          color: var(--promo-tile-paper-button-learn-font-color, #ffffff);
+          border: var(--promo-tile-paper-button-learn-border, solid);
+          border-width: var(--promo-tile-paper-button-learn-border-width, 1px);
+          border-color: var(
+            --promo-tile-paper-button-learn-border-color,
+            #ffffff
+          );
+          border-radius: var(--promo-tile-paper-button-learn-border-radius, 0);
+          width: var(--promo-tile-paper-button-learn-width, 50%);
+          @apply --promo-tile-paper-button-learn;
         }
 
         paper-button#learn:hover,
         paper-button#learn:focus {
-          background-color: var(--button-hover-color);
+          background-color: var(
+            --promo-tile-paper-button-learn-background-color-active,
+            #363533
+          );
+          @apply --promo-tile-paper-button-learn-active;
         }
       </style>
-
       <div id="container">
         <div class="front_card">
-          <div id="front_image" class="image" alt="[[alt]]">
+          <div
+            id="front_image"
+            class="image"
+            alt="[[alt]]"
+            style$="background-image:url([[image]])"
+          >
             <div class="front_title">
               <h1>[[title]]</h1>
             </div>
@@ -162,7 +198,9 @@ class PromoTile extends SchemaBehaviors(PolymerElement) {
   }
 
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Image source
        */
@@ -212,13 +250,6 @@ class PromoTile extends SchemaBehaviors(PolymerElement) {
         reflectToAttribute: true
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
-  }
-  static get observers() {
-    return ["__updateStyles(image)"];
   }
   /**
    * Attached to the DOM, now fire.
@@ -245,7 +276,7 @@ class PromoTile extends SchemaBehaviors(PolymerElement) {
       canPosition: true,
       canEditSource: false,
       gizmo: {
-        title: "Promo-Tile",
+        title: "Promo Tile",
         description: "A tile element for promoting content.",
         icon: "icons:dashboard",
         color: "orange",
@@ -259,7 +290,7 @@ class PromoTile extends SchemaBehaviors(PolymerElement) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -326,9 +357,6 @@ class PromoTile extends SchemaBehaviors(PolymerElement) {
         advanced: []
       }
     };
-  }
-  __updateStyles(image) {
-    this.updateStyles({ "--tile-image": `url(${image})` });
   }
 
   /**

@@ -2,23 +2,25 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 import { UserActionBroker } from "./lib/UserActionBroker.js";
 /**
  * `user-action`
+ * @element user-action
  * `track user actions and allow them to talk to xAPI stores easily`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @demo demo/index.html
  */
 class UserAction extends HTMLElement {
   // render function
   get html() {
     return `
-<style></style>
+<style>
+
+        </style>
 <slot></slot>`;
   }
 
@@ -32,7 +34,7 @@ class UserAction extends HTMLElement {
         title: "User action",
         description:
           "track user actions and allow them to talk to xAPI stores easily",
-        icon: "icons:android",
+        icon: "icons:touch-app",
         color: "green",
         groups: ["Action"],
         handles: [
@@ -87,19 +89,26 @@ class UserAction extends HTMLElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       track: {
         name: "track",
-        type: "String",
+        type: String,
         value: "visibility"
+      },
+      eventname: {
+        name: "eventname",
+        type: String,
+        value: "user-engagement"
       },
       every: {
         name: "every",
-        type: "Boolean",
+        type: Boolean,
         value: false
       },
       visiblelimit: {
         name: "visiblelimit",
-        type: "Number",
+        type: Number,
         value: 0.5
       }
     };
@@ -117,6 +126,7 @@ class UserAction extends HTMLElement {
    */
   constructor(delayRender = false) {
     super();
+    this.UserActionBroker = new UserActionBroker();
     // set tag for later use
     this.tag = UserAction.tag;
     // map our imported properties json to real props on the element
@@ -136,22 +146,23 @@ class UserAction extends HTMLElement {
         }
       }
     }
-    this.UserActionBroker = new UserActionBroker();
   }
   /**
    * life cycle, element is afixed to the DOM
    */
   connectedCallback() {
     this.__ready = true;
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(UserAction.haxProperties, UserAction.tag, this);
   }
 
   static get observedAttributes() {
-    return ["track"];
+    return ["track", "eventname"];
   }
 
   attributeChangedCallback(attr, oldValue, newValue) {
+    // allow for customized event name
+    if (attr === "eventname" && newValue) {
+      this.UserActionBroker.eventname = newValue;
+    }
     if (attr === "track" && newValue) {
       switch (newValue) {
         // visibility isn't a real event and needs a complex solution

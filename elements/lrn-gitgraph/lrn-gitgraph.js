@@ -1,7 +1,8 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import "./lib/gitgraph.js/src/gitgraph.js";
+import "./lib/gitgraphjs/src/gitgraph.js";
 /**
  * `lrn-gitgraph`
+ * @element lrn-gitgraph
  * For each branch in your repo use the following git command:
  *   ```
  *   git log [branch_name] --format='{"refs": "%d", "commit": "%h", "tree": "%t", "parent": "%p", "subject": "%s", "date": "%cd", "author": "%an %ae"},' --reverse

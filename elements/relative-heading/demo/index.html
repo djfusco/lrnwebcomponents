@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <title>RelativeHeading: relative-heading Demo</title>
-    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <script src="../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
-    <script src="../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
+    
+    <script src="../../../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
+    <script src="../../../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
     <script type="module">
       import '@polymer/iron-demo-helpers/demo-pages-shared-styles.js';
       import '@polymer/iron-demo-helpers/demo-snippet.js';
@@ -14,40 +14,76 @@
     </script>
     <script src="./demo.js"></script>
     <style is="custom-style" include="demo-pages-shared-styles">
+      fieldset > div {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      relative-heading:not(:defined) {
+        display: block;
+      }
     </style>
   </head>
   <body>
     <div class="vertical-section-container centered">
-      <h3>Basic relative-heading demo</h3>
+      <h1>Basic relative-heading demo</h1>
       <demo-snippet>
-        <style>
-          relative-heading:before {
-            content: '<h' attr(level) '/>';
-            font-size: 10px;
-            float: right;
-          }  
-        </style>
-        <p id="selector" hidden>
-          <label>Make "Sapien sit amet" a subheading of
-            <select id="changer">
-              <option value="rh1">Lorem ipsum dolor</option>
-              <option value="rh2">Praesent ultrices</option>
-              <option value="rh3" selected>Suspendisse</option>
-            </select>
-          </label>
-        </p>
+        <!-- these controls are just to demo relative headings-->
+        <fieldset>
+          <legend>Change the DOM:</legend>
+          <div>
+            <p>
+              <label>Set sapien's <tt>parent</tt> to...
+                <select id="changer">
+                  <option value="lorem">lorem</option>
+                  <option value="praesent">Praesent ultrices</option>
+                  <option value="suspendisse" selected>Suspendisse</option>
+                </select>
+              </label>
+            </p>
+            <p>
+              <label>Set volutpat's <tt>parent</tt> to...
+                <select id="changer2">
+                  <option value="lorem">lorem</option>
+                  <option value="suspendisse">suspendisse</option>
+                  <option value="sollicitudin" selected>sollicitudin</option>
+                </select>
+              </label>
+            </p>
+            <p><button id="changer3">Change praesent's innerHTML</button></p>
+            <p><button id="remover">Remove lorem</button></p>
+          </div>
+        </fieldset>
         <template>
-          <relative-heading id="rh1" text="Lorem ipsum dolor"></relative-heading>
+          <relative-heading id="lorem">
+            <h1>Lorem ipsum dolor</h1>
+          </relative-heading>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-          <relative-heading id="rh2" text="Praesent ultrices" parent-id="rh1"></relative-heading>
+
+          <relative-heading id="praesent" parent="lorem">
+            <h2>Praesent ultrices</h2>
+          </relative-heading>
           <p>Mauris aliquam lorem justo. Praesent ultrices lorem nec est iaculis viverra dignissim eu neque. Nullam vitae nisl diam.</p>
-          <relative-heading id="rh3" text="Suspendisse" parent-id="rh2"></relative-heading>
+
+          <relative-heading id="suspendisse" parent="praesent">
+            <h3>Suspendisse</h3>
+          </relative-heading>
           <p>Suspendisse potenti. Nulla venenatis porta felis id feugiat. Vivamus vehicula molestie sapien hendrerit ultricies.</p> 
-          <relative-heading id="rh4" text="Sapien sit amet" parent-id="rh3"></relative-heading>
+
+          <relative-heading id="sapien" parent="suspendisse">
+            <h4>Sapien sit amet</h4>
+          </relative-heading>
           <p>Quisque volutpat eu sapien sit amet interdum. Proin venenatis tellus eu nisi congue aliquet. </p>
-          <relative-heading id="rh5" text="Sollicitudin" parent-id="rh4"></relative-heading>          
+          
+          <relative-heading id="sollicitudin" parent="sapien">
+            <h5>Sollicitudin</h5>
+          </relative-heading>          
           <p>Nullam at velit sollicitudin, porta mi quis, lacinia velit. Praesent quis mauris sem.</p> 
-          <relative-heading id="rh6" text="In et volutpat" parent-id="rh5"></relative-heading>          
+          
+          <relative-heading id="volutpat" parent="sollicitudin">
+            <h6>In et volutpat</h6>
+          </relative-heading>          
           <p>In et volutpat nisi. Suspendisse vel nibh eu magna posuere sollicitudin. Praesent ac ex varius, facilisis urna et, cursus tellus.</p> 
         </template>
       </demo-snippet>

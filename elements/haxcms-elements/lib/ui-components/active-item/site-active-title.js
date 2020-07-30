@@ -2,69 +2,79 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
-import { autorun, toJS } from "mobx";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
+
 /**
  * `site-active-title`
  * `Title of the active page in the site`
  *
- * @customElement
- * @polymer
  * @demo demo/index.html
  */
-class SiteActiveTitle extends PolymerElement {
+class SiteActiveTitle extends LitElement {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "site-active-title";
   }
-  // render function
-  static get template() {
+  /**
+   * LitElement
+   */
+  render() {
     return html`
       <style>
         :host {
           display: block;
         }
-        h2 {
+        h1 {
           text-rendering: optimizelegibility;
           font-family: sans-serif;
-          color: var(--site-active-title-color, #383f45);
-          @apply --site-active-title-heading;
+          color: var(--site-active-title-color);
+          margin: var(--site-active-title-margin);
+          padding: var(--site-active-title-padding);
         }
       </style>
-      <h2>[[__title]]</h2>
+      <h1>${this.__title}</h1>
     `;
   }
   /**
-   * Props
+   * LitElement life cycle - property changed
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "dynamicMethodology") {
+        this.__title = this._makeTitle(
+          this.dynamicMethodology,
+          this.activeTitle,
+          this.parentTitle,
+          this.ancestorTitle
+        );
+      }
+    });
+  }
+  /**
+   * LitElement / popular convention
    */
   static get properties() {
     return {
-      /**
-       * Turn off the title fallback to avoid empty titles
-       */
-      noFallback: {
-        type: Boolean,
-        value: false
-      },
-      /**
-       * How we should obtain the parent who's children we should show
-       * options are active, parent, or ancestor
-       */
-      dynamicMethodology: {
-        type: String,
-        value: "active"
-      },
       __title: {
-        type: String,
-        computed:
-          "_makeTitle(dynamicMethodology, activeTitle, parentTitle, ancestorTitle)"
+        type: String
+      },
+      dynamicMethodology: {
+        type: String
+      },
+      editMode: {
+        type: Boolean,
+        reflect: true,
+        attribute: "edit-mode"
       }
     };
   }
+  /**
+   * Generate title based on context
+   */
   _makeTitle(dynamicMethodology, activeTitle, parentTitle, ancestorTitle) {
     switch (dynamicMethodology) {
       case "above":
@@ -84,23 +94,65 @@ class SiteActiveTitle extends PolymerElement {
         break;
     }
   }
-  connectedCallback() {
-    super.connectedCallback();
-    this.__disposer = autorun(() => {
+  /**
+   * HTMLElement
+   */
+  constructor() {
+    super();
+    this.noFallback = false;
+    this.dynamicMethodology = "active";
+    this.__title = "";
+    this.__disposer = [];
+    autorun(reaction => {
+      this.editMode = toJS(store.editMode);
+      this.__disposer.push(reaction);
+    });
+    autorun(reaction => {
       this.activeTitle = toJS(store.activeTitle);
+      this.__title = this._makeTitle(
+        this.dynamicMethodology,
+        this.activeTitle,
+        this.parentTitle,
+        this.ancestorTitle
+      );
+      this.__disposer.push(reaction);
     });
-    this.__disposer2 = autorun(() => {
-      this.parentTitle = toJS(store.parentTitle);
-    });
-    this.__disposer3 = autorun(() => {
+    autorun(reaction => {
       this.ancestorTitle = toJS(store.ancestorTitle);
+      this.__title = this._makeTitle(
+        this.dynamicMethodology,
+        this.activeTitle,
+        this.parentTitle,
+        this.ancestorTitle
+      );
+      this.__disposer.push(reaction);
+    });
+    autorun(reaction => {
+      this.parentTitle = toJS(store.parentTitle);
+      this.__title = this._makeTitle(
+        this.dynamicMethodology,
+        this.activeTitle,
+        this.parentTitle,
+        this.ancestorTitle
+      );
+      this.__disposer.push(reaction);
     });
   }
+  /**
+   * HTMLElement
+   */
   disconnectedCallback() {
+    // clean up state
+    for (var i in this.__disposer) {
+      this.__disposer[i].dispose();
+    }
     super.disconnectedCallback();
-    this.__disposer();
-    this.__disposer2();
-    this.__disposer3();
+  }
+  /**
+   * Break shadowRoot
+   */
+  createRenderRoot() {
+    return this;
   }
 }
 window.customElements.define(SiteActiveTitle.tag, SiteActiveTitle);

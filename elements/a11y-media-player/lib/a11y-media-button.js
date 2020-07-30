@@ -2,97 +2,102 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { A11yMediaBehaviors } from "./a11y-media-behaviors.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import "@polymer/iron-icons/iron-icons.js";
-import "@polymer/iron-a11y-keys/iron-a11y-keys.js";
 import "@polymer/iron-icons/av-icons.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
-
-export { A11yMediaButton };
 /**
  * `a11y-media-button`
- * `A button used in a11y-media-controls and a11y-media-transcript-controls.`
+ * a button used in a11y-media-controls and a11y-media-transcript-controls.
  *
- * @microcopy - language worth noting:
- *  -
- *
- * @extends A11yMediaBehaviors
- * @customElement
- * @polymer
+ * @element a11y-media-button
  */
-class A11yMediaButton extends A11yMediaBehaviors {
+class A11yMediaButton extends LitElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
       /**
        * is button action to send as an event
        */
       action: {
-        type: String,
-        value: null
+        attribute: "action",
+        reflect: true,
+        type: String
       },
       /*
        * id of element button controls
        */
       controls: {
-        type: String,
-        value: "video"
+        attribute: "controls",
+        reflect: true,
+        type: String
       },
       /*
        * iron-icon type
        */
       icon: {
-        type: String,
-        value: null
+        attribute: "icon",
+        type: String
       },
       /*
        * button label
        */
       label: {
-        type: String,
-        value: null
+        attribute: "label",
+        type: String
       },
       /*
        * Is it toggled on?
        */
       toggle: {
+        attribute: "toggle",
         type: Boolean,
-        value: false,
-        reflectToAttribute: true
+        reflect: true
       },
       /*
        * Is it disabled?
        */
       disabled: {
-        type: Boolean,
-        value: null
+        attribute: "disabled",
+        type: Boolean
+      },
+      /*
+       * Is it disabled?
+       */
+      tooltipPosition: {
+        attribute: "tooltip-position",
+        type: String
       }
     };
   }
 
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
+
    */
   static get tag() {
     return "a11y-media-button";
   }
 
-  //get player-specifc properties
-  static get behaviors() {
-    return [A11yMediaBehaviors];
+  //inherit styles from a11y-media-player or a11y-media-transcript
+  constructor() {
+    super();
+    this.controls = "video";
+    this.disabled = false;
+    this.toggle = false;
+    this.tooltipPosition = "bottom";
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
   }
 
-  //render function
-  static get template() {
-    return html`
-      <style>
+  static get styles() {
+    return [
+      this.buttonStyles,
+      css`
         :host {
           margin: 0;
           padding: 0;
         }
-        :host #button {
+        #button {
           margin: 0;
           padding: 8px;
           line-height: 1;
@@ -111,11 +116,14 @@ class A11yMediaButton extends A11yMediaBehaviors {
         :host(:active) #button,
         :host(:focus) #button,
         :host(:hover) #button {
-          cursor: pointer;
           color: var(--a11y-media-button-hover-color);
           background-color: var(--a11y-media-button-hover-bg-color);
         }
-        :host .sr-only {
+        :host([disabled]) #button {
+          color: var(--a11y-media-button-disabled-color);
+          cursor: not-allowed;
+        }
+        .sr-only {
           position: absolute;
           left: -99999;
           top: 0;
@@ -123,56 +131,77 @@ class A11yMediaButton extends A11yMediaBehaviors {
           width: 0;
           overflow: hidden;
         }
-        :host paper-tooltip {
+        simple-tooltip {
           z-index: 100;
+        }
+        simple-tooltip:not(:defined) {
+          display: none;
         }
         iron-icon {
           display: inline-block;
         }
-      </style>
+      `
+    ];
+  }
+  static get buttonStyles() {
+    return [
+      css`
+        #button {
+          margin: 0;
+          border: none;
+        }
+        .sr-only {
+          position: absolute;
+          left: -99999;
+          top: 0;
+          height: 0;
+          width: 0;
+          overflow: hidden;
+        }
+        simple-tooltip {
+          z-index: 100;
+        }
+        simple-tooltip:not(:defined) {
+          display: none;
+        }
+      `
+    ];
+  }
+
+  render() {
+    return html`
       <button
         id="button"
-        aria-label$="[[label]]"
-        aria-pressed$="[[toggle]]"
-        controls="[[controls]]"
-        disabled$="[[disabled]]"
-        on-click="_buttonTap"
-        role="button"
+        aria-label="${this.label}"
+        aria-pressed="${this.toggle ? "true" : "false"}"
+        controls="${this.controls}"
         tabindex="0"
-        toggle$="[[toggle]]"
+        @click="${this._buttonClick}"
+        ?disabled="${this.disabled}"
+        ?toggle="${this.toggle}"
       >
-        <iron-icon icon="[[icon]]"></iron-icon>
+        <iron-icon icon="${this.icon}"></iron-icon>
       </button>
-      <paper-tooltip for="button">[[label]]</paper-tooltip>
-      <iron-a11y-keys
-        id="a11y"
-        keys="enter space"
-        target$="[[__target]]"
-        on-keys-pressed="_buttonTap"
-      ></iron-a11y-keys>
+      ${this.label
+        ? html`
+            <simple-tooltip for="button" position="${this.tooltipPosition}"
+              >${this.label}</simple-tooltip
+            >
+          `
+        : ``}
     `;
-  }
-
-  /**
-   * life cycle, element is afixed to the DOM
-   */
-  connectedCallback() {
-    super.connectedCallback();
-  }
-
-  /**
-   * sets target for a11y keys
-   */
-  ready() {
-    super.ready();
-    this.__target = this.$.button;
   }
 
   /**
    * lets player know this button was clicked
    */
-  _buttonTap() {
-    this.dispatchEvent(new CustomEvent("click", { detail: this }));
+  _buttonClick(e) {
+    /**
+     * Fires when button is clicked
+     * @event click-details
+     */
+    this.dispatchEvent(new CustomEvent("button-click", { detail: this }));
   }
 }
 window.customElements.define(A11yMediaButton.tag, A11yMediaButton);
+export { A11yMediaButton };

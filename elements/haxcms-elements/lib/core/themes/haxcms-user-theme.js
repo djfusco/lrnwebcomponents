@@ -2,23 +2,22 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
+import { html } from "@polymer/polymer/polymer-element.js";
+import { HAXCMSPolymerElementTheme } from "@lrnwebcomponents/haxcms-elements/lib/core/HAXCMSPolymerElementTheme.js";
 import { stylesFromTemplate } from "@polymer/polymer/lib/utils/style-gather.js";
-import { HAXCMSTheme } from "@lrnwebcomponents/haxcms-elements/lib/core/HAXCMSThemeWiring.js";
 // @todo load the elements this theme needs dynamically
 // we reference this but pull nothing in to get the dependency tree loaded in full
 import "@lrnwebcomponents/haxcms-elements/lib/ui-components/templates/basic-template.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 /**
  * `haxcms-custom-theme`
  * `This is a custom theme. Don't edit this file, edit yoursite/theme/theme.css and yoursite/theme/theme.html`
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
-class HAXCMSUserTheme extends HAXCMSTheme(PolymerElement) {
+class HAXCMSUserTheme extends HAXCMSPolymerElementTheme {
   /**
    * Get css
    */
@@ -74,15 +73,12 @@ class HAXCMSUserTheme extends HAXCMSTheme(PolymerElement) {
   }
   connectedCallback() {
     super.connectedCallback();
-    afterNextRender(this, function() {
-      this.contentContainer = this.shadowRoot.querySelector(
-        "#contentcontainer"
-      );
-    });
+    this.contentContainer = this.shadowRoot.querySelector("#contentcontainer");
   }
   // render function
   static get template() {
     return html`
+      <style include="simple-colors-shared-styles-polymer"></style>
       <div id="contentcontainer">
         <div id="slot">
           <slot></slot>

@@ -1,5 +1,4 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
 import "@polymer/iron-list/iron-list.js";
 import "@polymer/iron-a11y-keys/iron-a11y-keys.js";
 import "@polymer/paper-input/paper-input.js";
@@ -267,7 +266,10 @@ class LrnsysOutlineItem extends PolymerElement {
    */
   ready() {
     super.ready();
-    this.__inputTarget = this.$.input;
+    this.__inputTarget = this.shadowRoot.querySelector("#input");
+    this.shadowRoot
+      .querySelector("#input")
+      .addEventListener("focused-changed", this._focusin.bind(this));
     this.dispatchEvent(
       new CustomEvent("focus-item", {
         bubbles: true,
@@ -276,117 +278,15 @@ class LrnsysOutlineItem extends PolymerElement {
         detail: this
       })
     );
-    afterNextRender(this, function() {
-      this.addEventListener("change", this._onChange.bind(this));
-      this.addEventListener("focus", e => {
-        this.dispatchEvent(
-          new CustomEvent("focus-item", {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-            detail: this
-          })
-        );
-      });
-      this.addEventListener("mouseover", e => {
-        this.dispatchEvent(
-          new CustomEvent("focus-item", {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-            detail: this
-          })
-        );
-      });
-      this.addEventListener("blur", e => {
-        this.dispatchEvent(
-          new CustomEvent("blur-item", {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-            detail: this
-          })
-        );
-      });
-      this.addEventListener("mouseout", e => {
-        this.dispatchEvent(
-          new CustomEvent("blur-item", {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-            detail: this
-          })
-        );
-      });
-      this.$.input.addEventListener(
-        "focused-changed",
-        this._focusin.bind(this)
-      );
-      this.addEventListener("focusin", this._focusin.bind(this));
-      this.addEventListener("focusout", this._focusout.bind(this));
-    });
-  }
-  /**
-   * detached life cycle
-   */
-  disconnectedCallback() {
-    this.removeEventListener("change", this._onChange.bind(this));
-    this.removeEventListener("focus", e => {
-      this.dispatchEvent(
-        new CustomEvent("focus-item", {
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-          detail: this
-        })
-      );
-    });
-    this.removeEventListener("mouseover", e => {
-      this.dispatchEvent(
-        new CustomEvent("focus-item", {
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-          detail: this
-        })
-      );
-    });
-    this.removeEventListener("blur", e => {
-      this.dispatchEvent(
-        new CustomEvent("blur-item", {
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-          detail: this
-        })
-      );
-    });
-    this.removeEventListener("mouseout", e => {
-      this.dispatchEvent(
-        new CustomEvent("blur-item", {
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-          detail: this
-        })
-      );
-    });
-    this.$.input.removeEventListener(
-      "focused-changed",
-      this._focusin.bind(this)
-    );
-    this.removeEventListener("focusin", this._focusin.bind(this));
-    this.removeEventListener("focusout", this._focusout.bind(this));
-    super.disconnectedCallback();
   }
 
   focus() {
-    this.$.input.focus();
+    this.shadowRoot.querySelector("#input").focus();
     return this;
   }
 
   value() {
-    this.title = this.$.input.value;
+    this.title = this.shadowRoot.querySelector("#input").value;
     return this.title;
   }
 
@@ -413,8 +313,11 @@ class LrnsysOutlineItem extends PolymerElement {
   }
 
   add() {
-    let i = this.$.input.shadowRoot.querySelector("#" + this.$.input._inputId)
-        .inputElement.selectionStart,
+    let i = this.shadowRoot
+        .querySelector("#input")
+        .shadowRoot.querySelector(
+          "#" + this.shadowRoot.querySelector("#input")._inputId
+        ).inputElement.selectionStart,
       j = this.title;
     this.dispatchEvent(
       new CustomEvent("add-item", {
@@ -457,11 +360,62 @@ class LrnsysOutlineItem extends PolymerElement {
     let s = start !== undefined ? start : 0,
       n = end !== undefined ? end : s;
     try {
-      this.$.input.querySelector("input").setSelectionRange(s, n);
+      this.shadowRoot
+        .querySelector("#input")
+        .querySelector("input")
+        .setSelectionRange(s, n);
     } catch (e) {
       console.log(e);
     }
     this.focus();
+  }
+  constructor() {
+    super();
+    setTimeout(() => {
+      this.addEventListener("change", this._onChange.bind(this));
+      this.addEventListener("focus", e => {
+        this.dispatchEvent(
+          new CustomEvent("focus-item", {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            detail: this
+          })
+        );
+      });
+      this.addEventListener("mouseover", e => {
+        this.dispatchEvent(
+          new CustomEvent("focus-item", {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            detail: this
+          })
+        );
+      });
+      this.addEventListener("blur", e => {
+        this.dispatchEvent(
+          new CustomEvent("blur-item", {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            detail: this
+          })
+        );
+      });
+      this.addEventListener("mouseout", e => {
+        this.dispatchEvent(
+          new CustomEvent("blur-item", {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            detail: this
+          })
+        );
+      });
+      this.addEventListener("focusin", this._focusin.bind(this));
+      this.addEventListener("focusout", this._focusout.bind(this));
+    }, 0);
   }
 
   _onChange() {
@@ -479,8 +433,11 @@ class LrnsysOutlineItem extends PolymerElement {
     this._focusout();
   }
   _onEnter() {
-    let i = this.$.input.shadowRoot.querySelector("#" + this.$.input._inputId)
-        .inputElement.selectionStart,
+    let i = this.shadowRoot
+        .querySelector("#input")
+        .shadowRoot.querySelector(
+          "#" + this.shadowRoot.querySelector("#input")._inputId
+        ).inputElement.selectionStart,
       j = this.title;
     this.dispatchEvent(
       new CustomEvent("add-item", {
@@ -510,8 +467,11 @@ class LrnsysOutlineItem extends PolymerElement {
         })
       );
     } else if (
-      this.$.input.shadowRoot.querySelector("#" + this.$.input._inputId)
-        .inputElement.selectionStart == 0
+      this.shadowRoot
+        .querySelector("#input")
+        .shadowRoot.querySelector(
+          "#" + this.shadowRoot.querySelector("#input")._inputId
+        ).inputElement.selectionStart == 0
     ) {
       this.dispatchEvent(
         new CustomEvent("indent-item", {
@@ -543,8 +503,11 @@ class LrnsysOutlineItem extends PolymerElement {
 
   _onArrowUp() {
     if (
-      this.$.input.shadowRoot.querySelector("#" + this.$.input._inputId)
-        .inputElement.selectionStart == 0
+      this.shadowRoot
+        .querySelector("#input")
+        .shadowRoot.querySelector(
+          "#" + this.shadowRoot.querySelector("#input")._inputId
+        ).inputElement.selectionStart == 0
     ) {
       this.dispatchEvent(
         new CustomEvent("focus-item", {
@@ -559,8 +522,11 @@ class LrnsysOutlineItem extends PolymerElement {
 
   _onArrowDown() {
     if (
-      this.$.input.shadowRoot.querySelector("#" + this.$.input._inputId)
-        .inputElement.selectionStart == this.title.length
+      this.shadowRoot
+        .querySelector("#input")
+        .shadowRoot.querySelector(
+          "#" + this.shadowRoot.querySelector("#input")._inputId
+        ).inputElement.selectionStart == this.title.length
     ) {
       this.dispatchEvent(
         new CustomEvent("focus-item", {
@@ -579,8 +545,11 @@ class LrnsysOutlineItem extends PolymerElement {
 
   _onTab(e) {
     if (
-      this.$.input.shadowRoot.querySelector("#" + this.$.input._inputId)
-        .inputElement.selectionStart == 0
+      this.shadowRoot
+        .querySelector("#input")
+        .shadowRoot.querySelector(
+          "#" + this.shadowRoot.querySelector("#input")._inputId
+        ).inputElement.selectionStart == 0
     ) {
       e.preventDefault();
       this.setIndent(1);

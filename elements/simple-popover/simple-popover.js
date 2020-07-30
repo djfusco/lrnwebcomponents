@@ -2,85 +2,92 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { AbsolutePositionBehavior } from "@lrnwebcomponents/absolute-position-behavior/absolute-position-behavior.js";
 /**
  * `simple-popover`
- * `A popover alertdialog that is positioned next to a target element`
+ * a popover alertdialog that is positioned next to a target element
  *
- * @microcopy - language worth noting:
- *  -
+### Styling
+
+`<simple-popover>` provides the following custom properties
+for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--simple-popover-border-radius` | popover border-radius | 3px
+`--simple-popover-color` | popover text color| #222
+`--simple-popover-padding` | popover padding | 10px
+`--simple-popover-background-color` | popover background-color | white
+`--simple-popover-border-color` | popover border-color | #bbb
+`--simple-popover-box-shadow` | popover box-shadow | rgba(60, 64, 67, 0.3) 0px 4px 8px 3px;
  *
- * @customElement
- * @polymer
- * @demo demo/index.html
+ * @element simple-popover
+ * @demo ./demo/index.html
  */
 class SimplePopover extends AbsolutePositionBehavior {
-  // render function
-  static get template() {
-    return html`
-      <style>
-        :host {
-          display: flex;
-          flex-direction: column-reverse;
-          justify-content: stretch;
-          --simple-popover-border-radius: 3px;
-          --simple-popover-color: #222;
-          --simple-popover-padding: 10px;
-          --simple-popover-background-color: white;
-          --simple-popover-border-color: #bbb;
-          --simple-popover-box-shadow: rgba(60, 64, 67, 0.3) 0px 4px 8px 3px;
-        }
+  //styles function
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
         :host([hidden]) {
           display: none;
         }
-        :host([position="left"]) {
-          justify-content: start;
+        :host > div {
+          display: flex;
+          flex-direction: column-reverse;
+          justify-content: stretch;
+          z-index: 1;
+        }
+        :host([position="left"]) > div {
+          justify-content: flex-start;
           flex-direction: row;
         }
-        :host([position="right"]) {
-          justify-content: start;
+        :host([position="right"]) > div {
+          justify-content: flex-end;
           flex-direction: row-reverse;
         }
-        :host([position="top"]) {
+        :host([position="top"]) > div {
           flex-direction: column;
         }
-        :host > * {
+        :host > div > * {
           width: 100%;
         }
-        :host([position="left"]) > *,
-        :host([position="right"]) > * {
+        :host([position="left"]) > div > *,
+        :host([position="right"]) > div > * {
           width: unset;
         }
-        :host #content {
-          margin: 0 auto;
-          padding: var(--simple-popover-padding);
-          color: var(--simple-popover-color);
-          background-color: var(--simple-popover-background-color);
-          border: 1px solid var(--simple-popover-border-color);
+        #content {
+          margin: 0;
+          padding: var(--simple-popover-padding, 10px);
+          color: var(--simple-popover-color, #222);
+          background-color: var(--simple-popover-background-color, white);
+          border: 1px solid var(--simple-popover-border-color, #bbb);
           min-height: 20px;
-          border-radius: var(--simple-popover-border-radius);
-          box-shadow: var(--simple-popover-box-shadow);
-          @apply --simple-popover-content;
+          border-radius: var(--simple-popover-border-radius, 3px);
+          box-shadow: var(
+            --simple-popover-box-shadow,
+            rgba(60, 64, 67, 0.3) 0px 4px 8px 3px
+          );
         }
-        :host #pointer-outer {
+        #pointer-outer {
           margin: -1px;
         }
-        :host #pointer {
+        #pointer {
           width: 20px;
           height: 20px;
           position: relative;
           overflow: hidden;
           flex: 0 0 20px;
         }
-        :host #pointer:after {
+        #pointer:after {
           content: "";
           position: absolute;
           width: 10px;
           height: 10px;
-          background-color: var(--simple-popover-background-color);
-          border: 1px solid var(--simple-popover-border-color);
+          background-color: var(--simple-popover-background-color, white);
+          border: 1px solid var(--simple-popover-border-color, #bbb);
           transform: rotate(45deg);
           top: 15px;
           left: 5px;
@@ -97,12 +104,20 @@ class SimplePopover extends AbsolutePositionBehavior {
           top: 5px;
           left: -5px;
         }
-      </style>
-      <div id="content" role="alertdialog">
-        <slot></slot>
-      </div>
-      <div id="pointer-outer">
-        <div id="pointer" style$="[[__pointerOffSetStyle]]"></div>
+      `
+    ];
+  }
+
+  // render function
+  render() {
+    return html`
+      <div>
+        <div id="content" role="alertdialog">
+          <slot></slot>
+        </div>
+        <div id="pointer-outer">
+          <div id="pointer" .style=${this._getMargins(this.__positions)}></div>
+        </div>
       </div>
     `;
   }
@@ -147,23 +162,7 @@ class SimplePopover extends AbsolutePositionBehavior {
   }
   // properties available to the custom element for data binding
   static get properties() {
-    return {
-      /**
-   * Offset to compensate for the popover pointers.
-   * /
-  "fitToVisibleBounds": {
-    "type": "Boolean",
-    "value": true,
-    "readOnly": true
-  },
-  /**
-   * Tthe margin styles to offset the pointer
-   */
-      __pointerOffSetStyle: {
-        type: "Object",
-        computed: "_getMargins(__positions)"
-      }
-    };
+    return { ...super.properties };
   }
   constructor() {
     super();
@@ -179,36 +178,26 @@ class SimplePopover extends AbsolutePositionBehavior {
     return "simple-popover";
   }
   /**
-   * life cycle, element is afixed to the DOM
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(SimplePopover.haxProperties, SimplePopover.tag, this);
-  }
-  /**
    * sets pointer position based on popover and target middles
    *
    * @param {object} positions object that contains postions for popover and target
    * @returns {string} a string with margin styles to offset pointer
    */
   _getMargins(positions) {
-    //this.fitToVisibleBounds = true;
-    let self = this.getBoundingClientRect(),
-      h = this.position === "bottom" || this.position === "top",
-      max = h ? self.width : self.height,
-      sStart = h ? self.left : self.top,
-      tStart = h ? positions.target.left : positions.target.top,
-      tHalf = h ? positions.target.width / 2 : positions.target.height / 2,
-      center = tStart + tHalf - 10,
-      margin = Math.min(max - 20, Math.max(0, center - sStart)),
-      style = h ? `margin: 0 0 0 ${margin}px;` : `margin: ${margin}px 0 0 0;`;
-    return style;
+    if (positions && positions.target) {
+      let self = this.getBoundingClientRect(),
+        h = this.position === "bottom" || this.position === "top",
+        max = h ? self.width : self.height,
+        sStart = h ? self.left : self.top,
+        tStart = h ? positions.target.left : positions.target.top,
+        tHalf = h ? positions.target.width / 2 : positions.target.height / 2,
+        center = tStart + tHalf - 10,
+        margin = Math.min(max - 20, Math.max(0, center - sStart)),
+        style = h ? `margin: 0 0 0 ${margin}px;` : `margin: ${margin}px 0 0 0;`;
+      return style;
+    }
+    return ``;
   }
-  /**
-   * life cycle, element is removed from the DOM
-   */
-  //disconnectedCallback() {}
 }
 window.customElements.define(SimplePopover.tag, SimplePopover);
 export { SimplePopover };

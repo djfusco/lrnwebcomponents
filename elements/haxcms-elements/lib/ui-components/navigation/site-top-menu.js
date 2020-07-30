@@ -4,28 +4,28 @@
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
-import { autorun, toJS } from "mobx";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
 import "@lrnwebcomponents/haxcms-elements/lib/ui-components/query/site-query.js";
 import "@polymer/polymer/lib/elements/dom-repeat.js";
 /**
  * `site-top-menu`
  * `Menu on top of the site typically a bar of options`
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
 class SiteTopMenu extends PolymerElement {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "site-top-menu";
   }
   constructor() {
     super();
-    import("@polymer/paper-tooltip/paper-tooltip.js");
+    this.__disposer = [];
+    import("@polymer/paper-icon-button/paper-icon-button.js");
     import("@polymer/paper-button/paper-button.js");
   }
   // render function
@@ -36,6 +36,12 @@ class SiteTopMenu extends PolymerElement {
           display: block;
           --site-top-menu-bg: var(--haxcms-color, #ffffff);
           --site-top-menu-indicator-arrow: 6px;
+          transition: 0.2s opacity linear;
+          opacity: 1;
+        }
+        :host([edit-mode]) {
+          opacity: 0.2;
+          pointer-events: none;
         }
         :host([sticky]) {
           position: fixed;
@@ -63,25 +69,17 @@ class SiteTopMenu extends PolymerElement {
           color: var(--site-top-menu-link-color, #444444);
           @apply --site-top-menu-link;
         }
-        paper-tooltip:not(:defined) {
-          display: none;
-        }
         paper-button {
           text-transform: unset;
           min-width: unset;
           @apply --site-top-menu-button;
-        }
-        paper-button:hover,
-        paper-button:focus,
-        paper-button:active {
-          @apply --site-top-menu-button-hover;
         }
         .active {
           color: var(--site-top-menu-link-active-color, #000000);
           @apply --site-top-menu-link-active;
         }
         #indicator {
-          transition: 0.4s ease-in-out all;
+          transition: 0.4s ease-in-out left;
           transition-delay: 0.2s;
           position: relative;
           width: 0;
@@ -113,17 +111,50 @@ class SiteTopMenu extends PolymerElement {
         :host([showindex]) .spacing .link-index {
           display: inline-flex;
         }
-        paper-tooltip {
-          @apply --site-top-menu-tooltip;
+        .mobiletitle,
+        paper-icon-button {
+          display: none;
+        }
+        @media screen and (max-width: 640px) {
+          .wrapper .spacing {
+            display: none;
+          }
+          .wrapper .mobiletitle,
+          .wrapper paper-icon-button {
+            display: inline-block;
+          }
+          .wrapper {
+            display: block;
+          }
+        }
+
+        @media screen and (max-width: 640px) {
+          #indicator {
+            display: none !important;
+          }
+          .wrapper.responsive {
+            position: relative;
+          }
+          .wrapper.responsive .spacing {
+            float: none;
+            display: block;
+            text-align: left;
+          }
         }
       </style>
-      <div class="wrapper">
+      <site-query
+        result="{{__items}}"
+        sort="[[sort]]"
+        conditions="[[conditions]]"
+      ></site-query>
+      <div id="wrapper" class="wrapper">
+        <paper-icon-button
+          icon="menu"
+          id="menu"
+          title="Open navigation"
+        ></paper-icon-button>
+        <span class="mobiletitle">[[mobileTitle]]</span>
         <slot name="prefix"></slot>
-        <site-query
-          result="{{__items}}"
-          sort="[[sort]]"
-          conditions="[[conditions]]"
-        ></site-query>
         <dom-repeat items="[[__items]]" mutable-data>
           <template>
             <div class="spacing">
@@ -132,7 +163,7 @@ class SiteTopMenu extends PolymerElement {
                 class="link"
                 tabindex="-1"
                 title$="Go to [[item.title]]"
-                href$="[[item.location]]"
+                href$="[[item.slug]]"
               >
                 <paper-button id$="item-[[item.id]]" noink="[[noink]]">
                   <span class="link-index">[[humanIndex(index)]]</span>
@@ -140,13 +171,6 @@ class SiteTopMenu extends PolymerElement {
                 </paper-button>
               </a>
             </div>
-            <paper-tooltip
-              for$="item-[[item.id]]"
-              position="[[position]]"
-              offset="14"
-            >
-              Go to [[item.title]]
-            </paper-tooltip>
           </template>
         </dom-repeat>
         <slot name="suffix"></slot>
@@ -237,14 +261,26 @@ class SiteTopMenu extends PolymerElement {
           parent: null
         }
       },
-      position: {
+      mobileTitle: {
         type: String,
-        value: "bottom"
+        value: "Navigation"
+      },
+      editMode: {
+        type: Boolean,
+        reflectToAttribute: true
       }
     };
   }
   humanIndex(index) {
     return index + 1;
+  }
+  toggleOpen() {
+    var wrapper = this.shadowRoot.querySelector("#wrapper");
+    if (wrapper.classList.contains("responsive")) {
+      wrapper.classList.remove("responsive");
+    } else {
+      wrapper.classList.add("responsive");
+    }
   }
   /**
    * When active ID changes, see if we know what to highlight automatically
@@ -253,7 +289,7 @@ class SiteTopMenu extends PolymerElement {
     // as long as didn't disable the indicator, do this processing
     if (this.indicator != "none") {
       if (newValue) {
-        this.$.indicator.classList.add("activated");
+        this.shadowRoot.querySelector("#indicator").classList.add("activated");
         let el = null;
         //ensure that this level is included
         if (this.shadowRoot.querySelector('[data-id="' + newValue + '"]')) {
@@ -282,32 +318,46 @@ class SiteTopMenu extends PolymerElement {
           el.classList.add("active");
           this._prevEl = el;
           if (this.indicator == "arrow") {
-            this.$.indicator.style.left =
+            this.shadowRoot.querySelector("#indicator").style.left =
               el.offsetLeft + el.offsetWidth / 2 - this.arrowSize + "px";
-            this.$.indicator.style.top =
+            this.shadowRoot.querySelector("#indicator").style.top =
               el.offsetTop + el.offsetHeight - this.arrowSize + "px";
           } else {
-            this.$.indicator.style.left = el.offsetLeft + "px";
-            this.$.indicator.style.top = el.offsetTop + el.offsetHeight + "px";
-            this.$.indicator.style.width = el.offsetWidth + "px";
+            this.shadowRoot.querySelector("#indicator").style.left =
+              el.offsetLeft + "px";
+            this.shadowRoot.querySelector("#indicator").style.top =
+              el.offsetTop + el.offsetHeight + "px";
+            this.shadowRoot.querySelector("#indicator").style.width =
+              el.offsetWidth + "px";
           }
         }
       } else {
         // shouldn't be possible but might as well list
-        this.$.indicator.classList.remove("activated");
+        this.shadowRoot
+          .querySelector("#indicator")
+          .classList.remove("activated");
       }
     }
   }
   connectedCallback() {
     super.connectedCallback();
-    this.__disposer = autorun(() => {
+    this.shadowRoot
+      .querySelector("#menu")
+      .addEventListener("click", this.toggleOpen.bind(this));
+    autorun(reaction => {
       this.manifest = toJS(store.manifest);
+      this.__disposer.push(reaction);
+    });
+    autorun(reaction => {
+      this.editMode = toJS(store.editMode);
+      this.__disposer.push(reaction);
     });
     // minor timing thing to ensure store has picked active
     // needed if routes set on first paint or lifecycles miss
     setTimeout(() => {
-      this.__disposer2 = autorun(() => {
+      autorun(reaction => {
         this.activeId = toJS(store.activeId);
+        this.__disposer.push(reaction);
       });
     }, 50);
     window.addEventListener(
@@ -319,10 +369,9 @@ class SiteTopMenu extends PolymerElement {
     );
   }
   disconnectedCallback() {
-    super.disconnectedCallback();
-    this.__disposer();
-    if (this.__disposer2) {
-      this.__disposer2();
+    // clean up state
+    for (var i in this.__disposer) {
+      this.__disposer[i].dispose();
     }
     window.removeEventListener(
       "resize",
@@ -331,6 +380,7 @@ class SiteTopMenu extends PolymerElement {
       },
       true
     );
+    super.disconnectedCallback();
   }
 }
 window.customElements.define(SiteTopMenu.tag, SiteTopMenu);

@@ -21,17 +21,29 @@ window.JSONOutlineSchema.requestAvailability = () => {
 /**
  * `json-outline-schema`
  * `JS based state management helper for the json outline schema spec`
- *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @demo demo/index.html
+ * @demo demo/index.html Demo
+ * @demo demo/listing.html Listing
+ * @element json-outline-schema
  */
-
 class JsonOutlineSchema extends HTMLElement {
-  /* REQUIRED FOR TOOLING DO NOT TOUCH */
-
+  // render function
+  get html() {
+    return `
+<style>
+:host {
+  display: block;
+}
+:host([debug]) {
+  font-family: monospace;
+  white-space: pre;
+  margin: 16px 0px;
+}
+:host([hidden]) {
+  display: none;
+}
+        </style>
+<slot></slot>`;
+  }
   /**
    * Store the tag name to make it easier to obtain directly.
    * @notice function name must be here for tooling to operate correctly
@@ -46,8 +58,6 @@ class JsonOutlineSchema extends HTMLElement {
     super();
     // set tag for later use
     this.tag = JsonOutlineSchema.tag;
-    // optional queue for future use
-    this._queue = [];
     this.template = document.createElement("template");
 
     this.attachShadow({ mode: "open" });
@@ -75,16 +85,15 @@ class JsonOutlineSchema extends HTMLElement {
       window.ShadyCSS.styleElement(this);
     }
 
-    if (this._queue.length) {
-      this._processQueue();
-    }
     window.addEventListener(
       "json-outline-schema-debug-toggle",
       this._toggleDebug.bind(this)
     );
+
     const evt = new CustomEvent("json-outline-schema-ready", {
       bubbles: true,
       cancelable: false,
+      composed: true,
       detail: true
     });
     this.dispatchEvent(evt);
@@ -98,18 +107,6 @@ class JsonOutlineSchema extends HTMLElement {
     for (const node of recipients) {
       node[fname](name, value);
     }
-  }
-
-  _queueAction(action) {
-    this._queue.push(action);
-  }
-
-  _processQueue() {
-    this._queue.forEach(action => {
-      this[`_${action.type}`](action.data);
-    });
-
-    this._queue = [];
   }
 
   _setProperty({ name, value }) {
@@ -232,10 +229,13 @@ class JsonOutlineSchema extends HTMLElement {
   /**
    * Load a schema from a file
    */
-  load(location) {
+  async load(location) {
     if (location) {
       this.file = location;
-      let fileData = json_decode(file_get_contents(location));
+      let data = await fetch(location).then(function(response) {
+        return response.text();
+      });
+      let fileData = JSON.parse(data);
       for (var key in fileData) {
         if (typeof this[key] !== typeof undefined && key !== "items") {
           this[key] = fileData[key];
@@ -243,12 +243,14 @@ class JsonOutlineSchema extends HTMLElement {
       }
       // check for items and escalate to full JSONOutlineSchemaItem object
       // also ensures data matches only what is supported
-      if (isset(fileData.items)) {
+      if (fileData.items) {
         for (var key in fileData.items) {
+          let item = fileData.items[key];
           let newItem = new JSONOutlineSchemaItem();
           newItem.id = item.id;
           newItem.indent = item.indent;
           newItem.location = item.location;
+          newItem.slug = item.slug;
           newItem.order = item.order;
           newItem.parent = item.parent;
           newItem.title = item.title;
@@ -521,8 +523,10 @@ class JsonOutlineSchema extends HTMLElement {
   /**
    * Take the items of the manifest (or passed in) and generate an HTML list hierarchy from it
    */
-  itemsToNodes(items) {
-    items = typeof items !== "undefined" ? items : this.items;
+  itemsToNodes(items = []) {
+    if (items.length === 0) {
+      items = this.items;
+    }
     let tree = this.unflattenItems(items);
     return this.treeToNodes(tree, document.createElement("ul"));
   }
@@ -533,6 +537,9 @@ class JsonOutlineSchema extends HTMLElement {
       li.setAttribute("data-jos-id", tree[i].id);
       if (tree[i].location) {
         li.setAttribute("data-jos-location", tree[i].location);
+      }
+      if (tree[i].slug) {
+        li.setAttribute("data-jos-slug", tree[i].slug);
       }
       appendTarget.appendChild(li);
       if (tree[i].children && tree[i].children.length > 0) {
@@ -573,6 +580,7 @@ class JsonOutlineSchema extends HTMLElement {
     for (var i in node.children) {
       node.removeAttribute("data-jos-id");
       node.removeAttribute("data-jos-location");
+      node.removeAttribute("data-jos-slug");
       // deep scrub child references
       if (node.children[i].children) {
         this.scrubElementJOSData(node.children[i]);
@@ -639,6 +647,11 @@ class JsonOutlineSchema extends HTMLElement {
             item.location = child.getAttribute("data-jos-location");
           } else {
             item.location = "";
+          }
+          if (child.getAttribute("data-jos-slug")) {
+            item.slug = child.getAttribute("data-jos-slug");
+          } else {
+            item.slug = "";
           }
           item.indent = indent;
           item.order = order;

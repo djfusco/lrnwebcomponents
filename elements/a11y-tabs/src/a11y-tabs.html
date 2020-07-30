@@ -1,0 +1,10 @@
+
+<ul id="tabs">
+  ${this.tabs.map((tab,i) => html`
+    <li>${this._tabButton(tab)}</li>
+  `)}
+</ul>
+<div id="content">
+  <slot></slot>
+</div>
+

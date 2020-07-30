@@ -14,7 +14,7 @@ import "../buttons/rich-text-editor-button-styles.js";
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
  */
 class RichTextEditorBreadcrumbs extends PolymerElement {
@@ -63,7 +63,6 @@ class RichTextEditorBreadcrumbs extends PolymerElement {
 
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "rich-text-editor-breadcrumbs";
@@ -77,7 +76,7 @@ class RichTextEditorBreadcrumbs extends PolymerElement {
        */
       ancestorNodes: {
         type: Array,
-        computed: "_getAncestorNodes(selection,controls)"
+        computed: "_getAncestorNodes(range,controls)"
       },
       /**
        * The active rict-text-editor.
@@ -105,7 +104,7 @@ class RichTextEditorBreadcrumbs extends PolymerElement {
       /**
        * The selected text.
        */
-      selection: {
+      range: {
         type: Object,
         value: null
       },
@@ -124,6 +123,7 @@ class RichTextEditorBreadcrumbs extends PolymerElement {
   /**
    * life cycle, element is afixed to the DOM
    * Makes sure there is a utility ready and listening for elements.
+   * @returns {void}
    */
   connectedCallback() {
     super.connectedCallback();
@@ -131,13 +131,15 @@ class RichTextEditorBreadcrumbs extends PolymerElement {
   /**
    * updates the breadcrumbs
    * @param {object} the selected range
+   * @param {string} controls id of what the breadcrumbs control
+   * @returns {void}
    */
-  _getAncestorNodes(selection, controls) {
+  _getAncestorNodes(range, controls) {
     let nodes = [],
       node = "",
       ancestor = false,
       parent = false;
-    if (selection) ancestor = selection.commonAncestorContainer;
+    if (range) ancestor = range.commonAncestorContainer;
     if (ancestor) parent = ancestor;
     this.hidden = !ancestor;
     while (parent && parent.nodeName !== "RICH-TEXT-EDITOR") {

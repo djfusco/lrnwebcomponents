@@ -3,7 +3,6 @@
  * @license Apache-2.0, see License.md for full text.
  */
 import { RichTextEditorPicker } from "./rich-text-editor-picker.js";
-import { pathFromUrl } from "@polymer/polymer/lib/utils/resolve-url.js";
 import "@lrnwebcomponents/es-global-bridge/es-global-bridge.js";
 /**
  * `rich-text-editor-emoji-picker`
@@ -12,7 +11,7 @@ import "@lrnwebcomponents/es-global-bridge/es-global-bridge.js";
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
  */
 class RichTextEditorEmojiPicker extends RichTextEditorPicker {
@@ -66,18 +65,21 @@ class RichTextEditorEmojiPicker extends RichTextEditorPicker {
   }
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    *
    */
   static get tag() {
     return "rich-text-editor-emoji-picker";
+  }
+  // simple path from a url modifier
+  pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf("/") + 1);
   }
   /**
    * life cycle, element is afixed to the DOM
    */
   connectedCallback() {
     super.connectedCallback();
-    const basePath = pathFromUrl(decodeURIComponent(import.meta.url));
+    const basePath = this.pathFromUrl(decodeURIComponent(import.meta.url));
     const src = this.optionsSrc;
     const location = `${basePath}${src}`;
     window.addEventListener(
@@ -92,6 +94,21 @@ class RichTextEditorEmojiPicker extends RichTextEditorPicker {
       `es-bridge-emoji-loaded`,
       this._setOptions.bind(this)
     );
+  }
+
+  /**
+   * gets a list of icons and load them in a format
+   * that the simple-picker can take;
+   * if no icons are provided, loads a list from iron-meta
+   *
+   * @param {array} a list of custom icons for the picker
+   * @param {array} default list of icons for the picker
+   * @param {boolean} allow a null value for the picker
+   */
+  _getPickerOptions(options = [], allowNull = false, icon = null) {
+    let temp = super._getPickerOptions(options, allowNull, icon);
+    temp[0].unshift({ alt: null, icon: this.icon, value: null });
+    return temp;
   }
 
   /**

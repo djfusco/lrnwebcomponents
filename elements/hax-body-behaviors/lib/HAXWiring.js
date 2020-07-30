@@ -2,24 +2,25 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
+
 /**
  * In order to use this, the user must supply a haxProperties object
  * which returns what settings are allowed as well as their format.
  * For example, the default of:
  *
  *  {
- *    'api': '1',
- *    'canScale': true,
- *    'canPosition': true,
- *    'canEditSource': true,
- *    'gizmo': {},
- *    'settings': {
- *      'quick': [],
- *      'configure': [],
- *      'advanced': [],
+ *    "api": "1",
+ *    "canScale": true,
+ *    "canPosition": true,
+ *    "canEditSource": true,
+ *    "gizmo": {},
+ *    "settings": {
+ *      "quick": [],
+ *      "configure": [],
+ *      "advanced": [],
  *    },
- *    'saveOptions': {}
+ *    "saveOptions": {},
+ *    "demoSchema": []
  *  }
  *
  * This tells hax-body's context menu for custom-elements that this element
@@ -28,16 +29,22 @@ import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
  * So now you're probably saying 'What's a gizmo???'. Well, gizmo is what we call widgets or custom-elements when an end user of HAX places them in the page. It's our playful way of explaining what's happening to an end user as well as ensuring when developers talk to each other then don't use words that have duplicate meanings. It's also just a fun word.
  * A gizmo helps describe the element to the HAX Gizmo manager so that a user can select the element they want to place in the page. Think of your custom-element as an app in an app store. Well, how would you describe your 'app' or Gizmo to a store of apps (in our case the Gizmo manager).
  *
+ * type_exclusive is a flag that can be used to force selections to default to this
+ * when there are multiple options. This isn't always desired but HAX will determine
+ * if it makes more sense to just use the default (for example when pulling in from a remote address).
+ *
  * This is an example of th gizmo object that is expressed in the lrn-table tag:
  * 'gizmo': {
  *    'title': 'CSV Table',
  *    'descrption': 'This can generate a table from a CSV file no matter where it is located.',
  *     'icon': 'editor:border-all',
+ *     'iconLib': '@lrnwebcomponents/hax-iconset/hax-iconset.js', // optional ability to import custom icon libraries
  *     'color': 'green',
  *     'groups': ['Presentation', 'Table', 'Data'],
  *     'handles': [
  *       {
  *         'type': 'data',
+ *         'type_exclusive': false,
  *         'url': 'csvFile'
  *       }
  *     ],
@@ -93,7 +100,8 @@ import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
  *     }
  *   ]
  * }
- * `saveOptions` is a more open ended object which can be used to help
+ * `saveOptions`
+ * @element saveOptions is a more open ended object which can be used to help
  * support future flexibility / needs. The first major thing this supports
  * is the wipeSlot flag (default false). wipeSlot is used to inform HAX
  * that when it's going to save the current item to a backend (convert to html / text)
@@ -119,24 +127,43 @@ import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
  *     'colors'
  *   ]
  * },
+ *  * `demoSchema`
+ * @element demoSchema is used to present this element in demonstrations and
+ * interfaces that want to provide a sample of what the element is. This is
+ * an easy way to ship a demo of this element and is used in HAX settings.
+ * [{
+ *   tag: "my-tag",
+ *   content: "<p>inner html</p>",
+ *   properties: {
+ *     endPoint: "https://cdn2.thecatapi.com/images/9j5.jpg",
+ *     primaryColor: "yellow",
+ *     title: "A cat"
+ *   }
+ * }],
  *
  * Specialized functions
- * `preProcessHaxNodeToContent` - If you define this function on your element
+ * `preProcessHaxNodeToContent`
+ *  - If you define this function on your element
  * then it will run BEFORE the conversion to text. This can be used to do
  * specialized processing that may not be standard prior to conversion to content.
  *
- * `postProcesshaxNodeToContent` - If you define this function on your element
+ * `postProcesshaxNodeToContent`
+ *  - If you define this function on your element
  * then it will run AFTER the node has been converted to Content and allows you
  * to act upon the content even further. This could be to clean up / regex against
  * the text certain patterns or to look for certain elements at the end of
  * the conversion routine.
  *
- * `preProcessHaxInsertContent` - If an element needs to ensure it cleans up data
+ * `preProcessHaxInsertContent`
+ *  - If an element needs to ensure it cleans up data
  * during the conversion from preview to being inserted. This function passes in
  * the details object for creating an element from HAX schema. Examples could be
  * objects that contain focus which may cause issues when doing a pure clone as the
  * reference is being garbage collected on save (see grid-plate).
  */
+import { SimpleFields } from "@lrnwebcomponents/simple-fields/simple-fields.js";
+import { HaxSchematizer, HaxElementizer } from "./HAXFields.js";
+
 /**
  * Object to validate HAX schema. Can be used in and out of element contexts
  */
@@ -155,6 +182,9 @@ export class HAXWiring {
         advanced: []
       },
       wipeSlot: {}
+    };
+    this.pathFromUrl = url => {
+      return url.substring(0, url.lastIndexOf("/") + 1);
     };
     /**
      * Setter to bridge private haxProperties setter.
@@ -243,7 +273,7 @@ export class HAXWiring {
      * properties in order to be able to bubble up the properties for a tag.
      */
     this.setHaxProperties = (
-      props,
+      props = {},
       tag = "",
       context = document,
       isReady = false
@@ -268,6 +298,15 @@ export class HAXWiring {
         }
         if (typeof props.gizmo === typeof undefined) {
           props.gizmo = false;
+        } else {
+          // support possible dynamic import of iconset
+          // this would be if the user defined their own icons
+          if (typeof props.gizmo.iconLib !== typeof undefined) {
+            const basePath = this.pathFromUrl(
+              decodeURIComponent(import.meta.url)
+            );
+            import(`${basePath}../../../${props.gizmo.iconLib}`);
+          }
         }
         // while not required, this is where all the raw power of this
         // approach really lies since this wires properties/slots to HAX's
@@ -309,60 +348,7 @@ export class HAXWiring {
               props.settings.advanced.splice(i, 1);
             }
           }
-          // allow classes to be modified this way
-          props.settings.advanced.push({
-            attribute: "class",
-            title: "Classes",
-            description: "CSS classes applied manually to the element",
-            inputMethod: "textfield"
-          });
-          // allow styles to be modified this way
-          props.settings.advanced.push({
-            attribute: "style",
-            title: "Styles",
-            description: "Custom CSS styles as applied to the element",
-            inputMethod: "textfield"
-          });
-          // allow schema definitions
-          props.settings.advanced.push({
-            attribute: "prefix",
-            title: "Schema: prefix",
-            description: "Schema prefixes",
-            inputMethod: "textfield"
-          });
-          props.settings.advanced.push({
-            attribute: "typeof",
-            title: "Schema: TypeOf",
-            description: "typeof definition for Schema usage",
-            inputMethod: "textfield"
-          });
-          props.settings.advanced.push({
-            attribute: "property",
-            title: "Schema: Property",
-            description: "typeof definition for Schema usage",
-            inputMethod: "textfield"
-          });
-          props.settings.advanced.push({
-            attribute: "resource",
-            title: "Schema: Resource ID",
-            description: "Schema resource identifier",
-            inputMethod: "textfield"
-          });
-          // allow the id to be modified
-          props.settings.advanced.push({
-            attribute: "id",
-            title: "ID",
-            description: "element ID, only set this if you know why",
-            inputMethod: "textfield"
-          });
-          // we need to support slot in the UI but actually shift it around under the hood
-          // this is so that shadow roots don't get mad when previewing
-          props.settings.advanced.push({
-            attribute: "data-hax-slot",
-            title: "slot",
-            description: "DOM slot area",
-            inputMethod: "textfield"
-          });
+          props = this.standardAdvancedProps(props);
         }
         // support for advanced save options
         if (typeof props.saveOptions === typeof undefined) {
@@ -370,51 +356,17 @@ export class HAXWiring {
             wipeSlot: false
           };
         }
+        // support for demoSchema
+        if (typeof props.demoSchema === typeof undefined) {
+          props.demoSchema = [];
+        }
         // fire event so we know they have been set for the store to collect
         // only fire if we haven't already so multiple elements don't keep bubbling
 
         // if there's no global HaxStore then this means it is a custom
         // implementation of the schema
         if (isReady) {
-          if (tag != "" && typeof window.HaxStore === typeof undefined) {
-            const evt = new CustomEvent("hax-register-properties", {
-              bubbles: true,
-              composed: true,
-              cancelable: true,
-              detail: {
-                tag: tag.toLowerCase(),
-                properties: props,
-                polymer: false
-              }
-            });
-            context.dispatchEvent(evt);
-          } else if (tag != "") {
-            const evt = new CustomEvent("hax-register-properties", {
-              bubbles: true,
-              composed: true,
-              cancelable: true,
-              detail: {
-                tag: tag.toLowerCase(),
-                properties: props
-              }
-            });
-            context.dispatchEvent(evt);
-          } else if (typeof this.tagName !== typeof undefined) {
-            const evt = new CustomEvent("hax-register-properties", {
-              bubbles: true,
-              composed: true,
-              cancelable: true,
-              detail: {
-                tag: this.tagName.toLowerCase(),
-                properties: props
-              }
-            });
-            context.dispatchEvent(evt);
-          } else {
-            console.warn(
-              `${tag} missed our checks and has an issue in implementation with HAX`
-            );
-          }
+          this.readyToFireHAXSchema(tag, props, context);
         }
         // only set these when tag hasn't been force fed
         if (tag === "") {
@@ -430,9 +382,122 @@ export class HAXWiring {
         // but would probably default to an iframe which is less then ideal
         // but at least wouldn't brick the AX.
         console.warn(
-          "This is't a valid usage of hax API. See hax-body-behaviors/lib/HAXWiring.js for more details on how to implement the API. Most likely your hax item just was placed in an iframe as a fallback as opposed to a custom element."
+          "This is't a valid usage of hax API. See hax-body-behaviors/lib/HAXWiring.js for more details on how to implement the API. https://haxtheweb.org/hax-schema for details but we will try and guess the wiring"
         );
       }
+    };
+    this.readyToFireHAXSchema = (tag, props, context) => {
+      if (tag != "" && typeof window.HaxStore === typeof undefined) {
+        const evt = new CustomEvent("hax-register-properties", {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          detail: {
+            tag: tag.toLowerCase(),
+            properties: props,
+            polymer: false
+          }
+        });
+        context.dispatchEvent(evt);
+      } else if (tag != "") {
+        const evt = new CustomEvent("hax-register-properties", {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          detail: {
+            tag: tag.toLowerCase(),
+            properties: props
+          }
+        });
+        context.dispatchEvent(evt);
+      } else if (typeof this.tagName !== typeof undefined) {
+        const evt = new CustomEvent("hax-register-properties", {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          detail: {
+            tag: this.tagName.toLowerCase(),
+            properties: props
+          }
+        });
+        context.dispatchEvent(evt);
+      } else if (typeof context.tagName !== typeof undefined) {
+        const evt = new CustomEvent("hax-register-properties", {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          detail: {
+            tag: context.tagName.toLowerCase(),
+            properties: props
+          }
+        });
+        context.dispatchEvent(evt);
+      } else {
+        console.warn(context);
+        console.warn(
+          `${tag} missed our checks and has an issue in implementation with HAX`
+        );
+      }
+    };
+    /**
+     * Standard advanced properties we support for all forms
+     */
+    this.standardAdvancedProps = props => {
+      // allow classes to be modified this way
+      props.settings.advanced.push({
+        attribute: "class",
+        title: "Classes",
+        description: "CSS classes applied manually to the element",
+        inputMethod: "textfield"
+      });
+      // allow styles to be modified this way
+      props.settings.advanced.push({
+        attribute: "style",
+        title: "Styles",
+        description: "Custom CSS styles as applied to the element",
+        inputMethod: "textfield"
+      });
+      // allow schema definitions
+      props.settings.advanced.push({
+        attribute: "prefix",
+        title: "Schema: prefix",
+        description: "Schema prefixes",
+        inputMethod: "textfield"
+      });
+      props.settings.advanced.push({
+        attribute: "typeof",
+        title: "Schema: TypeOf",
+        description: "typeof definition for Schema usage",
+        inputMethod: "textfield"
+      });
+      props.settings.advanced.push({
+        attribute: "property",
+        title: "Schema: Property",
+        description: "typeof definition for Schema usage",
+        inputMethod: "textfield"
+      });
+      props.settings.advanced.push({
+        attribute: "resource",
+        title: "Schema: Resource ID",
+        description: "Schema resource identifier",
+        inputMethod: "textfield"
+      });
+      // allow the id to be modified
+      props.settings.advanced.push({
+        attribute: "id",
+        title: "ID",
+        description: "element ID, only set this if you know why",
+        inputMethod: "textfield"
+      });
+      // we need to support slot in the UI but actually shift it around under the hood
+      // this is so that shadow roots don't get mad when previewing
+      props.settings.advanced.push({
+        attribute: "slot",
+        title: "slot",
+        description: "DOM slot area",
+        inputMethod: "textfield"
+      });
+      return props;
     };
     /**
      * Validate settings object.
@@ -526,10 +591,26 @@ export class HAXWiring {
         type: "object",
         properties: {}
       };
-      schema.properties = target._getHaxJSONSchemaProperty(settings, target);
+      schema.properties = new SimpleFields().fieldsToSchema(settings);
       // support post processing of schema in order to allow for really
       // custom implementations that are highly dynamic in nature
-      schema = target.postProcessgetHaxJSONSchema(schema);
+      // post process hook needs to see if there's a class overriding this
+      // if we have a definition for this component then we should run its postProcess
+      // just to be safe
+      if (
+        haxProperties.gizmo &&
+        haxProperties.gizmo.tag &&
+        window.customElements.get(haxProperties.gizmo.tag)
+      ) {
+        let tmp = document.createElement(haxProperties.gizmo.tag);
+        if (typeof tmp.postProcessgetHaxJSONSchema === "function") {
+          schema = tmp.postProcessgetHaxJSONSchema(schema);
+        } else {
+          schema = target.postProcessgetHaxJSONSchema(schema);
+        }
+      } else {
+        schema = target.postProcessgetHaxJSONSchema(schema);
+      }
       return schema;
     };
     /**
@@ -542,423 +623,27 @@ export class HAXWiring {
      * Internal helper for getHaxJSONSchema to buiild the properties object
      * correctly with support for recursive nesting thx to objects / arrays.
      */
-    this._getHaxJSONSchemaProperty = (settings, target) => {
-      var props = {};
-      for (var value in settings) {
-        if (settings.hasOwnProperty(value)) {
-          if (typeof settings[value].property !== typeof undefined) {
-            props[settings[value].property] = {
-              title: settings[value].title,
-              type: target.getHaxJSONSchemaType(settings[value].inputMethod)
-            };
-            if (typeof target[settings[value].property] !== typeof undefined) {
-              props[settings[value].property].value =
-                target[settings[value].property];
-            }
-            if (settings[value].validationType == "url") {
-              props[settings[value].property].format = "uri";
-            }
-            if (settings[value].inputMethod == "datepicker") {
-              props[settings[value].property].format = "date-time";
-            }
-            if (settings[value].validation != ".*") {
-              props[settings[value].property].pattern =
-                settings[value].validation;
-            }
-            switch (settings[value].inputMethod) {
-              case "number":
-                props[settings[value].property].component = {
-                  name: "paper-input",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    disabled: settings[value].disabled
-                  },
-                  attributes: {
-                    type: "number"
-                  }
-                };
-                break;
-              case "select":
-                let options = [];
-                for (var option in settings[value].options) {
-                  let item = [
-                    {
-                      alt: settings[value].options[option],
-                      value: option
-                    }
-                  ];
-                  options.push(item);
-                }
-                props[settings[value].property].component = {
-                  name: "simple-picker",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    options: options,
-                    disabled: settings[value].disabled
-                  }
-                };
-                break;
-              case "textarea":
-                props[settings[value].property].component = {
-                  name: "paper-textarea",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    disabled: settings[value].disabled
-                  },
-                  attributes: {
-                    "auto-validate": "auto-validate",
-                    "char-counter": "char-counter"
-                  }
-                };
-                break;
-              case "code-editor":
-                props[settings[value].property].component = {
-                  name: "code-editor",
-                  valueProperty: "value",
-                  properties: {
-                    editorValue: settings[value].value,
-                    title: settings[value].title,
-                    theme: "hc-black",
-                    mode: "html",
-                    className: "hax-code-editor"
-                  }
-                };
-                break;
-              case "array":
-                props[settings[value].property].items = {
-                  type: "object",
-                  properties: target._getHaxJSONSchemaProperty(
-                    settings[value].properties,
-                    target
-                  )
-                };
-                break;
-              case "textfield":
-                props[settings[value].property].component = {
-                  name: "paper-input",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    disabled: settings[value].disabled
-                  },
-                  attributes: {
-                    "auto-validate": "auto-validate"
-                  }
-                };
-                break;
-              case "alt":
-                props[settings[value].property].component = {
-                  name: "paper-input-flagged",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    disabled: settings[value].disabled
-                  },
-                  attributes: {
-                    "auto-validate": "auto-validate"
-                  }
-                };
-                break;
-              case "colorpicker":
-                props[settings[value].property].component = {
-                  name: "simple-colors-picker",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    label: settings[value].title,
-                    disabled: settings[value].disabled
-                  }
-                };
-                break;
-              case "iconpicker":
-                props[settings[value].property].component = {
-                  name: "simple-icon-picker",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    hideOptionLabels: true,
-                    label: settings[value].title,
-                    disabled: settings[value].disabled
-                  }
-                };
-                // support options array of icons to pick from
-                let opts =
-                  settings[value].options !== undefined &&
-                  settings[value].options !== null
-                    ? settings[value].options
-                    : [];
-                props[
-                  settings[value].property
-                ].component.properties.icons = opts;
-                break;
-              case "datepicker":
-                props[settings[value].property].component = {
-                  name: "app-datepicker",
-                  valueProperty: "date",
-                  properties: {
-                    required: settings[value].required,
-                    autoUpdateDate: true,
-                    disabled: settings[value].disabled
-                  }
-                };
-                break;
-              case "haxupload":
-                props[settings[value].property].component = {
-                  name: "hax-upload-field",
-                  valueProperty: "value",
-                  properties: {
-                    formDataName: "file-upload",
-                    disabled: settings[value].disabled,
-                    required: settings[value].required
-                  }
-                };
-                break;
-            }
-          } else if (typeof settings[value].attribute !== typeof undefined) {
-            props[settings[value].attribute] = {
-              title: settings[value].title,
-              type: target.getHaxJSONSchemaType(settings[value].inputMethod)
-            };
-            // special support for className
-            if (settings[value].attribute === "class") {
-              props[settings[value].attribute].value = target.className;
-            } else if (settings[value].attribute === "style") {
-              props[settings[value].attribute].value = target.style.cssText;
-            } else if (
-              typeof target.attributes[settings[value].attribute] !==
-              typeof undefined
-            ) {
-              props[settings[value].attribute].value = target.getAttribute(
-                settings[value].attribute
-              );
-            }
-            // special validation on uri based attributes
-            if (value == "href" || value == "src") {
-              props[settings[value].attribute].format = "uri";
-            }
-            if (settings[value].validationType == "url") {
-              props[settings[value].attribute].format = "uri";
-            }
-            if (settings[value].inputMethod == "datepicker") {
-              props[settings[value].attribute].format = "date-time";
-            }
-            if (settings[value].validation != ".*") {
-              props[settings[value].attribute].pattern =
-                settings[value].validation;
-            }
-            switch (settings[value].inputMethod) {
-              case "number":
-                props[settings[value].attribute].component = {
-                  name: "paper-input",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    disabled: settings[value].disabled
-                  },
-                  attributes: {
-                    type: "number"
-                  }
-                };
-                break;
-              case "select":
-                let options = [];
-                for (var option in settings[value].options) {
-                  let item = [
-                    {
-                      alt: settings[value].options[option],
-                      value: option
-                    }
-                  ];
-                  options.push(item);
-                }
-                props[settings[value].attribute].component = {
-                  name: "simple-picker",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    disabled: settings[value].disabled,
-                    options: options
-                  }
-                };
-                break;
-              case "textarea":
-                props[settings[value].attribute].component = {
-                  name: "paper-textarea",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    disabled: settings[value].disabled
-                  },
-                  attributes: {
-                    "auto-validate": "auto-validate",
-                    "char-counter": "char-counter"
-                  }
-                };
-                break;
-              case "code-editor":
-                props[settings[value].attribute].component = {
-                  name: "code-editor",
-                  valueProperty: "value",
-                  properties: {
-                    editorValue: props[settings[value].attribute].value,
-                    title: settings[value].title,
-                    readOnly: false,
-                    theme: "hc-black",
-                    mode: "html",
-                    className: "hax-code-editor"
-                  }
-                };
-                break;
-              case "textfield":
-                props[settings[value].attribute].component = {
-                  name: "paper-input",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    disabled: settings[value].disabled
-                  },
-                  attributes: {
-                    "auto-validate": "auto-validate"
-                  }
-                };
-                break;
-              case "alt":
-                props[settings[value].attribute].component = {
-                  name: "paper-input-flagged",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    disabled: settings[value].disabled
-                  },
-                  attributes: {
-                    "auto-validate": "auto-validate"
-                  }
-                };
-                break;
-              case "colorpicker":
-                props[settings[value].attribute].component = {
-                  name: "simple-colors-picker",
-                  valueProperty: "value",
-                  properties: {
-                    required: settings[value].required,
-                    disabled: settings[value].disabled
-                  }
-                };
-                break;
-              case "haxupload":
-                props[settings[value].attribute].component = {
-                  name: "hax-upload-field",
-                  valueProperty: "value",
-                  properties: {
-                    formDataName: "file-upload",
-                    required: settings[value].required,
-                    disabled: settings[value].disabled
-                  }
-                };
-                break;
-            }
-          } else {
-            // @todo slot should support other editor types... maybe
-            props[settings[value].slot] = {
-              title: settings[value].title,
-              type: target.getHaxJSONSchemaType(settings[value].inputMethod),
-              value: "",
-              component: {
-                name: "code-editor",
-                valueProperty: "value",
-                properties: {
-                  editorValue: settings[value].value,
-                  title: settings[value].title,
-                  theme: "hc-black",
-                  mode: "html",
-                  className: "hax-code-editor"
-                }
-              }
-            };
-            var slot = "";
-            // test for slotted content values names is tricky
-            for (var i in dom(target).childNodes) {
-              // this is crazy... you know that right
-              if (typeof dom(target).childNodes[i] !== typeof undefined) {
-                if (dom(target).childNodes[i].nodeType === 1) {
-                  // make sure slots that are named line up
-                  if (settings[value].slot === dom(target).childNodes[i].slot) {
-                    slot += dom(target).childNodes[i].innerHTML;
-                  }
-                } else if (
-                  dom(target).childNodes[i].nodeType !== 1 &&
-                  typeof dom(target).childNodes[i].textContent !==
-                    typeof undefined &&
-                  dom(target).childNodes[i].textContent !== ""
-                ) {
-                  slot += dom(target).childNodes[i].textContent;
-                }
-              }
-            }
-            // @todo verify this stuff actually works
-            props[
-              settings[value].slot
-            ].component.properties.editorValue = slot.trim();
-          }
-        }
-      }
-      return props;
+    this._getHaxJSONSchemaProperty = settings => {
+      return new SimpleFields().fieldsToSchema(settings);
     };
     /**
      * Convert input method to schema type
      */
     this.getHaxJSONSchemaType = inputMethod => {
-      var methods = this.validHAXPropertyInputMethod();
-      if (methods.includes(inputMethod)) {
-        switch (inputMethod) {
-          case "flipboolean":
-          case "boolean":
-            return "boolean";
-            break;
-          case "number":
-            return "number";
-            break;
-          case "select":
-          case "textarea":
-          case "colorpicker":
-          case "iconpicker":
-          case "datepicker":
-          case "haxupload":
-          case "textfield":
-          case "alt":
-            return "string";
-            break;
-          case "array":
-            return "array";
-            break;
-          default:
-            return "string";
-            break;
-        }
-      }
+      var method =
+        new SimpleFields().fieldsConversion.inputMethod[inputMethod] ||
+        new SimpleFields().fieldsConversion;
+      return method && method.defaultSettings && method.defaultSettings.type
+        ? method.defaultSettings.type
+        : "string";
     };
     /**
      * List valid input methods.
      */
     this.validHAXPropertyInputMethod = () => {
-      var methods = [
-        "flipboolean",
-        "boolean",
-        "select",
-        "textfield",
-        "textarea",
-        "datepicker",
-        "haxupload",
-        "colorpicker",
-        "iconpicker",
-        "alt",
-        "number",
-        "code-editor",
-        "array"
-      ];
+      var methods = Object.keys(
+        new SimpleFields().fieldsConversion.inputMethod
+      );
       return methods;
     };
     /**
@@ -973,18 +658,19 @@ export class HAXWiring {
         canEditSource: false,
         gizmo: {
           title: "Tag name",
-          description: "A description",
-          icon: "av:play-circle-filled",
-          color: "blue",
+          description: "",
+          icon: "icons:android",
+          color: "purple",
           groups: ["Content"],
           handles: [
             {
               type: "data",
+              type_exclusive: false,
               url: "src"
             }
           ],
           meta: {
-            author: ""
+            author: "auto"
           }
         },
         settings: {
@@ -1065,7 +751,18 @@ export class HAXWiring {
         saveOptions: {
           wipeSlot: false,
           unsetAttributes: ["end-point", "secondary-color"]
-        }
+        },
+        demoSchema: [
+          {
+            tag: "my-tag",
+            content: "<p>inner html</p>",
+            properties: {
+              endPoint: "https://cdn2.thecatapi.com/images/9j5.jpg",
+              primaryColor: "yellow",
+              title: "A cat"
+            }
+          }
+        ]
       };
       return props;
     };
@@ -1082,16 +779,14 @@ export const HAXElement = function(SuperClass) {
       this.HAXWiring = new HAXWiring();
     }
     static get properties() {
-      let props = {
+      return {
+        ...super.properties,
+
         /**
          * haxProperties
          */
         haxProperties: window.HAXWiring.haxProperties
       };
-      if (super.properties) {
-        props = Object.assign(props, super.properties);
-      }
-      return props;
     }
     /**
      * Setter to bridge private haxProperties setter.
@@ -1114,6 +809,18 @@ export const HAXElement = function(SuperClass) {
         return this.HAXWiring.setHaxProperties(props, tag, context, true);
       } else {
         return this.HAXWiring.setHaxProperties(props, tag, context, false);
+      }
+    }
+    /**
+     * Clean up
+     */
+    disconnectedCallback() {
+      window.removeEventListener(
+        "hax-store-ready",
+        this._haxStoreReady.bind(this)
+      );
+      if (super.disconnectedCallback) {
+        super.disconnectedCallback();
       }
     }
     /**
@@ -1160,8 +867,8 @@ export const HAXElement = function(SuperClass) {
      * Internal helper for getHaxJSONSchema to buiild the properties object
      * correctly with support for recursive nesting thx to objects / arrays.
      */
-    _getHaxJSONSchemaProperty(settings, target) {
-      return this.HAXWiring._getHaxJSONSchemaProperty(settings, target);
+    _getHaxJSONSchemaProperty(settings) {
+      return new SimpleFields().fieldsToSchema(settings);
     }
     /**
      * Convert input method to schedma type
@@ -1253,8 +960,8 @@ window.HAXBehaviors.PropertiesBehaviors = {
    * Internal helper for getHaxJSONSchema to buiild the properties object
    * correctly with support for recursive nesting thx to objects / arrays.
    */
-  _getHaxJSONSchemaProperty: function(settings, target) {
-    return window.HAXWiring._getHaxJSONSchemaProperty(settings, target);
+  _getHaxJSONSchemaProperty: function(settings) {
+    return new SimpleFields().fieldsToSchema(settings);
   },
   /**
    * Convert input method to schedma type

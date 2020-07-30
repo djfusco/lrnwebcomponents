@@ -1,9 +1,6 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { store } from "./haxcms-site-store.js";
-import { autorun, toJS } from "mobx";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
 /**
  * `haxcms-site-editor-ui`
  * `haxcms editor element buttons that you see`
@@ -11,85 +8,110 @@ import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
  * @demo demo/index.html
  * @microcopy - the mental model for this element
  */
-class HAXCMSSiteEditorUI extends PolymerElement {
-  /**
-   * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
-   */
-  static get tag() {
-    return "haxcms-site-editor-ui";
-  }
-  constructor() {
-    super();
-    this.__disposer = [];
-    import("@polymer/paper-icon-button/paper-icon-button.js");
-    import("@lrnwebcomponents/simple-modal/simple-modal.js");
-    import("@polymer/iron-icons/editor-icons.js");
-    import("@polymer/paper-fab/paper-fab.js");
-  }
-  // render function
-  static get template() {
-    return html`
-      <style>
+class HAXCMSSiteEditorUI extends LitElement {
+  static get styles() {
+    return [
+      css`
+        :host *:not(:defined) {
+          display: none;
+        }
         :host {
           display: block;
           position: fixed;
-          right: 0;
+          left: 0;
+          top: 0;
           bottom: 0;
-          opacity: 0.9;
-          transition: 0.3s all ease-in-out;
-          background-color: var(--haxcms-color, white);
-          padding: 0px 8px;
-          border-top-left-radius: 10px;
-          border-left: 2px solid black;
-          border-top: 2px solid black;
-          min-width: 154px;
-          width: 72px;
-          line-height: 54px;
-          height: 54px;
+          background-color: var(--haxcms-system-bg, #37474f);
           z-index: 10000;
+          border-right: 2px solid black;
           visibility: visible;
         }
         :host([edit-mode]) {
-          min-width: 154px;
+          z-index: 9999;
+        }
+        :host([dashboard-opened]) {
+          left: 50vw;
+        }
+        @media screen and (max-width: 800px) {
+          :host([dashboard-opened]) {
+            left: 90vw;
+          }
+          :host([edit-mode]) {
+            bottom: unset;
+          }
+          :host([edit-mode]) paper-fab,
+          :host([edit-mode]) paper-icon-button,
+          :host([edit-mode]) paper-avatar {
+            width: 24px;
+            height: 24px;
+            padding: 1px;
+            margin: 0;
+            --iron-icon-width: 20px;
+            --iron-icon-height: 20px;
+          }
+        }
+        /**
+         * Dashboard open trumps all contextual settings
+         */
+        :host([dashboard-opened]) #editbutton,
+        :host([dashboard-opened]) #editdetails,
+        :host([dashboard-opened]) #deletebutton,
+        :host([dashboard-opened]) #addbutton,
+        :host([dashboard-opened]) #outlinebutton {
+          display: none !important;
         }
         :host *[hidden] {
           display: none;
         }
         paper-fab:not(:defined),
-        paper-tooltip:not(:defined),
+        simple-tooltip:not(:defined),
         paper-icon-button:not(:defined) {
           display: none !important;
         }
-        paper-fab {
-          display: inline-flex;
+        paper-avatar {
           width: 48px;
           height: 48px;
-          vertical-align: middle;
-          line-height: 48px;
+          line-height: 20px;
+          padding: 12px;
+        }
+        paper-fab {
+          display: block;
+          width: 48px;
+          height: 48px;
+          line-height: 20px;
           background-color: black;
-          color: var(--haxcms-color, white);
+          color: #ffffff;
           transition: 0.3s all ease-in-out;
-          padding: 8px;
+          padding: 12px;
           margin: 0;
           position: relative;
-          @apply --shadow-elevation-8dp;
+          box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+            0 3px 14px 2px rgba(0, 0, 0, 0.12),
+            0 5px 5px -3px rgba(0, 0, 0, 0.4);
         }
         :host([painting]) {
           opacity: 0;
           visibility: hidden;
         }
         paper-icon-button {
+          display: block;
           padding: 8px;
           width: 48px;
           min-width: 48px;
           height: 48px;
           border-radius: 50%;
-          margin: 3px 3px 0 3px;
+          margin: 0px;
           background-color: black;
-          color: var(--haxcms-color, rgba(255, 0, 116, 1));
+          color: #ffffff;
           transition: 0.3s all ease-in-out;
-          @apply --shadow-elevation-8dp;
+          box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+            0 3px 14px 2px rgba(0, 0, 0, 0.12),
+            0 5px 5px -3px rgba(0, 0, 0, 0.4);
+        }
+        paper-avatar:hover,
+        paper-avatar:focus,
+        paper-avatar:active {
+          cursor: pointer;
         }
         paper-fab:hover,
         paper-fab:focus,
@@ -97,8 +119,11 @@ class HAXCMSSiteEditorUI extends PolymerElement {
         paper-icon-button:hover,
         paper-icon-button:focus,
         paper-icon-button:active {
-          background-color: black;
-          color: white;
+          background-color: var(--haxcms-color, blue);
+          color: #ffffff;
+        }
+        #cancelbutton {
+          background-color: var(--haxcms-system-danger-color);
         }
         #editbutton,
         #editdetails,
@@ -113,218 +138,414 @@ class HAXCMSSiteEditorUI extends PolymerElement {
           opacity: 1;
         }
         :host([edit-mode]) #editbutton {
-          width: 60px;
-          z-index: 1001;
-          border-radius: 0;
-          margin: 0;
-          padding: 0;
           color: white;
-          background-color: var(--paper-blue-500, blue) !important;
-          position: absolute;
-          height: 54px;
+          background-color: var(--haxcms-system-action-color, blue) !important;
         }
-        .wrapper {
-          width: 0px;
-          height: 54px;
-          line-height: 54px;
-          color: black;
-          display: inline-flex;
-          transition: 0.3s all ease-in-out;
-          overflow: hidden;
-          padding: 0;
-          margin: 0;
-          vertical-align: top;
+        :host([edit-mode]) #manifestbutton,
+        :host([edit-mode]) #editdetails,
+        :host([edit-mode]) #deletebutton,
+        :host([edit-mode]) #addbutton,
+        :host([edit-mode]) #outlinebutton {
+          display: none !important;
         }
-        :host([menu-mode]) .wrapper {
-          width: 250px;
-        }
-        @media screen and (max-width: 600px) {
-          :host([menu-mode]) .wrapper {
-            width: 200px;
-          }
-          .active-title {
-            display: none;
-          }
-        }
-        :host([menu-mode]) {
-          opacity: 1;
-          width: unset;
-        }
-        :host([edit-mode][menu-mode]) #editbutton {
-          width: 100% !important;
-        }
+
         :host(:hover),
         :host(:active),
         :host(:focus) {
           opacity: 1;
         }
-        .active-title {
-          font-size: 11px;
-          font-weight: bold;
-          width: 100px;
-          text-overflow: ellipsis;
-          overflow: hidden;
-          line-height: 54px;
-          padding: 0 8px;
+        simple-tooltip {
+          --simple-tooltip-background: #000000;
+          --simple-tooltip-opacity: 1;
+          --simple-tooltip-text-color: #ffffff;
+          --simple-tooltip-delay-in: 0;
+          --simple-tooltip-duration-in: 200ms;
+          --simple-tooltip-duration-out: 0;
+          --simple-tooltip-border-radius: 0;
+          --simple-tooltip-font-size: 14px;
+          --simple-tooltip-width: 145px;
         }
-        paper-tooltip {
-          --paper-tooltip-background: #000000;
-          --paper-tooltip-opacity: 1;
-          --paper-tooltip-text-color: #ffffff;
-          --paper-tooltip-delay-in: 0;
-          --paper-tooltip: {
-            border-radius: 0;
-          }
-        }
-      </style>
+      `
+    ];
+  }
+  /**
+   * Store the tag name to make it easier to obtain directly.
+   */
+  static get tag() {
+    return "haxcms-site-editor-ui";
+  }
+  constructor() {
+    super();
+    this.__disposer = [];
+    this.painting = true;
+    this.pageAllowed = false;
+    this.editMode = false;
+    this.manifestEditMode = false;
+    setTimeout(() => {
+      import("@lrnwebcomponents/haxcms-elements/lib/core/haxcms-outline-editor-dialog.js");
+      import("@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-dashboard.js");
+      import("@lrnwebcomponents/hax-iconset/hax-iconset.js");
+      import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
+      import("@polymer/paper-icon-button/paper-icon-button.js");
+      import("@lrnwebcomponents/simple-modal/simple-modal.js");
+      import("@polymer/iron-icons/editor-icons.js");
+      import("@polymer/paper-fab/paper-fab.js");
+      import("@lrnwebcomponents/simple-fields/lib/simple-fields-form.js");
+      import("@lrnwebcomponents/paper-avatar/paper-avatar.js");
+    }, 0);
+  }
+  // render function
+  render() {
+    return html`
+      <slot name="haxcms-site-editor-ui-prefix-avatar"></slot>
+      <paper-avatar
+        @click=${this.redirectToSites}
+        id="username"
+        label="${this.userName}"
+        two-chars
+        src="${this.userPicture}"
+      ></paper-avatar>
+      <slot name="haxcms-site-editor-ui-prefix-buttons"></slot>
       <paper-fab
-        id="menubutton"
-        icon="icons:menu"
-        on-click="_menuButtonTap"
-        title="Expand menu"
+        hidden
+        id="editbutton"
+        icon="${this.__editIcon}"
+        @click="${this._editButtonTap}"
+        title="${this.__editText}"
+        voice-command="edit (this) page"
       ></paper-fab>
       <paper-fab
         id="cancelbutton"
         icon="icons:cancel"
-        on-click="_cancelButtonTap"
-        hidden$="[[!editMode]]"
+        @click="${this._cancelButtonTap}"
+        .hidden="${!this.editMode}"
         title="Cancel editing"
+        voice-command="cancel (editing)"
       ></paper-fab>
       <paper-fab
-        id="editbutton"
-        icon="[[__editIcon]]"
-        on-click="_editButtonTap"
-        title$="[[__editText]]"
-      ></paper-fab>
-      <paper-fab
+        hidden
         id="editdetails"
-        icon="icons:fingerprint"
-        on-click="_editDetailsButtonTap"
-        title="Edit page details"
+        icon="hax:page-details"
+        @click="${this._editDetailsButtonTap}"
+        title="Edit details"
+        voice-command="edit (page) details"
       ></paper-fab>
+      <paper-icon-button
+        hidden
+        id="addbutton"
+        icon="hax:add-page"
+        @click="${this._addButtonTap}"
+        title="Add page"
+        voice-command="add page"
+      ></paper-icon-button>
       <paper-fab
+        hidden
         id="deletebutton"
         icon="icons:delete"
-        on-click="_deleteButtonTap"
-        title="Delete current page"
+        @click="${this._deleteButtonTap}"
+        title="Delete page"
+        voice-command="delete page"
       ></paper-fab>
-      <div class="wrapper">
-        <div class="active-title">[[activeTitle]]</div>
-        <paper-icon-button
-          id="addbutton"
-          icon="icons:add"
-          on-click="_addButtonTap"
-          title="Add new page"
-        ></paper-icon-button>
-        <paper-icon-button
-          id="outlinebutton"
-          icon="icons:list"
-          on-click="_outlineButtonTap"
-          title="Edit site outline"
-        ></paper-icon-button>
-        <paper-icon-button
-          id="manifestbutton"
-          icon="icons:settings"
-          on-click="_manifestButtonTap"
-          title="Edit site settings"
-        ></paper-icon-button>
-      </div>
-      <paper-tooltip for="menubutton" position="top" offset="14"
-        >Menu</paper-tooltip
+      <paper-icon-button
+        hidden
+        id="outlinebutton"
+        icon="hax:site-map"
+        @click="${this._outlineButtonTap}"
+        title="Edit site outline"
+        voice-command="edit site outline"
+      ></paper-icon-button>
+      <paper-icon-button
+        hidden
+        id="manifestbutton"
+        icon="${this.icon}"
+        @click="${this._manifestButtonTap}"
+        title="${this.__settingsText}"
+        voice-command="edit site settings"
+      ></paper-icon-button>
+      <simple-tooltip for="username" position="right" offset="14"
+        >Back to site list</simple-tooltip
       >
-      <paper-tooltip for="cancelbutton" position="top" offset="14"
-        >Cancel</paper-tooltip
+      <simple-tooltip for="cancelbutton" position="right" offset="14"
+        >Cancel editing</simple-tooltip
       >
-      <paper-tooltip for="editbutton" position="top" offset="14"
-        >[[__editText]]</paper-tooltip
+      <simple-tooltip for="editbutton" position="right" offset="14"
+        >${this.__editText}</simple-tooltip
       >
-      <paper-tooltip for="editdetails" position="top" offset="14"
-        >Details</paper-tooltip
+      <simple-tooltip for="editdetails" position="right" offset="14"
+        >Edit details</simple-tooltip
       >
-      <paper-tooltip for="deletebutton" position="top" offset="14"
-        >Delete</paper-tooltip
+      <simple-tooltip for="deletebutton" position="right" offset="14"
+        >Delete page</simple-tooltip
       >
-      <paper-tooltip for="addbutton" position="top" offset="14"
-        >Add</paper-tooltip
+      <simple-tooltip for="addbutton" position="right" offset="14"
+        >Add page</simple-tooltip
       >
-      <paper-tooltip for="outlinebutton" position="top" offset="14"
-        >Outline</paper-tooltip
+      <simple-tooltip for="outlinebutton" position="right" offset="14"
+        >Edit site outline</simple-tooltip
       >
-      <paper-tooltip for="manifestbutton" position="top" offset="14"
-        >Site details</paper-tooltip
+      <simple-tooltip for="manifestbutton" position="right" offset="14"
+        >${this.__settingsText}</simple-tooltip
       >
+      <slot name="haxcms-site-editor-ui-suffix-buttons"></slot>
     `;
+  }
+
+  /*
+   * Function to redirect back to sites page
+   */
+  redirectToSites() {
+    let redirectUrl = "";
+    let webTypeRegex = /^http/;
+    let tmp = document.createElement("a");
+    tmp.href = window.location.href;
+    if (webTypeRegex.test(tmp.href)) {
+      redirectUrl = `http://${tmp.host}`;
+    } else {
+      redirectUrl = `https://${tmp.host}`;
+    }
+    window.location.replace(redirectUrl);
+  }
+
+  firstUpdated(changedProperties) {
+    setTimeout(() => {
+      let ary = [
+        {
+          varPath: "getNodeFieldsPath",
+          selector: "#editdetails"
+        },
+        {
+          varPath: "deleteNodePath",
+          selector: "#deletebutton"
+        },
+        {
+          varPath: "saveNodePath",
+          selector: "#editbutton"
+        },
+        {
+          varPath: "createNodePath",
+          selector: "#addbutton"
+        },
+        {
+          varPath: "saveOutlinePath",
+          selector: "#outlinebutton"
+        },
+        {
+          varPath: "saveManifestPath",
+          selector: "#manifestbutton",
+          dep: "getSiteFieldsPath"
+        },
+        {
+          varPath: "getSiteFieldsPath",
+          selector: "#manifestbutton",
+          dep: "saveManifestPath"
+        }
+      ];
+      // see which features should be enabled
+      ary.forEach(pair => {
+        if (
+          window.appSettings &&
+          window.appSettings[pair.varPath] &&
+          window.appSettings[pair.varPath] != null &&
+          window.appSettings[pair.varPath] != "" &&
+          window.appSettings[pair.varPath] != "null"
+        ) {
+          if (pair.dep) {
+            if (
+              window.appSettings[pair.dep] != null &&
+              window.appSettings[pair.dep] != "" &&
+              window.appSettings[pair.dep] != "null"
+            ) {
+              this.shadowRoot
+                .querySelector(pair.selector)
+                .removeAttribute("hidden");
+            } else {
+              // a dependency didn't meet the requirement
+            }
+          } else {
+            this.shadowRoot
+              .querySelector(pair.selector)
+              .removeAttribute("hidden");
+          }
+        }
+      });
+    }, 0);
+    // load user data
+    this.dispatchEvent(
+      new CustomEvent("haxcms-load-user-data", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: true
+      })
+    );
+    this.shadowRoot.querySelectorAll("[voice-command]").forEach(el => {
+      if (el.getAttribute("id") == "editbutton") {
+        this.dispatchEvent(
+          new CustomEvent("hax-add-voice-command", {
+            bubbles: true,
+            composed: true,
+            cancelable: false,
+            detail: {
+              command: ":name: save (this) page",
+              context: el,
+              callback: "click"
+            }
+          })
+        );
+      } else if (el.getAttribute("id") == "manifestbutton") {
+        this.dispatchEvent(
+          new CustomEvent("hax-add-voice-command", {
+            bubbles: true,
+            composed: true,
+            cancelable: false,
+            detail: {
+              command: ":name: cancel site settings",
+              context: el,
+              callback: "click"
+            }
+          })
+        );
+      }
+      this.dispatchEvent(
+        new CustomEvent("hax-add-voice-command", {
+          bubbles: true,
+          composed: true,
+          cancelable: false,
+          detail: {
+            command: ":name: " + el.getAttribute("voice-command"),
+            context: el,
+            callback: "click"
+          }
+        })
+      );
+    });
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "editMode") {
+        // observer
+        this._editModeChanged(this[propName], oldValue);
+        // notify
+        this.dispatchEvent(
+          new CustomEvent("edit-mode-changed", {
+            detail: this[propName]
+          })
+        );
+      }
+      if (propName == "manifestEditMode") {
+        // observer
+        this._manifestEditModeChanged(this[propName], oldValue);
+        // notify
+        this.dispatchEvent(
+          new CustomEvent("manifest-edit-mode-changed", {
+            detail: this[propName]
+          })
+        );
+      }
+      if (propName == "dashboardOpened") {
+        // observer
+        this._dashboardOpenedChanged(this[propName], oldValue);
+      }
+    });
   }
   static get properties() {
     return {
+      userName: {
+        type: String,
+        attribute: "user-name"
+      },
+      userPicture: {
+        type: String,
+        attribute: "user-picture"
+      },
+      __editIcon: {
+        type: String
+      },
+      __editText: {
+        type: String
+      },
+      __settingsText: {
+        type: String
+      },
       /**
        * small visual lock that events break on initial paint
        */
       painting: {
         type: Boolean,
-        value: true,
-        reflectToAttribute: true
+        reflect: true
       },
       /**
        * page allowed
        */
       pageAllowed: {
         type: Boolean,
-        value: false,
-        reflectToAttribute: true
+        attribute: "page-allowed",
+        reflect: true
       },
       /**
        * if the page is in an edit state or not
        */
       editMode: {
         type: Boolean,
-        reflectToAttribute: true,
-        observer: "_editModeChanged",
-        value: false,
-        notify: true
-      },
-      /**
-       * if the menu is open or not
-       */
-      menuMode: {
-        type: Boolean,
-        reflectToAttribute: true,
-        value: true
+        reflect: true,
+        attribute: "edit-mode"
       },
       /**
        * Manifest editing state
        */
       manifestEditMode: {
         type: Boolean,
-        reflectToAttribute: true,
-        observer: "_manifestEditModeChanged",
-        value: false,
-        notify: true
+        attribute: "manifest-edit-mode",
+        reflect: true
       },
       activeTitle: {
+        type: String,
+        attribute: "active-title"
+      },
+      manifest: {
+        type: Object
+      },
+      icon: {
         type: String
+      },
+      dashboardOpened: {
+        type: Boolean,
+        reflect: true,
+        attribute: "dashboard-opened"
       }
     };
   }
   connectedCallback() {
     super.connectedCallback();
-    afterNextRender(this, function() {
-      import("@polymer/paper-tooltip/paper-tooltip.js");
-      import("@lrnwebcomponents/haxcms-elements/lib/core/haxcms-outline-editor-dialog.js");
-      autorun(reaction => {
-        this.editMode = toJS(store.editMode);
-        this.__disposer.push(reaction);
-      });
-      autorun(reaction => {
-        const activeItem = toJS(store.activeItem);
-        if (activeItem && activeItem.id) {
-          this.activeTitle = activeItem.title;
-          this.pageAllowed = true;
-        } else {
-          this.pageAllowed = false;
-        }
-        this.__disposer.push(reaction);
-      });
+    autorun(reaction => {
+      if (store.userData) {
+        this.userName = toJS(store.userData.userName);
+        this.userPicture = toJS(store.userData.userPicture);
+      }
+      this.__disposer.push(reaction);
+    });
+    autorun(reaction => {
+      this.editMode = toJS(store.editMode);
+      this.__disposer.push(reaction);
+    });
+    autorun(reaction => {
+      this.manifest = toJS(store.manifest);
+      this.icon = "hax:site-settings";
+      this.__disposer.push(reaction);
+    });
+    autorun(reaction => {
+      this.dashboardOpened = toJS(store.dashboardOpened);
+      this.__disposer.push(reaction);
+    });
+    autorun(reaction => {
+      const activeItem = toJS(store.activeItem);
+      if (activeItem && activeItem.id) {
+        this.activeTitle = activeItem.title;
+        this.pageAllowed = true;
+      } else {
+        this.pageAllowed = false;
+      }
+      this.__disposer.push(reaction);
     });
   }
   disconnectedCallback() {
@@ -332,6 +553,15 @@ class HAXCMSSiteEditorUI extends PolymerElement {
       this.__disposer[i].dispose();
     }
     super.disconnectedCallback();
+  }
+  _dashboardOpenedChanged(newValue, oldValue) {
+    if (newValue) {
+      this.__settingsText = "Close site settings";
+      this.icon = "icons:cancel";
+    } else if (!newValue) {
+      this.__settingsText = "Edit site settings";
+      this.icon = "hax:site-settings";
+    }
   }
   /**
    * toggle state on button tap
@@ -349,22 +579,22 @@ class HAXCMSSiteEditorUI extends PolymerElement {
         })
       );
     }
+    window.dispatchEvent(
+      new CustomEvent("simple-modal-hide", {
+        bubbles: true,
+        cancelable: true,
+        detail: {}
+      })
+    );
   }
   _editDetailsButtonTap(e) {
-    var normalizedEvent = dom(e);
     const evt = new CustomEvent("haxcms-load-node-fields", {
       bubbles: true,
       composed: true,
       cancelable: false,
-      detail: normalizedEvent.localTarget
+      detail: e.target
     });
     window.dispatchEvent(evt);
-  }
-  /**
-   * toggle menu state
-   */
-  _menuButtonTap(e) {
-    this.menuMode = !this.menuMode;
   }
   _cancelButtonTap(e) {
     this.editMode = false;
@@ -376,26 +606,57 @@ class HAXCMSSiteEditorUI extends PolymerElement {
         detail: e.detail
       })
     );
+    window.dispatchEvent(
+      new CustomEvent("simple-modal-hide", {
+        bubbles: true,
+        cancelable: true,
+        detail: {}
+      })
+    );
   }
   /**
    * Add button hit
    * @todo simplify this to just what's needed; no crazy options
    */
   _addButtonTap(e) {
-    this.__newForm = document.createElement("eco-json-schema-object");
-    let outline = window.JSONOutlineSchema.requestAvailability();
+    this.__newForm = document.createElement("simple-fields-form");
     // get a prototype schema for an item
-    this.__newForm.schema = outline.getItemSchema("item");
-    // drop these for now cause we just care about title
-    delete this.__newForm.schema.properties.id;
-    delete this.__newForm.schema.properties.description;
-    delete this.__newForm.schema.properties.order;
-    delete this.__newForm.schema.properties.parent;
-    delete this.__newForm.schema.properties.metadata;
-    delete this.__newForm.schema.properties.indent;
-    this.__newForm.schema.properties.title.value = "";
+    this.__newForm.fields = [
+      {
+        property: "title",
+        title: "Title",
+        description: "Main title for this page in menus",
+        inputMethod: "textfield",
+        required: true
+      },
+      {
+        property: "location",
+        title: "Location",
+        description:
+          "What is displayed in the bnowser bar after your site name / URL",
+        inputMethod: "textfield",
+        required: true
+      },
+      {
+        property: "parentId",
+        title: "Parent ID",
+        description: "Parent id",
+        inputMethod: "textfield",
+        hidden: true,
+        required: true
+      }
+    ];
+    // default values
+    this.__newForm.value = {
+      title: "New page",
+      location: "",
+      // parentId is the active page item or the site in general if none found
+      parentId:
+        store.activeItem && store.activeItem.id
+          ? store.activeItem.id
+          : store.manifest.id
+    };
     let b1 = document.createElement("paper-button");
-    b1.raised = true;
     let icon = document.createElement("iron-icon");
     icon.icon = "icons:add";
     b1.appendChild(icon);
@@ -415,8 +676,12 @@ class HAXCMSSiteEditorUI extends PolymerElement {
       cancelable: false,
       detail: {
         title: "Add a new page",
+        styles: {
+          "--simple-modal-width": "70vw",
+          "--simple-modal-max-width": "70vw"
+        },
         elements: { content: this.__newForm, buttons: b },
-        invokedBy: this.$.addbutton,
+        invokedBy: this.shadowRoot.querySelector("#addbutton"),
         clone: false,
         modal: true
       }
@@ -441,8 +706,7 @@ class HAXCMSSiteEditorUI extends PolymerElement {
    * Fire item
    */
   _updateItem(e) {
-    var normalizedEvent = dom(e);
-    var local = normalizedEvent.localTarget;
+    var local = e.target;
     var values;
     if (!local.__form) {
       values = local.parentNode.__form.value;
@@ -480,7 +744,6 @@ class HAXCMSSiteEditorUI extends PolymerElement {
     let icon = document.createElement("iron-icon");
     icon.icon = "icons:delete";
     b1.appendChild(icon);
-    b1.raised = true;
     b1.appendChild(document.createTextNode("Confirm"));
     b1.style.color = "white";
     b1.style.backgroundColor = "#ee0000";
@@ -497,8 +760,12 @@ class HAXCMSSiteEditorUI extends PolymerElement {
       cancelable: false,
       detail: {
         title: "Are you sure you want to delete this page?",
+        styles: {
+          "--simple-modal-width": "70vw",
+          "--simple-modal-max-width": "70vw"
+        },
         elements: { content: c, buttons: b },
-        invokedBy: this.$.deletebutton,
+        invokedBy: this.shadowRoot.querySelector("#deletebutton"),
         clone: false,
         modal: true
       }
@@ -529,10 +796,16 @@ class HAXCMSSiteEditorUI extends PolymerElement {
       cancelable: false,
       detail: {
         title: "Edit site outline",
+        styles: {
+          "--simple-modal-width": "70vw",
+          "--simple-modal-height": "70vh",
+          "--simple-modal-max-width": "70vw",
+          "--simple-modal-max-height": "70vh"
+        },
         elements: {
           content: document.createElement("haxcms-outline-editor-dialog")
         },
-        invokedBy: this.$.outlinebutton,
+        invokedBy: this.shadowRoot.querySelector("#outlinebutton"),
         clone: false,
         modal: true
       }
@@ -544,7 +817,14 @@ class HAXCMSSiteEditorUI extends PolymerElement {
    */
   _manifestButtonTap(e) {
     window.dispatchEvent(
-      new CustomEvent("haxcms-load-site-fields", {
+      new CustomEvent("simple-modal-hide", {
+        bubbles: true,
+        cancelable: true,
+        detail: {}
+      })
+    );
+    window.dispatchEvent(
+      new CustomEvent("haxcms-load-site-dashboard", {
         bubbles: true,
         composed: true,
         cancelable: false,
@@ -559,11 +839,11 @@ class HAXCMSSiteEditorUI extends PolymerElement {
     if (newValue) {
       // enable it some how
       this.__editIcon = "icons:save";
-      this.__editText = "Save";
+      this.__editText = "Save page content";
     } else {
       // disable it some how
-      this.__editIcon = "editor:mode-edit";
-      this.__editText = "Edit";
+      this.__editIcon = "hax:page-edit";
+      this.__editText = "Edit page content";
     }
     if (typeof oldValue !== typeof undefined) {
       store.editMode = newValue;

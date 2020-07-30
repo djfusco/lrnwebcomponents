@@ -2,24 +2,24 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXCMSTheme } from "@lrnwebcomponents/haxcms-elements/lib/core/HAXCMSThemeWiring.js";
+import { html } from "@polymer/polymer/polymer-element.js";
+import { HAXCMSPolymerElementTheme } from "@lrnwebcomponents/haxcms-elements/lib/core/HAXCMSPolymerElementTheme.js";
 import { BasicTemplate } from "@lrnwebcomponents/haxcms-elements/lib/ui-components/templates/basic-template.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 /**
  * `haxcms-basic-theme`
  * `An incredibly basic theme. Great starting point for new site discussions.
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
-class HAXCMSBasicTheme extends HAXCMSTheme(BasicTemplate(PolymerElement)) {
+class HAXCMSBasicTheme extends BasicTemplate(HAXCMSPolymerElementTheme) {
   // render function
   static get template() {
     let template = super.template;
     return html`
-      <style>
+      <style include="simple-colors-shared-styles-polymer">
         :host {
           display: block;
           background-color: white;
@@ -42,6 +42,10 @@ class HAXCMSBasicTheme extends HAXCMSTheme(BasicTemplate(PolymerElement)) {
         site-rss-button:not(:defined) {
           display: none;
         }
+        :host([edit-mode]) .left-col {
+          pointer-events: none;
+          opacity: 0.2;
+        }
         .container {
           margin: 24px auto;
           max-width: 1280px;
@@ -57,7 +61,10 @@ class HAXCMSBasicTheme extends HAXCMSTheme(BasicTemplate(PolymerElement)) {
           display: none;
         }
         site-top-menu {
-          --site-top-menu-bg: #37474f;
+          --site-top-menu-bg: var(
+            --simple-colors-default-theme-blue-grey-7,
+            #37474f
+          );
           --site-top-menu-link-color: #ffffff;
           --site-top-menu-indicator-color: #ffffff;
           --site-top-menu-link-active-color: var(
@@ -70,7 +77,10 @@ class HAXCMSBasicTheme extends HAXCMSTheme(BasicTemplate(PolymerElement)) {
             color: #ffffff;
           }
           --site-children-block-button-active: {
-            background-color: #37474f;
+            background-color: var(
+              --simple-colors-default-theme-blue-grey-7,
+              #37474f
+            );
             color: var(--haxcms-basic-theme-accent-color);
           }
         }
@@ -81,27 +91,28 @@ class HAXCMSBasicTheme extends HAXCMSTheme(BasicTemplate(PolymerElement)) {
         .left-col {
           min-height: 250px;
           border: 2px solid black;
-          background-color: #37474f;
+          background-color: var(
+            --simple-colors-default-theme-blue-grey-7,
+            #37474f
+          );
           color: white;
           padding: 16px;
+          transition: 0.2s opacity linear;
+          opacity: 1;
         }
         site-active-title {
           display: inline-flex;
-          --site-active-title-heading: {
-            font-family: "Montserrat", "Helvetica", "Tahoma", "Geneva", "Arial",
-              sans-serif;
-            font-size: 16px;
-            line-height: 32px;
-            margin-bottom: 8px;
-            text-rendering: optimizelegibility;
-            font-weight: 600;
-            color: white;
-          }
+          font-family: "Montserrat", "Helvetica", "Tahoma", "Geneva", "Arial",
+            sans-serif;
+          font-size: 16px;
+          line-height: 32px;
+          margin-bottom: 8px;
+          text-rendering: optimizelegibility;
+          font-weight: 600;
+          color: white;
         }
         site-title {
-          left: 0;
           margin: 0 32px;
-          position: absolute;
           overflow: hidden;
           --site-title-link: {
             display: inline-block;
@@ -129,31 +140,26 @@ class HAXCMSBasicTheme extends HAXCMSTheme(BasicTemplate(PolymerElement)) {
           display: flex;
         }
         site-menu-button {
-          --site-menu-button-icon: {
-            width: 32px;
-            height: 32px;
-            color: white;
-          }
-          --site-menu-button-button-hover: {
-            color: var(--haxcms-basic-theme-accent-color);
-          }
+          --site-menu-button-button-hover-color: var(
+            --haxcms-basic-theme-accent-color
+          );
+          --site-menu-button-icon-fill-color: white;
         }
         site-footer {
           padding: 32px 64px;
-          background-color: #37474f;
+          background-color: var(
+            --simple-colors-default-theme-blue-grey-7,
+            #37474f
+          );
         }
         site-modal {
-          --site-modal-icon: {
-            color: white;
-          }
+          --site-modal-icon-color: white;
           --site-modal-tooltip: {
-            --paper-tooltip-background: #000000;
-            --paper-tooltip-opacity: 1;
-            --paper-tooltip-text-color: #ffffff;
-            --paper-tooltip-delay-in: 0;
-            --paper-tooltip: {
-              border-radius: 0;
-            }
+            --simple-tooltip-background: #000000;
+            --simple-tooltip-opacity: 1;
+            --simple-tooltip-text-color: #ffffff;
+            --simple-tooltip-delay-in: 0;
+            --simple-tooltip-border-radius: 0;
           }
         }
         scroll-button {
@@ -161,23 +167,16 @@ class HAXCMSBasicTheme extends HAXCMSTheme(BasicTemplate(PolymerElement)) {
           left: 0;
           bottom: 0;
           z-index: 10000000;
-          --scroll-button-button: {
-            background-color: var(--site-top-menu-bg);
-          }
         }
         site-print-button {
-          --site-print-button-button: {
-            color: white;
-          }
-          --site-print-button-tooltip: {
-            --paper-tooltip-background: #000000;
-            --paper-tooltip-opacity: 1;
-            --paper-tooltip-text-color: #ffffff;
-            --paper-tooltip-delay-in: 0;
-            --paper-tooltip: {
-              border-radius: 0;
-            }
-          }
+          color: white;
+        }
+        site-print-button simple-tooltip {
+          --simple-tooltip-background: #000000;
+          --simple-tooltip-opacity: 1;
+          --simple-tooltip-text-color: #ffffff;
+          --simple-tooltip-delay-in: 0;
+          --simple-tooltip-border-radius: 0;
         }
       </style>
       ${template}

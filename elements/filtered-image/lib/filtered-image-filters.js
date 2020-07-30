@@ -6,12 +6,13 @@ import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { FilteredImage } from "../filtered-image.js";
 /**
  * `filtered-image-filters`
+ * @element filtered-image-filters
  * `An image using an SVG filter. Can be used to make background images have more contrast with text.`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
@@ -106,37 +107,37 @@ class FilteredImageFilters extends PolymerElement {
     return {
       src: {
         name: "src",
-        type: "String",
+        type: String,
         value: ""
       },
       alt: {
         name: "alt",
-        type: "String",
+        type: String,
         value: ""
       },
       height: {
         name: "width",
-        type: "String",
+        type: String,
         value: ""
       },
       width: {
         name: "unset",
-        type: "String",
+        type: String,
         value: ""
       },
       filter1: {
         name: "filter1",
-        type: "String",
+        type: String,
         value: ""
       },
       filter1: {
         name: "filter2",
-        type: "String",
+        type: String,
         value: ""
       },
       filters: {
         name: "filters",
-        type: "Array",
+        type: Array,
         value: [
           {
             name: "Split Saturation",
@@ -241,7 +242,7 @@ class FilteredImageFilters extends PolymerElement {
       },
       __selectedFilters: {
         name: "__selectedFilters",
-        type: "Array",
+        type: Array,
         computed: "_getSelectedFilters(filter1,filter2)"
       }
     };
@@ -249,7 +250,6 @@ class FilteredImageFilters extends PolymerElement {
 
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "filtered-image-filters";
@@ -261,8 +261,8 @@ class FilteredImageFilters extends PolymerElement {
     super.connectedCallback();
   }
   _setFilter(e) {
-    this.filter1 = this.$.filter1.value;
-    this.filter2 = this.$.filter2.value;
+    this.filter1 = this.shadowRoot.querySelector("#filter1").value;
+    this.filter2 = this.shadowRoot.querySelector("#filter2").value;
   }
   _getSelectedFilters(filter1, filter2) {
     let f1 = {},

@@ -1,60 +1,42 @@
 /**
- * Copyright 2018 The Pennsylvania State University
+ * Copyright 2020 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
+import { html, css } from "lit-element/lit-element.js";
 import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
 import "@lrnwebcomponents/responsive-utility/responsive-utility.js";
 
-export { LrndesignTimeline };
 /**
  * `lrndesign-timeline`
  * `an element that displays events on a timeline`
  *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @polymer
+ * @element lrndesign-timeline
+ * @lit-html
+ * @lit-element
  * @demo demo/index.html
  */
 class LrndesignTimeline extends SimpleColors {
   /* REQUIRED FOR TOOLING DO NOT TOUCH */
 
-  /**
-   * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
-   */
   static get tag() {
     return "lrndesign-timeline";
   }
 
-  /**
-   * gets simple-colors behaviors
-   */
-  static get behaviors() {
-    return [SimpleColors];
+  // life cycle
+  constructor() {
+    super();
+    this.events = [];
+    this.timelineSize = "xs";
   }
-  /**
-   * life cycle, element is afixed to the DOM
-   */
+
   connectedCallback() {
-    let root = this;
     super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(
-      LrndesignTimeline.haxProperties,
-      LrndesignTimeline.tag,
-      this
-    );
 
     window.ResponsiveUtility.requestAvailability();
     window.dispatchEvent(
       new CustomEvent("responsive-element", {
         detail: {
-          element: root,
+          element: this,
           attribute: "timeline-size",
           relativeToParent: true,
           sm: 600,
@@ -64,68 +46,150 @@ class LrndesignTimeline extends SimpleColors {
         }
       })
     );
-    this._checkScroll();
+
+    this.updateTimeline();
+    this.observer.observe(this, {
+      childList: true,
+      subtree: false
+    });
+  }
+  disconnectedCallback() {
+    if (this.observer && this.observer.disconnect) this.observer.disconnect();
+    if (super.disconnectedCallback) super.disconnectedCallback();
+  }
+
+  /**
+   * handle updates
+   */
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName === "timelineTitle" && this.title && !this.timelineTitle)
+        this.timelineTitle = this.title;
+    });
+    this.updateTimeline();
+  }
+  /**
+   * events container element
+   *
+   * @readonly
+   * @memberof LrndesignTimeline
+   */
+  get eventsElement() {
+    return this.shadowRoot && this.shadowRoot.querySelector("#events")
+      ? this.shadowRoot.querySelector("#events")
+      : false;
+  }
+
+  /**
+   * ensures that events list is an Array
+   *
+   * @readonly
+   * @memberof LrndesignTimeline
+   */
+  get eventsList() {
+    let events =
+      typeof this.events === "string" ? JSON.parse(this.events) : this.events;
+    return events || [];
+  }
+
+  /**
+   * mutation observer for tabs
+   * @readonly
+   * @returns {object}
+   */
+  get observer() {
+    let callback = () => this.updateTimeline();
+    return new MutationObserver(callback);
+  }
+  _setScroll(e) {
+    let el = e.path[0],
+      parent = e.path[0].parentNode;
+    parent.scroll({
+      top: el.offsetTop,
+      left: 0,
+      behavior: "smooth"
+    });
   }
 
   /**
    * checks the scroll of each event
    */
-  _checkScroll() {
-    let root = this,
-      events = root.shadowRoot.querySelectorAll(".event");
-    if (events.length < 1) root.$.repeat.render();
-    events = root.shadowRoot.querySelectorAll(".event");
-    events.forEach(event => {
-      let top = event.offsetTop,
-        target = events[0].offsetTop + 50 + event.parentNode.scrollTop,
-        bottom = event.offsetTop + event.offsetHeight;
-      if (target > top && target < bottom) {
-        event.setAttribute("selected", true);
-      } else {
-        event.removeAttribute("selected");
-      }
-    });
+  _checkScroll(e) {
+    if (this.shadowRoot) {
+      let events = this.shadowRoot.querySelectorAll(".event") || [];
+      events.forEach(event => {
+        let top = event.offsetTop,
+          target = events[0].offsetTop + 50 + event.parentNode.scrollTop,
+          bottom = event.offsetTop + event.offsetHeight;
+        if (target > top && target < bottom) {
+          event.setAttribute("selected", true);
+        } else {
+          event.removeAttribute("selected");
+        }
+      });
+    }
   }
+  updateTimeline() {
+    let sections = document.querySelectorAll("section") || [];
+    if (
+      this.eventsList.length < 1 &&
+      sections.length > 0 &&
+      this.eventsElement
+    ) {
+      this.eventsElement.innerHTML = "";
+      sections.forEach(section => {
+        let clone = section.cloneNode(true),
+          div = document.createElement("div"),
+          overview = div.cloneNode(),
+          details = div.cloneNode(),
+          heading = div.cloneNode(),
+          media = clone.querySelector(".media")
+            ? clone.querySelector(".media")
+            : undefined,
+          cloneHeading = clone.querySelector("h1,h2,h3,h4,h5,h6")
+            ? clone.querySelector("h1,h2,h3,h4,h5,h6")
+            : undefined;
 
-  /**
-   * returns the media type for a given event, or false if there is no media
-   *
-   * @param {object} the event type to check
-   * @param {object} the media type to check
-   * @returns {string} the media type, or false if there is no media
-   */
+        //get heading
+        overview.classList.add("event-overview");
+        if (cloneHeading) {
+          let inner = document.createElement("h2");
+          heading.appendChild(inner);
+          heading.classList.add("heading");
+          inner.innerHTML = cloneHeading.innerHTML;
+          cloneHeading.remove();
+        }
+        overview.appendChild(heading);
 
-  _isMediaType(event, type) {
-    return this._isSet(event.media) && this._isSet(event.media.type)
-      ? event.media.type === type
-      : false;
-  }
+        //get media
+        if (media) {
+          let outer = div.cloneNode(),
+            inner = div.cloneNode();
+          outer.appendChild(inner);
+          div.appendChild(outer);
+          inner.appendChild(media.cloneNode(true));
+          media.remove();
+          clone.setAttribute("has-media", true);
+        }
+        div.classList.add("media-outer");
+        overview.appendChild(div);
 
-  /**
-   * returns true if an property is not null
-   *
-   * @param {object} the property to check
-   * @returns {boolean} property !== undefined && property !== null
-   */
-  _isSet(prop) {
-    return prop !== undefined && prop !== null;
-  }
+        //get details
+        Object.keys(clone.children || []).forEach(child =>
+          details.append(clone.children[child])
+        );
+        details.classList.add("details");
 
-  /**
-   * gets updated event data
-   *
-   * @param {array} the raw events array
-   */
-  _updateEvents(events) {
-    events = typeof events === "string" ? JSON.parse(events) : events;
-    return events;
-  }
-
-  /**
-   * handles the scroll on the events side
-   */
-  _onScroll(e) {
+        //add to events
+        clone.classList.add("event");
+        clone.appendChild(overview);
+        clone.appendChild(details);
+        this.eventsElement.appendChild(clone);
+      });
+    }
     this._checkScroll();
   }
 }
-window.customElements.define(LrndesignTimeline.tag, LrndesignTimeline);
+customElements.define(LrndesignTimeline.tag, LrndesignTimeline);
+export { LrndesignTimeline };

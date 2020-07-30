@@ -10,7 +10,7 @@
  *
  * @pseudoElement
  * @polymer
- * @demo demo/index.html
+ * @demo ./demo/index.html
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 const styleElement = document.createElement("dom-module");
@@ -22,21 +22,6 @@ const css = html`
       --rich-text-editor-button-height: 24px;
       --rich-text-editor-button-margin: 3px;
       --rich-text-editor-button-padding: 0;
-      --simple-picker-option-size: 18px;
-      --simple-picker-color: var(--rich-text-editor-button-color);
-      --simple-picker-background-color: var(--rich-text-editor-bg);
-      --simple-picker-sample-border-color: var(--rich-text-editor-bg);
-      --simple-picker-border-color: var(--rich-text-editor-button-color);
-      --simple-picker-icon-transform: rotate(0deg);
-      --simple-picker-expanded-icon-transform: rotate(0deg);
-      --rich-text-editor-picker-small: {
-      }
-      --simple-picker-option-null: {
-        display: none;
-      }
-      --simple-picker-sample-null-label: {
-        display: none;
-      }
     }
     :host([hidden]) {
       display: none;
@@ -51,19 +36,16 @@ const css = html`
     }
     :host(rich-text-editor-emoji-picker),
     :host(rich-text-editor-symbol-picker) {
-      --simple-picker-option: {
-        width: var(--simple-picker-option-size);
-        max-width: var(--simple-picker-option-size);
-      }
+      --simple-picker-option-label-padding: 2px;
     }
-    :host paper-tooltip {
-      z-index: 99999;
+    :host simple-tooltip {
+      z-index: 2;
     }
     :host .rtebutton {
       text-transform: unset;
       transition: all 0.5s;
       color: var(--rich-text-editor-button-color);
-      border-color: var(--rich-text-editor-button-border);
+      border-color: var(--rich-text-editor-border-color);
       @apply --rich-text-editor-button;
     }
     :host([disabled]) .rtebutton {

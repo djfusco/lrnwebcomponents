@@ -8,6 +8,7 @@ import * as async from "@polymer/polymer/lib/utils/async.js";
 import "@lrnwebcomponents/simple-modal/simple-modal.js";
 /**
  * `lrnsys-outline`
+ * @element lrnsys-outline
  * `Outline that items can be shuffled around in`
  *
  * @demo demo/index.html
@@ -199,7 +200,7 @@ class LrnsysOutline extends PolymerElement {
         elements: {
           buttons: b
         },
-        invokedBy: item.$.delete,
+        invokedBy: item.shadowRoot.querySelector("#delete"),
         clone: false
       }
     });
@@ -249,9 +250,9 @@ class LrnsysOutline extends PolymerElement {
       if ((moveUp && !item.disableUp) || (!moveUp && !item.disableDown)) {
         let item2 = this.splice("items", sourceStart, sourceCount);
         this.splice("items", target, 0, item2);
-        this.__focusedItem = this.$.itemslist.querySelectorAll(
-          "lrnsys-outline-item"
-        )[target];
+        this.__focusedItem = this.shadowRoot
+          .querySelector("#itemslist")
+          .querySelectorAll("lrnsys-outline-item")[target];
         this.setData(this.items);
         if (this.__focusedItem !== undefined && this.__focusedItem !== null) {
           async.microTask.run(() => {

@@ -1,25 +1,36 @@
+<iron-a11y-keys keys="enter" @keys-pressed="${this._enterPressed}"
+  stop-keyboard-event-propagation></iron-a11y-keys>
+<iron-a11y-keys keys="up" @keys-pressed="${this._upPressed}"
+  stop-keyboard-event-propagation></iron-a11y-keys>
+<iron-a11y-keys keys="down" @keys-pressed="${this._downPressed}"
+  stop-keyboard-event-propagation></iron-a11y-keys>
 <div class="button-wrapper">
-<button on-click="buttonEvents" id="down">
-  <iron-icon icon="icons:arrow-downward"></iron-icon> Move down
+<button @click="${this.buttonEvents}" id="add" title="Add a new node">
+  <iron-icon icon="icons:add"></iron-icon><span>Add</span>
 </button>
-<button on-click="buttonEvents" id="up">
-  <iron-icon icon="icons:arrow-upward"></iron-icon> Move up
+<button @click="${this.buttonEvents}" id="collapse" title="Toggle active node collapsed status">
+  <iron-icon icon="icons:swap-vert"></iron-icon><span>Toggle active</span>
 </button>
-<button on-click="buttonEvents" id="outdent">
-  <iron-icon icon="editor:format-indent-decrease"></iron-icon> Outdent
+<button @click="${this.buttonEvents}" id="collapseall" title="Collapse all nodes">
+  <iron-icon icon="icons:swap-vert"></iron-icon><span>Collapse all</span>
 </button>
-<button on-click="buttonEvents" id="indent">
-  <iron-icon icon="editor:format-indent-increase"></iron-icon> Indent
+<button @click="${this.buttonEvents}" id="expandall" title="Expand all nodes">
+  <iron-icon icon="icons:swap-vert"></iron-icon><span>Expand all</span>
 </button>
-<button on-click="buttonEvents" id="duplicate">
-  <iron-icon icon="icons:content-copy"></iron-icon> Duplicate
+<button @click="${this.buttonEvents}" id="down" title="Move active node down">
+  <iron-icon icon="icons:arrow-downward"></iron-icon><span>Move down</span>
+</button>
+<button @click="${this.buttonEvents}" id="up" title="Move active node up">
+  <iron-icon icon="icons:arrow-upward"></iron-icon><span>Move up</span>
+</button>
+<button @click="${this.buttonEvents}" id="outdent" title="Outdent active node">
+  <iron-icon icon="editor:format-indent-decrease"></iron-icon><span>Outdent</span>
+</button>
+<button @click="${this.buttonEvents}" id="indent" title="Indent active node">
+  <iron-icon icon="editor:format-indent-increase"></iron-icon><span>Indent</span>
+</button>
+<button @click="${this.buttonEvents}" id="duplicate" title="Duplicate active node tree">
+  <iron-icon icon="icons:content-copy"></iron-icon><span>Duplicate</span>
 </button>
 </div>
-<ul id="outline" contenteditable$="[[editMode]]">
-  <li contenteditable="true"></li>
-</ul>
-
-<iron-a11y-keys target="[[__outlineNode]]" keys="shift+tab" on-keys-pressed="_tabBackKeyPressed"
-  stop-keyboard-event-propagation></iron-a11y-keys>
-<iron-a11y-keys target="[[__outlineNode]]" keys="tab" on-keys-pressed="_tabKeyPressed"
-  stop-keyboard-event-propagation></iron-a11y-keys>
+<ul id="outline"></ul>

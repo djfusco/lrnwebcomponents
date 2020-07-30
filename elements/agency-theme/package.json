@@ -2,7 +2,7 @@
   "name": "@lrnwebcomponents/agency-theme",
   "wcfactory": {
     "className": "AgencyTheme",
-    "customElementClass": "PolymerElement",
+    "customElementClass": "LitElement",
     "elementName": "agency-theme",
     "generator-wcfactory-version": "0.7.1",
     "useHAX": false,
@@ -14,42 +14,43 @@
       "js": "src/agency-theme.js",
       "properties": "src/agency-theme-properties.json",
       "hax": "src/agency-theme-hax.json"
-    }
+    },
+    "sharedStyles": []
   },
-  "version": "2.1.0",
+  "version": "2.6.24",
   "description": "",
   "repository": {
     "type": "git",
     "url": "https://github.com/elmsln/lrnwebcomponents.git"
   },
+  "type": "module",
   "main": "agency-theme.js",
-  "module": "agency-theme.es6.js",
+  "module": "agency-theme.js",
   "umd": "agency-theme.umd.js",
-  "amd": "agency-theme.amd.js",
   "scripts": {
     "test": "../../node_modules/.bin/wct --configFile ../../wct.conf.json node_modules/@lrnwebcomponents/agency-theme/test/",
     "start": "yarn run dev",
-    "build": "../../node_modules/.bin/gulp && ../../node_modules/.bin/rollup -c && ../../node_modules/.bin/prettier --ignore-path ../../.prettierignore --write '**/*.{js,json}'",
-    "dev": "open ./src && concurrently --kill-others 'yarn run watch' 'yarn run serve'",
-    "watch": "../../node_modules/.bin/gulp dev",
-    "serve": "polymer serve --npm --module-resolution=node --open",
-    "lighthouse": "../../node_modules/.bin/gulp lighthouse"
+    "build": "../../node_modules/.bin/gulp --gulpfile=gulpfile.cjs && ../../node_modules/.bin/rollup -c && ../../node_modules/.bin/prettier --ignore-path ../../.prettierignore --write '**/*.{js,json}' && wca analyze \"**/*.js\" --format vscode --outFile vscode-html-custom-data.json",
+    "dev": "concurrently --kill-others 'yarn run watch' 'yarn run serve'",
+    "watch": "../../node_modules/.bin/gulp dev --gulpfile=gulpfile.cjs",
+    "serve": "../../node_modules/.bin/es-dev-server -c ../../es-dev-server.config.js",
+    "lighthouse": "../../node_modules/.bin/gulp lighthouse --gulpfile=gulpfile.cjs"
   },
   "author": {
     "name": "heymp"
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@polymer/polymer": "^3.2.0"
+    "@polymer/polymer": "^3.3.1"
   },
   "devDependencies": {
     "@polymer/iron-component-page": "github:PolymerElements/iron-component-page",
-    "@polymer/iron-demo-helpers": "^3.1.0",
-    "@webcomponents/webcomponentsjs": "2.2.10",
-    "concurrently": "4.0.1",
+    "@polymer/iron-demo-helpers": "3.1.0",
+    "@webcomponents/webcomponentsjs": "2.4.1",
+    "concurrently": "5.1.0",
     "gulp-babel": "8.0.0",
     "gulp-sourcemaps": "2.6.4",
-    "lodash": "4.17.11",
+    "lodash": "4.17.19",
     "polymer-cli": "1.8.1",
     "wct-browser-legacy": "1.0.2"
   },

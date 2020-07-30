@@ -1,188 +1,278 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
-import "./hax-shared-styles.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { winEventsElement } from "@lrnwebcomponents/utils/utils.js";
 /**
  * `hax-text-context`
+ * @element hax-text-context
  * `A context menu that provides common text based authoring options.`
  * @microcopy - the mental model for this element
  * - context menu - this is a menu of text based buttons and events for use in a larger solution.
  */
-class HaxTextContext extends PolymerElement {
-  constructor() {
-    super();
-    import("@polymer/paper-item/paper-item.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/iron-icon/iron-icon.js");
-    import("@lrnwebcomponents/md-extra-icons/md-extra-icons.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-context-item-menu.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-context-item.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-context-item-textop.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-toolbar.js");
-  }
-  static get template() {
-    return html`
-      <style include="hax-shared-styles">
+class HaxTextContext extends winEventsElement(LitElement) {
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           pointer-events: none;
-          background-color: white;
+          --hax-contextual-action-color: var(
+            --simple-colors-default-theme-cyan-8,
+            #007999
+          );
+        }
+        hax-context-item-textop:not(:defined),
+        hax-context-item-menu:not(:defined),
+        hax-context-item:not(:defined),
+        hax-toolbar:not(:defined),
+        paper-item:not(:defined),
+        iron-icon:not(:defined) {
+          display: none;
         }
         :host [hidden] {
           display: none;
         }
+        .selected-buttons {
+          transition: 0.1s all ease-in-out;
+          width: 0;
+        }
+        :host([has-selected-text]) .selected-buttons {
+          width: 100%;
+        }
+        #toolbar {
+          overflow: hidden;
+        }
         paper-item {
+          color: white;
+          background-color: var(--hax-contextual-action-color);
           -webkit-justify-content: flex-start;
           justify-content: flex-start;
-          height: 36px;
-          padding: 0 8px;
-          min-height: 36px;
+          font-size: 11px;
+          line-height: 24px;
+          margin: 0;
+          padding: 0 4px;
+          min-height: 24px;
         }
         paper-item:hover {
-          background-color: #d3d3d3;
           cursor: pointer;
+          color: black;
         }
         iron-icon {
-          padding: 8px;
+          width: 20px;
+          height: 20px;
+          padding: 4px;
         }
         paper-item strong {
-          padding: 8px;
-          font-size: 12px;
+          padding: 4px;
+        }
+        hax-context-item-textop,
+        hax-context-item {
+          transition: all 0.2s linear;
+          visibility: visible;
+          opacity: 1;
+        }
+        hax-context-item-textop[hidden],
+        hax-context-item[hidden] {
+          visibility: hidden;
+          opacity: 0;
         }
         :host(.hax-context-pin-top) hax-toolbar {
           position: fixed;
-          top: 64px;
-          opacity: 0.95;
+          top: 40px;
+          flex-direction: column;
         }
-        :host(.hax-context-pin-bottom) hax-toolbar {
-          position: fixed;
-          bottom: 0;
-          opacity: 0.95;
-        }
-      </style>
-      <hax-toolbar selected="[[selection]]" hide-transform="" id="toolbar">
+      `
+    ];
+  }
+  constructor() {
+    super();
+    this.__winEvents = {
+      "hax-store-property-updated": "_haxStorePropertyUpdated"
+    };
+    import("@polymer/paper-item/paper-item.js");
+    import("@polymer/iron-icon/iron-icon.js");
+    import("@lrnwebcomponents/hax-body/lib/hax-context-item-menu.js");
+    import("@lrnwebcomponents/hax-body/lib/hax-context-item.js");
+    import("@lrnwebcomponents/hax-body/lib/hax-context-item-textop.js");
+    import("@lrnwebcomponents/hax-body/lib/hax-toolbar.js");
+    setTimeout(() => {
+      this.addEventListener(
+        "hax-context-item-selected",
+        this._haxContextOperation.bind(this)
+      );
+    }, 0);
+    this.realSelectedValue = "p";
+    this.selection = false;
+    this.formatIcon = "hax:format-textblock";
+    this.isSafari = this._isSafari();
+  }
+  /**
+   * Store updated, sync.
+   */
+  _haxStorePropertyUpdated(e) {
+    if (
+      e.detail &&
+      typeof e.detail.value !== typeof undefined &&
+      e.detail.property
+    ) {
+      this[e.detail.property] = e.detail.value;
+    }
+  }
+  render() {
+    return html`
+      <hax-toolbar
+        .selected="${this.selection}"
+        ?hide-more="${!this.hasSelectedText}"
+        id="toolbar"
+      >
         <hax-context-item-menu
+          action
+          mini
           slot="primary"
-          selected-value="{{selectedValue}}"
+          .selected-value="${this.selectedValue}"
+          @selected-value-changed="${this.selectedValueChanged}"
           id="formatsize"
-          icon="text-format"
-          label="Format"
+          icon="${this.formatIcon}"
+          label="Text format"
           event-name="text-tag"
         >
+          <paper-item hidden value=""></paper-item>
           <paper-item value="p"
-            ><iron-icon icon="editor:format-textdirection-l-to-r"></iron-icon
-            >Normal text <strong>&lt;P&gt;</strong></paper-item
+            ><iron-icon icon="hax:paragraph"></iron-icon>Paragraph</paper-item
           >
           <paper-item value="ul"
             ><iron-icon icon="editor:format-list-bulleted"></iron-icon>Bulleted
-            list <strong>&lt;UL&gt;</strong></paper-item
+            list</paper-item
           >
           <paper-item value="ol"
             ><iron-icon icon="editor:format-list-numbered"></iron-icon>Numbered
-            list <strong>&lt;OL&gt;</strong></paper-item
+            list</paper-item
           >
           <paper-item value="h2"
-            ><iron-icon icon="editor:title"></iron-icon>Title
-            <strong>&lt;H2&gt;</strong></paper-item
-          >
+            ><iron-icon icon="hax:h2"></iron-icon>Title
+          </paper-item>
           <paper-item value="h3"
-            ><iron-icon icon="editor:title"></iron-icon>Content heading
-            <strong>&lt;H3&gt;</strong></paper-item
-          >
+            ><iron-icon icon="hax:h3"></iron-icon>Content heading
+          </paper-item>
           <paper-item value="h4"
-            ><iron-icon icon="editor:text-fields"></iron-icon>Subheading
-            <strong>&lt;H4&gt;</strong></paper-item
-          >
+            ><iron-icon icon="hax:h4"></iron-icon>Subheading
+          </paper-item>
           <paper-item value="h5"
-            ><iron-icon icon="editor:text-fields"></iron-icon>Deeper subheading
-            <strong>&lt;H5&gt;</strong></paper-item
-          >
+            ><iron-icon icon="hax:h5"></iron-icon>Deep subheading
+          </paper-item>
           <paper-item value="blockquote"
-            ><iron-icon icon="editor:format-quote"></iron-icon>Quote<strong
-              >&lt;blockquote&gt;</strong
-            ></paper-item
-          >
+            ><iron-icon icon="editor:format-quote"></iron-icon>Blockquote
+          </paper-item>
           <paper-item value="code"
-            ><iron-icon icon="icons:code"></iron-icon>Code block<strong
-              >&lt;code&gt;</strong
-            ></paper-item
-          >
+            ><iron-icon icon="icons:code"></iron-icon>Code
+          </paper-item>
         </hax-context-item-menu>
         <hax-context-item-textop
-          slot="primary"
-          icon="editor:format-bold"
-          label="Bold"
-          event-name="text-bold"
-        ></hax-context-item-textop>
-        <hax-context-item-textop
-          slot="primary"
-          icon="editor:format-italic"
-          label="Italic"
-          event-name="text-italic"
-        ></hax-context-item-textop>
-        <hax-context-item-textop
-          slot="primary"
-          icon="editor:insert-link"
-          label="Link"
-          event-name="text-link"
-        ></hax-context-item-textop>
-        <hax-context-item-textop
+          mini
+          action
           slot="primary"
           icon="editor:format-list-bulleted"
-          event-name="text-list-bulleted"
+          event-name="text-tag-ul"
           label="Bulleted list"
-          hidden$="[[!_showIndent]]"
+          .hidden="${!this._showLists}"
         ></hax-context-item-textop>
         <hax-context-item-textop
+          mini
+          action
           slot="primary"
           icon="editor:format-list-numbered"
           label="Numbered list"
-          event-name="text-list-numbered"
-          hidden\$="[[!_showIndent]]"
+          event-name="text-tag-ol"
+          .hidden="${!this._showLists}"
         ></hax-context-item-textop>
         <hax-context-item-textop
+          mini
+          action
           slot="primary"
           icon="editor:format-indent-decrease"
           label="Outdent"
           event-name="text-outdent"
-          hidden$="[[!_showIndent]]"
+          .hidden="${!this._showIndent}"
         ></hax-context-item-textop>
         <hax-context-item-textop
+          mini
+          action
           slot="primary"
           icon="editor:format-indent-increase"
           label="Indent"
           event-name="text-indent"
-          hidden$="[[!_showIndent]]"
+          .hidden="${!this._showIndent}"
         ></hax-context-item-textop>
         <hax-context-item-textop
+          mini
+          action
+          slot="primary"
+          icon="editor:format-bold"
+          label="Bold"
+          class="selected-buttons"
+          event-name="text-bold"
+          ?disabled="${!this.hasSelectedText}"
+        ></hax-context-item-textop>
+        <hax-context-item-textop
+          mini
+          action
+          slot="primary"
+          icon="editor:format-italic"
+          label="Italic"
+          class="selected-buttons"
+          event-name="text-italic"
+          ?disabled="${!this.hasSelectedText}"
+        ></hax-context-item-textop>
+        <hax-context-item-textop
+          mini
+          action
+          slot="primary"
+          icon="editor:insert-link"
+          label="Link"
+          class="selected-buttons"
+          event-name="text-link"
+          ?disabled="${!this.hasSelectedText}"
+        ></hax-context-item-textop>
+        <hax-context-item-textop
+          mini
+          action
+          slot="primary"
+          icon="mdextra:unlink"
+          label="Remove link"
+          class="selected-buttons"
+          event-name="text-unlink"
+          ?disabled="${!this.hasSelectedText}"
+        ></hax-context-item-textop>
+        <hax-context-item-textop
+          mini
+          action
           slot="primary"
           icon="editor:format-clear"
           label="Remove format"
+          class="selected-buttons"
           event-name="text-remove-format"
+          ?disabled="${!this.hasSelectedText}"
         ></hax-context-item-textop>
         <hax-context-item
+          mini
+          action
           slot="primary"
-          icon="device:graphic-eq"
-          label="Advanced item"
+          icon="hax:add-brick"
+          label="Add element to selection"
+          class="selected-buttons"
           event-name="insert-inline-gizmo"
-          hidden$="[[isSafari]]"
+          ?hidden="${this.isSafari || !this.hasSelectedText}"
         ></hax-context-item>
         <hax-context-item-textop
+          mini
+          action
           slot="primary"
-          icon="device:graphic-eq"
-          label="Advanced item"
+          icon="hax:add-brick"
+          label="Add element to selection"
+          class="selected-buttons"
           event-name="insert-inline-gizmo"
-          hidden$="[[!isSafari]]"
+          ?hidden="${!this.isSafari || !this.hasSelectedText}"
         ></hax-context-item-textop>
-
         <hax-context-item-textop
-          menu
-          slot="more"
-          icon="mdextra:unlink"
-          event-name="text-unlink"
-          >Remove link</hax-context-item-textop
-        >
-        <hax-context-item-textop
+          action
           menu
           slot="more"
           icon="mdextra:subscript"
@@ -190,6 +280,7 @@ class HaxTextContext extends PolymerElement {
           >Subscript</hax-context-item-textop
         >
         <hax-context-item-textop
+          action
           menu
           slot="more"
           icon="mdextra:superscript"
@@ -197,6 +288,7 @@ class HaxTextContext extends PolymerElement {
           >Superscript</hax-context-item-textop
         >
         <hax-context-item-textop
+          action
           menu
           slot="more"
           icon="editor:format-underlined"
@@ -204,6 +296,7 @@ class HaxTextContext extends PolymerElement {
           >Underline</hax-context-item-textop
         >
         <hax-context-item-textop
+          action
           menu
           slot="more"
           icon="editor:format-strikethrough"
@@ -213,82 +306,133 @@ class HaxTextContext extends PolymerElement {
       </hax-toolbar>
     `;
   }
+  selectedValueChanged(e) {
+    this.selectedValue = e.detail;
+  }
   static get tag() {
     return "hax-text-context";
   }
   static get properties() {
     return {
       _showIndent: {
-        type: Boolean,
-        computed: "_computeShowIndent(selectedValue, polyfillSafe)"
+        type: Boolean
+      },
+      _showLists: {
+        type: Boolean
+      },
+      realSelectedValue: {
+        type: String
       },
       /**
-       * Polyfill safe; this helps remove options from polyfilled platforms
-       * as far as text manipulation operations.
+       * calculated boolean off of if there is currently text
        */
-      polyfillSafe: {
-        type: Boolean
+      hasSelectedText: {
+        type: Boolean,
+        attribute: "has-selected-text",
+        reflect: true
+      },
+      /**
+       * Text hax-store has detected is selected currently.
+       */
+      haxSelectedText: {
+        type: String
       },
       /**
        * Selected value to match format of the tag currently.
        */
       selectedValue: {
-        type: String,
-        value: "p",
-        notify: true
+        type: Number,
+        attribute: "selected-value"
       },
       /**
        * Selection tracking
        */
       selection: {
-        type: Boolean,
-        value: false
+        type: Boolean
+      },
+      /**
+       * Selected item icon
+       */
+      formatIcon: {
+        type: String,
+        attribute: "format-icon"
       },
       /**
        * Is this safari
        */
       isSafari: {
         type: Boolean,
-        notify: true,
-        computed: "_isSafari()"
+        attribute: "is-safari"
       }
     };
   }
 
-  _computeShowIndent(selectedValue, polyfillSafe) {
-    if (polyfillSafe && (selectedValue === "ol" || selectedValue === "ul")) {
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      // computed based on these changing
+      if (
+        this.realSelectedValue &&
+        propName == "realSelectedValue" &&
+        this.shadowRoot
+      ) {
+        this._showIndent = this._computeShowIndent(this.realSelectedValue);
+        if (this._showIndent || this.realSelectedValue == "p") {
+          this._showLists = true;
+        } else {
+          this._showLists = false;
+        }
+        for (var i in this.shadowRoot.querySelector("#formatsize").children) {
+          if (
+            this.shadowRoot.querySelector("#formatsize").children[i] &&
+            this.shadowRoot.querySelector("#formatsize").children[i]
+              .getAttribute &&
+            this.shadowRoot
+              .querySelector("#formatsize")
+              .children[i].getAttribute("value") == this.realSelectedValue
+          ) {
+            this.selectedValue = i;
+          }
+        }
+      }
+      // calculate boolean status of having text
+      if (propName == "haxSelectedText") {
+        this.hasSelectedText = this[propName].length > 0;
+      }
+      if (propName == "selectedValue" && this.selectedValue != "") {
+        this.realSelectedValue = this.shadowRoot
+          .querySelector("#formatsize")
+          .children[this.selectedValue].getAttribute("value");
+        this.formatIcon = this.shadowRoot
+          .querySelector("#formatsize")
+          .children[this[propName]].querySelector("iron-icon").icon;
+        // fire an event that this is a core piece of the system
+        this.dispatchEvent(
+          new CustomEvent("selected-value-changed", {
+            detail: this[propName]
+          })
+        );
+      }
+    });
+  }
+  /**
+   * Show indentation on lists
+   */
+  _computeShowIndent(realSelectedValue) {
+    if (
+      window.HaxStore.instance.computePolyfillSafe() &&
+      (realSelectedValue == "ol" || realSelectedValue == "ul")
+    ) {
       return true;
     }
     return false;
   }
-  /**
-   * life cycle, figure out polyfill
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      this.addEventListener(
-        "hax-context-item-selected",
-        this._haxContextOperation.bind(this)
-      );
-      this.polyfillSafe = window.HaxStore.instance.computePolyfillSafe();
-    });
-  }
-
-  disconnectedCallback() {
-    this.removeEventListener(
-      "hax-context-item-selected",
-      this._haxContextOperation.bind(this)
-    );
-    super.disconnectedCallback();
-  }
-
   /**
    * Respond to simple modifications.
    */
   _haxContextOperation(e) {
     let detail = e.detail;
     let selection = window.HaxStore.getSelection();
+    let prevent = false;
     // support a simple insert event to bubble up or everything else
     switch (detail.eventName) {
       case "close-menu":
@@ -304,7 +448,6 @@ class HaxTextContext extends PolymerElement {
           window.HaxStore._tmpSelection &&
           window.HaxStore.instance.editMode
         ) {
-          var localRange = false;
           try {
             if (
               window.HaxStore._tmpRange.startContainer.parentNode.parentNode
@@ -312,16 +455,17 @@ class HaxTextContext extends PolymerElement {
               window.HaxStore._tmpRange.startContainer.parentNode.parentNode
                 .parentNode.tagName === "HAX-BODY"
             ) {
+              window.HaxStore.instance.activePlaceHolder =
+                window.HaxStore._tmpRange;
               window.HaxStore.write(
                 "activePlaceHolder",
                 window.HaxStore._tmpRange,
                 this
               );
-              localRange = window.HaxStore._tmpRange;
             }
           } catch (err) {}
         }
-        if (localRange || window.HaxStore.instance.activePlaceHolder != null) {
+        if (window.HaxStore.instance.activePlaceHolder != null) {
           // store placeholder because if this all goes through we'll want
           // to kill the originating text
           let values = {
@@ -344,18 +488,15 @@ class HaxTextContext extends PolymerElement {
       // wow these are way too easy
       case "text-bold":
         document.execCommand("bold");
-        e.preventDefault();
-        e.stopPropagation();
+        prevent = true;
         break;
       case "text-italic":
         document.execCommand("italic");
-        e.preventDefault();
-        e.stopPropagation();
+        prevent = true;
         break;
       case "text-underline":
         document.execCommand("underline");
-        e.preventDefault();
-        e.stopPropagation();
+        prevent = true;
         // silly hack to account for trigging a selection from
         // inside the menu that isn't from a paper-item
         this.shadowRoot
@@ -366,8 +507,7 @@ class HaxTextContext extends PolymerElement {
         break;
       case "text-subscript":
         document.execCommand("subscript");
-        e.preventDefault();
-        e.stopPropagation();
+        prevent = true;
         // silly hack to account for trigging a selection from
         // inside the menu that isn't from a paper-item
         this.shadowRoot
@@ -378,8 +518,7 @@ class HaxTextContext extends PolymerElement {
         break;
       case "text-superscript":
         document.execCommand("superscript");
-        e.preventDefault();
-        e.stopPropagation();
+        prevent = true;
         // silly hack to account for trigging a selection from
         // inside the menu that isn't from a paper-item
         this.shadowRoot
@@ -390,13 +529,11 @@ class HaxTextContext extends PolymerElement {
         break;
       case "text-remove-format":
         document.execCommand("removeFormat");
-        e.preventDefault();
-        e.stopPropagation();
+        prevent = true;
         break;
       case "text-strikethrough":
         document.execCommand("strikeThrough");
-        e.preventDefault();
-        e.stopPropagation();
+        prevent = true;
         // silly hack to account for trigging a selection from
         // inside the menu that isn't from a paper-item
         this.shadowRoot
@@ -407,21 +544,42 @@ class HaxTextContext extends PolymerElement {
         break;
       case "text-link":
         var href = "";
-        if (typeof selection.focusNode.parentNode.href !== typeof undefined) {
+        if (
+          selection &&
+          selection.focusNode &&
+          selection.focusNode.parentNode &&
+          typeof selection.focusNode.parentNode.href !== typeof undefined
+        ) {
           href = selection.focusNode.parentNode.href;
         }
         // @todo put in a dialog instead of this
         let url = prompt("Enter a URL:", href);
         if (url) {
           document.execCommand("createLink", false, url);
-          e.preventDefault();
-          e.stopPropagation();
+          if (selection.focusNode.parentNode) {
+            selection.focusNode.parentNode.setAttribute(
+              "contenteditable",
+              true
+            );
+            selection.focusNode.parentNode.setAttribute("data-editable", true);
+            // just to be safe
+            selection.focusNode.parentNode.removeEventListener("click", e => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+            });
+            selection.focusNode.parentNode.addEventListener("click", e => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+            });
+          }
+          prevent = true;
         }
         break;
       case "text-unlink":
         document.execCommand("unlink");
-        e.preventDefault();
-        e.stopPropagation();
+        prevent = true;
         break;
       /**
        * Our bad actors when it comes to polyfill'ed shadowDOM.
@@ -429,28 +587,16 @@ class HaxTextContext extends PolymerElement {
        */
       case "text-indent":
         document.execCommand("indent");
-        e.preventDefault();
-        e.stopPropagation();
+        prevent = true;
         break;
       case "text-outdent":
         document.execCommand("outdent");
-        e.preventDefault();
-        e.stopPropagation();
+        prevent = true;
         break;
-      case "text-list-numbered":
-        try {
-          document.execCommand("insertOrderedList");
-          e.preventDefault();
-          e.stopPropagation();
-        } catch (e) {}
-        break;
-      case "text-list-bulleted":
-        try {
-          document.execCommand("insertUnorderedList");
-          e.preventDefault();
-          e.stopPropagation();
-        } catch (e) {}
-        break;
+    }
+    if (prevent) {
+      e.preventDefault();
+      e.stopPropagation();
     }
   }
 

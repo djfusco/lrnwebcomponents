@@ -7,19 +7,21 @@
 
 /**
  * `drag-n-drop`
+ * @element drag-n-drop
  * `drag and drop elements and manager`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @demo demo/index.html
  */
 class DragNDrop extends HTMLElement {
   // render function
   get html() {
     return `
-<style>:host {
+<style>
+:host {
   display: block;
 }
 
@@ -41,7 +43,7 @@ class DragNDrop extends HTMLElement {
   background: #f4f4f4;
   border-style: dashed;
 }
-</style>
+        </style>
 <div class="items">
   <slot></slot>
 </div>`;
@@ -50,9 +52,11 @@ class DragNDrop extends HTMLElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       editing: {
         name: "editing",
-        type: "Boolean"
+        type: Boolean
       }
     };
   }
@@ -184,6 +188,8 @@ class DragNDrop extends HTMLElement {
     this.__dragging = e.target;
     this.__dragging.className += " hold";
     setTimeout(() => (this.__dragging.className = "invisible"), 0);
+    e.stopPropagation();
+    e.stopImmediatePropagation();
   }
 
   dragEnd(e) {

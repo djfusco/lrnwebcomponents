@@ -1,99 +1,86 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { microTask } from "@polymer/polymer/lib/utils/async.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import "@lrnwebcomponents/grafitto-filter/grafitto-filter.js";
-import "@polymer/iron-list/iron-list.js";
-import "./hax-shared-styles.js";
+import {
+  winEventsElement,
+  haxElementToNode
+} from "@lrnwebcomponents/utils/utils.js";
+
 /**
  * `hax-gizmo-browser`
  * `Browse a list of gizmos. This provides a listing of custom elements for people to search and select based on what have been defined as gizmos for users to select.`
  * @microcopy - the mental model for this element
  * - gizmo - silly name for the general public when talking about custom elements and what it provides in the end.
  */
-class HaxGizmoBrowser extends PolymerElement {
-  constructor() {
-    super();
-    import("@polymer/paper-input/paper-input.js");
-    import("@lrnwebcomponents/dropdown-select/dropdown-select.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-gizmo-browser-item.js");
-  }
-  static get template() {
-    return html`
-      <style include="hax-shared-styles">
+class HaxGizmoBrowser extends winEventsElement(LitElement) {
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
         }
-        hax-gizmo-browser-item {
-          margin: 10px;
-          -webkit-transition: 0.3s all linear;
-          transition: 0.3s all linear;
-        }
-        #ironlist {
-          min-height: 50vh;
-          margin: 0;
-          padding: 16px;
-        }
-        .title {
-          position: relative;
-          padding: 16px;
-          outline: 0;
-          font-weight: 600;
-          text-align: left;
-          margin: 0;
-          background-color: var(--hax-color-menu-heading-bg);
-          font-size: 18px;
-          line-height: 18px;
-          font-family: "Noto Serif", serif;
-          color: var(--hax-color-text);
-        }
         .toolbar-inner {
-          display: inline-flex;
-          padding: 10px;
+          padding: 0;
+          position: sticky;
+          background-color: white;
+          width: 100%;
+          top: 0;
+          z-index: 1;
         }
-      </style>
-      <h3 class="title">[[title]]</h3>
+        .item-wrapper {
+          text-align: center;
+        }
+      `
+    ];
+  }
+  constructor() {
+    super();
+    this.__winEvents = {
+      "hax-store-property-updated": "_haxStorePropertyUpdated"
+    };
+    this.__gizmoList = [];
+    this.filtered = [];
+    import("@lrnwebcomponents/simple-fields/lib/simple-fields-field.js");
+  }
+  render() {
+    return html`
       <div class="toolbar-inner">
-        <dropdown-select id="filtertype" label="Filter by" value="title">
-          <paper-item value="title">Title</paper-item>
-        </dropdown-select>
-        <paper-input
-          label="Filter"
+        <simple-fields-field
           id="inputfilter"
+          @value-changed="${this.inputfilterChanged}"
           aria-controls="filter"
-          value=""
-          always-float-label=""
-        ></paper-input>
+          label="Filter"
+          type="text"
+          auto-validate=""
+        ></simple-fields-field>
       </div>
       <grafitto-filter
         id="filter"
-        items="[[__gizmoList]]"
+        .items="${this.__gizmoList}"
         like=""
         where="title"
-        as="filtered"
-      >
-        <template>
-          <iron-list id="ironlist" items="[[filtered]]" as="gizmo" grid>
-            <template>
-              <div class="gizmo-container">
-                <hax-gizmo-browser-item
-                  index="[[gizmo.index]]"
-                  title="[[gizmo.title]]"
-                  tag-to-insert="[[gizmo.tag]]"
-                  icon="[[gizmo.icon]]"
-                  image="[[gizmo.image]]"
-                  color="[[gizmo.color]]"
-                  author="[[gizmo.author]]"
-                  teaser="[[gizmo.teaser]]"
-                  description="[[gizmo.description]]"
-                  examples="[[gizmo.examples]]"
-                  status="[[gizmo.status]]"
-                ></hax-gizmo-browser-item>
-              </div>
-            </template>
-          </iron-list>
-        </template>
-      </grafitto-filter>
+        like=""
+        @filtered-changed="${this.filteredChanged}"
+        ><template></template
+      ></grafitto-filter>
+      <div class="item-wrapper">
+        ${this.filtered.map(
+          gizmo => html`
+            <hax-tray-button
+              voice-command="insert ${gizmo.title}"
+              draggable="true"
+              @dragstart="${this._dragStart}"
+              @dragend="${this._dragEnd}"
+              index="${gizmo.index}"
+              label="${gizmo.title}"
+              event-name="insert-tag"
+              event-data="${gizmo.tag}"
+              icon="${gizmo.icon}"
+              color="${gizmo.color}"
+              drag-color="${gizmo.color}"
+            ></hax-tray-button>
+          `
+        )}
+      </div>
     `;
   }
   static get tag() {
@@ -101,127 +88,133 @@ class HaxGizmoBrowser extends PolymerElement {
   }
   static get properties() {
     return {
-      /**
-       * Search term
-       */
-      search: {
-        type: String
+      filtered: {
+        type: Array
       },
-      /**
-       * Title of the browser, for translation.
-       */
-      title: {
-        type: String,
-        value: "Make"
+      __gizmoList: {
+        type: Array
       }
     };
   }
   /**
-   * life cycle
+   * Drag start so we know what target to set
    */
-  connectedCallback() {
-    super.connectedCallback();
-    this.resetBrowser();
-    afterNextRender(this, function() {
-      this.shadowRoot
-        .querySelector("#inputfilter")
-        .addEventListener("value-changed", e => {
-          this.shadowRoot.querySelector("#filter").like = e.target.value;
-        });
-      this.shadowRoot
-        .querySelector("#filtertype")
-        .addEventListener("change", e => {
-          this.shadowRoot.querySelector("#inputfilter").value = "";
-          this.shadowRoot.querySelector("#filter").where = e.detail.value;
-          this.shadowRoot.querySelector("#filter").like = "";
-        });
-      document.body.addEventListener(
-        "hax-store-property-updated",
-        this._haxStorePropertyUpdated.bind(this)
-      );
+  _dragStart(e) {
+    // create the tag
+    let schema = window.HaxStore.instance.haxSchemaFromTag(e.target.eventData);
+    var target;
+    if (schema.gizmo.tag && schema.demoSchema && schema.demoSchema[0]) {
+      target = haxElementToNode(schema.demoSchema[0]);
+    } else {
+      target = document.createElement(e.target.eventData);
+    }
+    window.HaxStore.instance.__dragTarget = target;
+    if (e.dataTransfer) {
+      this.crt = target.cloneNode(true);
+      if (schema.gizmo.tag && schema.demoSchema && schema.demoSchema[0]) {
+        this.crt.style.width = "200px";
+        this.crt.style.height = "200px";
+      } else {
+        this.crt.style.position = "absolute";
+        this.crt.style.top = "-1000px";
+        this.crt.style.right = "-1000px";
+        this.crt.style.transform = "scale(0.25)";
+      }
+      this.crt.style.opacity = ".8";
+      this.crt.style.backgroundColor = e.target.getAttribute("drag-color");
+      e.dataTransfer.dropEffect = "move";
+      document.body.appendChild(this.crt);
+      e.dataTransfer.setDragImage(this.crt, 0, 0);
+    }
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    // show where things can be dropped only during the drag
+    if (
+      !window.HaxStore.instance.activeHaxBody.openDrawer &&
+      window.HaxStore.instance.editMode
+    ) {
+      let children = window.HaxStore.instance.activeHaxBody.children;
+      // walk the children and apply the draggable state needed
+      for (var i in children) {
+        if (children[i].classList && target !== children[i]) {
+          children[i].classList.add("hax-mover");
+        }
+      }
+    }
+  }
+  /**
+   * When we end dragging ensure we remove the mover class.
+   */
+  _dragEnd(e) {
+    this.crt.remove();
+    let children = window.HaxStore.instance.activeHaxBody.children;
+    // walk the children and apply the draggable state needed
+    for (var i in children) {
+      if (typeof children[i].classList !== typeof undefined) {
+        children[i].classList.remove(
+          "hax-mover",
+          "hax-hovered",
+          "hax-moving",
+          "grid-plate-active-item"
+        );
+      }
+    }
+  }
+  filteredChanged(e) {
+    this.filtered = [...e.detail.value];
+  }
+  inputfilterChanged(e) {
+    this.shadowRoot.querySelector("#filter").like = e.target.value;
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "activeApp") {
+        this._activeAppChanged(this[propName], oldValue);
+      }
+      if (propName == "filtered") {
+        this.requestUpdate();
+      }
     });
   }
-
-  /**
-   * Detached life cycle
-   */
-  disconnectedCallback() {
-    this.shadowRoot
-      .querySelector("#inputfilter")
-      .removeEventListener("value-changed", e => {
-        this.shadowRoot.querySelector("#filter").like = e.target.value;
-      });
-    this.shadowRoot
-      .querySelector("#filtertype")
-      .removeEventListener("change", e => {
-        this.shadowRoot.querySelector("#inputfilter").value = "";
-        this.shadowRoot.querySelector("#filter").where = e.detail.value;
-        this.shadowRoot.querySelector("#filter").like = "";
-      });
-    document.body.removeEventListener(
-      "hax-store-property-updated",
-      this._haxStorePropertyUpdated.bind(this)
-    );
-    super.disconnectedCallback();
-  }
-
   /**
    * Store updated, sync.
    */
   _haxStorePropertyUpdated(e) {
     if (
+      this.shadowRoot &&
       e.detail &&
-      typeof e.detail.value !== typeof undefined &&
-      e.detail.property
+      e.detail.value &&
+      e.detail.property === "gizmoList"
     ) {
-      this.set(e.detail.property, e.detail.value);
+      this.resetBrowser();
     }
+  }
+
+  firstUpdated(changedProperties) {
+    if (super.firstUpdated) {
+      super.firstUpdated(changedProperties);
+    }
+    // probably not required but just to be safe
+    this.resetBrowser();
   }
 
   /**
    * Reset this browser.
    */
   resetBrowser() {
-    if (typeof this.shadowRoot.querySelector("#filter") !== typeof undefined) {
-      microTask.run(() => {
-        this.set("__gizmoList", window.HaxStore.instance.gizmoList);
-        if (
-          this.shadowRoot
-            .querySelector("#filter")
-            .shadowRoot.querySelector("#ironlist")
-        ) {
-          this.shadowRoot
-            .querySelector("#filter")
-            .shadowRoot.querySelector("#ironlist").filtered = this.__gizmoList;
-        }
-        this.shadowRoot.querySelector("#inputfilter").value = "";
-        this.shadowRoot.querySelector("#filtertype").value = "title";
-        this.shadowRoot.querySelector("#filter").value = "";
-        this.shadowRoot.querySelector("#filter").filter();
-        this.shadowRoot.querySelector("#filter").where = "title";
-        this.shadowRoot.querySelector("#filter").like = "";
-        setTimeout(() => {
-          if (
-            this.shadowRoot
-              .querySelector("#filter")
-              .shadowRoot.querySelector("#ironlist")
-          ) {
-            this.shadowRoot
-              .querySelector("#filter")
-              .shadowRoot.querySelector("#ironlist")
-              .dispatchEvent(
-                new CustomEvent("iron-resize", {
-                  bubbles: true,
-                  cancelable: true,
-                  composed: true,
-                  detail: true
-                })
-              );
-            window.dispatchEvent(new Event("resize"));
-          }
-        }, 100);
-      });
-    }
+    this.__gizmoList = window.HaxStore.instance.gizmoList.filter((gizmo, i) => {
+      // remove inline and hidden references
+      if (gizmo.meta && (gizmo.meta.inlineOnly || gizmo.meta.hidden)) {
+        return false;
+      }
+      return true;
+    });
+    this.filtered = [...this.__gizmoList];
+    this.shadowRoot.querySelector("#inputfilter").value = "";
+    this.shadowRoot.querySelector("#filter").value = "";
+    this.shadowRoot.querySelector("#filter").filter();
+    this.shadowRoot.querySelector("#filter").where = "title";
+    this.shadowRoot.querySelector("#filter").like = "";
   }
 }
 window.customElements.define(HaxGizmoBrowser.tag, HaxGizmoBrowser);

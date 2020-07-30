@@ -2,25 +2,25 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element";
 import "@lrnwebcomponents/simple-modal/lib/simple-modal-template.js";
-import "@polymer/paper-button/paper-button.js";
 import "@lrnwebcomponents/img-pan-zoom/img-pan-zoom.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
-
-export { LrndesignGalleryZoom };
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
+import "./lrndesign-gallery-details.js";
 /**
  * `lrndesign-gallery-zoom`
- * `An element that renders the zoom feature for the gallery.`
+ * An element that renders the zoom feature for the gallery.
+ * 
+ * @element lrndesign-gallery-zoom
  *
  * @microcopy - language worth noting:```
 <lrndesign-gallery-zoom 
   details="Text details about the image." //optional text about the image
-  heading$="Image title"                  //required, image dialog title
+  heading="Image title"                  //required, image dialog title
   item-id="0"                             //required, index of the item to view
-  src$="[[item.large]]"                   //required, full-sized image
-  tooltip$="[[item.tooltip]]"             //required, tooltip text
-  zoom-alt$="[[item.alt]]"                //required, alt text for the image
+  src="${this.item.large}"                   //required, full-sized image
+  tooltip="${this.item.tooltip}"             //required, tooltip text
+  zoom-alt="${this.item.alt}"                //required, alt text for the image
   tooltip="ZOOM"                       
 </lrndesign-gallery-zoom>```
  *
@@ -32,35 +32,32 @@ export { LrndesignGalleryZoom };
 --lrndesign-gallery-dialog-header-color                 //text color of dialog header
 --lrndesign-gallery-dialog-header-background-color      //background-color of dialog header```
  * 
- * @customElement
- * @polymer
  */
-class LrndesignGalleryZoom extends PolymerElement {
+class LrndesignGalleryZoom extends LitElement {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "lrndesign-gallery-zoom";
   }
 
-  //get gallery behaviors
-  static get behaviors() {
-    return [LrndesignGalleryBehaviors];
-  }
-
-  // render function
-  static get template() {
-    return html`
-      <style>
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
+          background-color: none;
         }
         :host([hidden]) {
           display: none;
         }
-        :host paper-button {
+        #zoombtn {
+          display: block;
           width: 100%;
+          padding: 0;
+          margin: 0;
+          border-width: 0;
+          background-color: transparent;
         }
         simple-modal-template[modal-id="zoomdialog"] {
           --simple-modal-width: 75vw;
@@ -84,36 +81,30 @@ class LrndesignGalleryZoom extends PolymerElement {
             --lrndesign-gallery-dialog-background-color
           );
         }
-        #zoombtn {
-          padding: 0px;
-          margin: 0;
-          min-width: unset;
-        }
-      </style>
-      <paper-button
-        id="zoombtn"
-        label$="[[tooltip]]"
-        title=""
-        controls="zoomdialog"
-      >
+      `
+    ];
+  }
+  render() {
+    return html`
+      <button id="zoombtn" @click="${this.zoom}" aria-label="${this.tooltip}">
         <slot></slot>
-      </paper-button>
-      <paper-tooltip for="zoombtn" position="right">[[tooltip]]</paper-tooltip>
-      <simple-modal-template
-        id="zoomtpl"
-        modal-id="zoomdialog"
-        title$="[[heading]]"
+      </button>
+      <simple-tooltip for="zoombtn" position="right" controls="zoomtpl"
+        >${this.tooltip}</simple-tooltip
       >
-        <div
+      <simple-modal-template id="zoomtpl" title="${this.heading}">
+        <lrndesign-gallery-details
           id="details"
           slot="header"
-          hidden$="[[!_isAttrSet(details)]]"
-        ></div>
-        <div slot="content" hidden$="[[!_isAttrSet(src)]]">
+          ?hidden="${!this.details || this.details === ""}"
+          details="${this.details || ""}"
+        >
+        </lrndesign-gallery-details>
+
+        <div slot="content" ?hidden="${!this.src || this.src === ""}">
           <img-pan-zoom
-            id="img"
-            alt$="[[zoomAlt]]"
-            src$="[[src]]"
+            alt="${this.zoomAlt}"
+            src="${this.src}"
             max-zoom-pixel-ratio="1.5"
             min-zoom-image-ratio="0.5"
             zoom-per-click="1.2"
@@ -133,69 +124,38 @@ class LrndesignGalleryZoom extends PolymerElement {
   static get properties() {
     return {
       /**
-       * optional: details for zooming
-       */
-      details: {
-        type: String,
-        value: null,
-        observer: "_detailsChanged"
-      },
-      /**
-       * heading for the zoom modal
+       * heading for zoom modal
        */
       heading: {
-        type: String,
-        value: "Image Zoom"
+        type: String
       },
+
       /**
-       * heading for the zoom modal
+       * details for zoom modal
        */
-      itemId: {
-        type: String,
-        value: null
-        //observer: "_itemChanged"
-      },
-      /**
-       * The zoom modal
-       */
-      modal: {
-        type: Object,
-        value: null
-      },
-      /**
-       * scrolled to by default (for grid)?
-       */
-      scrolled: {
-        type: Boolean,
-        value: false
+      details: {
+        type: String
       },
       /**
        * Image source.
        */
       src: {
         type: String,
-        reflectToAttribute: true
+        reflect: true,
+        attribute: "src"
       },
       /**
        * tooltip for the zoom button
        */
       tooltip: {
-        type: String,
-        value: "Zoom In"
+        type: String
       },
       /**
        * gallery item's alt text
        */
       zoomAlt: {
         type: String,
-        value: null
-      },
-      /**
-       * zoomed by default?
-       */
-      zoomed: {
-        type: Boolean,
-        value: false
+        attribute: "zoom-alt"
       }
     };
   }
@@ -203,44 +163,36 @@ class LrndesignGalleryZoom extends PolymerElement {
   /**
    * life cycle, element is ready
    */
-  ready() {
-    super.ready();
-    this._detailsChanged();
-    this.$.zoomtpl.associateEvents(this.$.zoombtn);
-    if (this.scrolled) {
-      this.dispatchEvent(new CustomEvent("gallery-scroll"));
-      if (!this.zoomed) this.$.zoombtn.focus();
-    }
-    if (this.zoomed) {
-      this.zoom();
-    }
+  constructor() {
+    super();
+    this.heading = "Image Zoom";
+    this.details = "";
+    this.src = "";
+    this.tooltip = "Zoom In";
+    this.zoomAlt = "Full-sized Image";
+  }
+
+  get button() {
+    return this.shadowRoot && this.shadowRoot.querySelector("#zoombtn")
+      ? this.shadowRoot.querySelector("#zoombtn")
+      : false;
+  }
+  get modal() {
+    return this.shadowRoot && this.shadowRoot.querySelector("#zoomtpl")
+      ? this.shadowRoot.querySelector("#zoomtpl")
+      : false;
   }
 
   /**
    * opens the modal
    */
   zoom() {
-    let root = this;
-    root.$.zoombtn.dispatchEvent(
-      new CustomEvent("gallery-zoom", { detail: { root } })
-    );
-  }
-
-  /**
-   * updates the details.
-   */
-  _detailsChanged(e) {
-    this.$.details.innerHTML = this.details;
-  }
-
-  /**
-   * returns true if the given attribute is not null
-   *
-   * @param {string} the attribute to test
-   * @returns {boolean} if there is a non-null value for the attribute
-   */
-  _isAttrSet(attr = null) {
-    return attr !== null && attr !== undefined;
+    if (this.button && this.modal) {
+      this.modal.openModal(this.button);
+      let event = new CustomEvent("gallery-zoom", { detail: this });
+      this.button.dispatchEvent(event);
+    }
   }
 }
 window.customElements.define(LrndesignGalleryZoom.tag, LrndesignGalleryZoom);
+export { LrndesignGalleryZoom };

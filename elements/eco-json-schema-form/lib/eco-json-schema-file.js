@@ -7,6 +7,7 @@ import "@polymer/paper-button/paper-button.js";
 import "@polymer/paper-input/paper-input.js";
 import "@polymer/iron-icon/iron-icon.js";
 import "@polymer/iron-icons/iron-icons.js";
+import "@polymer/polymer/lib/elements/dom-repeat.js";
 /**
 `eco-json-schema-file` takes in a JSON schema of type number and string and
 contains a `paper-input`, exposing a `value` property that represents the schema.
@@ -32,6 +33,9 @@ class EcoJsonSchemaFile extends mixinBehaviors(
   static get template() {
     return html`
       <style is="custom-style" include="iron-flex iron-flex-alignment">
+        :host ([hidden]) {
+          display: none;
+        }
         paper-input {
           padding: 2px;
           --paper-input-container-label: {
@@ -210,7 +214,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       */
 
       /**
-       * `target` is the target url to upload the files to.
+       * `target`
+       * @element target is the target url to upload the files to.
        * Additionally by adding '<name>' in your url, it will be replaced by
        * the file name.
        */
@@ -220,7 +225,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `accept` is the set of comma separated file extensions or mime types
+       * `accept`
+       * @element accept is the set of comma separated file extensions or mime types
        * to filter as accepted.
        */
       accept: {
@@ -229,7 +235,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `droppable` indicates whether or not to allow file drop.
+       * `droppable`
+       * @element droppable indicates whether or not to allow file drop.
        */
       droppable: {
         type: Boolean,
@@ -237,7 +244,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `dropText` is the  text to display in the file drop area.
+       * `dropText`
+       * @element dropText is the  text to display in the file drop area.
        */
       dropText: {
         type: String,
@@ -245,7 +253,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `multi` indicates whether or not to allow multiple files to be uploaded.
+       * `multi`
+       * @element multi indicates whether or not to allow multiple files to be uploaded.
        */
       multi: {
         type: Boolean,
@@ -253,7 +262,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `files` is the list of files to be uploaded
+       * `files`
+       * @element files is the list of files to be uploaded
        */
       files: {
         type: Array,
@@ -264,7 +274,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `raised` indicates whether or not the button should be raised
+       * `raised`
+       * @element raised indicates whether or not the button should be raised
        */
       raised: {
         type: Boolean,
@@ -272,7 +283,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `noink` indicates that the button should not have an ink effect
+       * `noink`
+       * @element noink indicates that the button should not have an ink effect
        */
       noink: {
         type: Boolean,
@@ -280,7 +292,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `headers` is a key value map of header names and values
+       * `headers`
+       * @element headers is a key value map of header names and values
        */
       headers: {
         type: Object,
@@ -288,7 +301,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `retryText` is the text for the tooltip to retry an upload
+       * `retryText`
+       * @element retryText is the text for the tooltip to retry an upload
        */
       retryText: {
         type: String,
@@ -296,7 +310,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `removeText` is the text for the tooltip to remove an upload
+       * `removeText`
+       * @element removeText is the text for the tooltip to remove an upload
        */
       removeText: {
         type: String,
@@ -304,7 +319,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `successText` is the text for the tooltip of a successful upload
+       * `successText`
+       * @element successText is the text for the tooltip of a successful upload
        */
       successText: {
         type: String,
@@ -312,7 +328,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `errorText` is the text to display for a failed upload
+       * `errorText`
+       * @element errorText is the text to display for a failed upload
        */
       errorText: {
         type: String,
@@ -320,7 +337,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `_shownDropText` indicates whether or not the drop text should be shown
+       * `_shownDropText`
+       * @element _shownDropText indicates whether or not the drop text should be shown
        */
       _shownDropText: {
         type: Boolean,
@@ -328,7 +346,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `additional` object of key-pair values to send additional values along with file.
+       * `additional`
+       * @element additional object of key-pair values to send additional values along with file.
        */
       additional: {
         type: Object,
@@ -336,7 +355,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `fileDataName` is the name for the file data in the `formData` object.
+       * `fileDataName`
+       * @element fileDataName is the name for the file data in the `formData` object.
        */
       fileDataName: {
         type: String,
@@ -344,7 +364,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `paperButtonAlt` allows changing the alt property on the paper button
+       * `paperButtonAlt`
+       * @element paperButtonAlt allows changing the alt property on the paper button
        */
       paperButtonAlt: {
         type: String,
@@ -352,7 +373,8 @@ class EcoJsonSchemaFile extends mixinBehaviors(
       },
 
       /**
-       * `paperButtonTitle` allows changing the title property on the paper button
+       * `paperButtonTitle`
+       * @element paperButtonTitle allows changing the title property on the paper button
        */
       paperButtonTitle: {
         type: String,
@@ -365,7 +387,7 @@ class EcoJsonSchemaFile extends mixinBehaviors(
    */
   clear() {
     this.set("files", []);
-    this.$.fileInput.value = "";
+    this.shadowRoot.querySelector("#fileInput").value = "";
     this._showDropText();
   }
 
@@ -373,10 +395,18 @@ class EcoJsonSchemaFile extends mixinBehaviors(
     super.ready();
 
     if (this.raised) {
-      this.toggleAttribute("raised", true, this.$.button);
+      this.toggleAttribute(
+        "raised",
+        true,
+        this.shadowRoot.querySelector("#button")
+      );
     }
     if (this.noink) {
-      this.toggleAttribute("noink", true, this.$.button);
+      this.toggleAttribute(
+        "noink",
+        true,
+        this.shadowRoot.querySelector("#button")
+      );
     }
     if (this.droppable) {
       this._showDropText();
@@ -388,7 +418,7 @@ class EcoJsonSchemaFile extends mixinBehaviors(
    * A function to set up a drop area for drag-and-drop file uploads
    */
   setupDrop() {
-    var uploadBorder = this.$.UploadBorder;
+    var uploadBorder = this.shadowRoot.querySelector("#UploadBorder");
     this.toggleClass("enabled", true, uploadBorder);
 
     this.ondragover = function(e) {
@@ -454,7 +484,7 @@ class EcoJsonSchemaFile extends mixinBehaviors(
    * Clicks the invisible file input
    */
   _fileClick() {
-    var elem = this.$.fileInput;
+    var elem = this.shadowRoot.querySelector("#fileInput");
     if (elem && document.createEvent) {
       // sanity check
       var evt = document.createEvent("MouseEvents");
@@ -583,7 +613,7 @@ class EcoJsonSchemaFile extends mixinBehaviors(
   _schemaChanged() {
     var schema = this.schema;
     /*
-    var inputEl = this.$.fileInput;
+    var inputEl = this.shadowRoot.querySelector('#fileInput');
     if (schema.required) {
       inputEl.required = true;
     }
@@ -607,11 +637,11 @@ class EcoJsonSchemaFile extends mixinBehaviors(
   /*
   _errorChanged() {
     if (this.error) {
-      this.$.fileInput.errorMessage = this.error;
-      this.$.fileInput.invalid = true;
+      this.shadowRoot.querySelector('#fileInput').errorMessage = this.error;
+      this.shadowRoot.querySelector('#fileInput').invalid = true;
     } else {
-      this.$.fileInput.invalid = false;
-      this.$.fileInput.errorMessage = null;
+      this.shadowRoot.querySelector('#fileInput').invalid = false;
+      this.shadowRoot.querySelector('#fileInput').errorMessage = null;
     }
   },
   */

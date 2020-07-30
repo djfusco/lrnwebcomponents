@@ -2,11 +2,8 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
+import { html, css } from "lit-element/lit-element.js";
 import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import "@polymer/polymer/lib/elements/dom-if.js";
-import "@polymer/polymer/lib/elements/dom-repeat.js";
 /**
  * `csv-render`
  * `Remote render a CSV file in place as an accessible table.`
@@ -14,53 +11,41 @@ import "@polymer/polymer/lib/elements/dom-repeat.js";
  * @microcopy - language worth noting:
  *  - CSV is comma separated values
  *
- * @customElement
- * @polymer
- * @polymerLegacy
- * @demo demo/index.html
+ * @demo ./demo/index.html
+ * @element csv-render
  */
-class CsvRender extends PolymerElement {
-  constructor() {
-    super();
-    import("@lrnwebcomponents/hexagon-loader/hexagon-loader.js");
-    import("@polymer/iron-ajax/iron-ajax.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/iron-icon/iron-icon.js");
-  }
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      import("@polymer/paper-button/paper-button.js");
-      import("@polymer/paper-tooltip/paper-tooltip.js");
-    });
-  }
-  static get template() {
-    return html`
-      <style>
+class CsvRender extends SimpleColors {
+  /**
+   * LitElement style construction
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
         }
         .table {
           width: 100%;
-          border: 1px solid rgba(0, 0, 0, 0.12);
+          border: 1px solid var(--simple-colors-default-theme-accent-6);
           border-collapse: collapse;
           white-space: nowrap;
           font-size: 16px;
-          background-color: rgb(255, 255, 255);
+          background-color: var(--simple-colors-default-theme-grey-1);
         }
         .table thead {
           padding-bottom: 0.16px;
           position: sticky;
         }
         .table caption {
-          background-color: #eee;
+          background-color: var(--simple-colors-default-theme-accent-1);
           font-weight: bold;
           padding: 8px;
-          border: 1px solid rgba(0, 0, 0, 0.12);
+          border: 1px solid var(--simple-colors-default-theme-accent-6);
           border-bottom: none;
         }
-        .table thead th {
-          text-align: center;
+        :host(:not([accent-color])) .table caption,
+        :host([accent-color="grey"]) .table caption {
+          background-color: var(--simple-colors-default-theme-accent-2);
         }
         .table tbody tr {
           position: relative;
@@ -73,24 +58,21 @@ class CsvRender extends PolymerElement {
           transition-property: background-color;
         }
         .table tbody tr:hover {
-          background-color: #eeeeee;
+          background-color: var(--simple-colors-default-theme-accent-1);
+        }
+        :host(:not([accent-color])) .table tbody tr:hover,
+        :host([accent-color="grey"]) .table tbody tr:hover {
+          background-color: var(--simple-colors-default-theme-accent-2);
         }
         .table td,
+        .table thead th,
         .table th {
           padding: 0 1.125em;
-          text-align: right;
-        }
-        .table td:first-of-type,
-        .table th:first-of-type {
-          padding-left: 24px;
-        }
-        .table td:last-of-type,
-        .table th:last-of-type {
-          padding-right: 24px;
+          text-align: left;
         }
         .table td {
-          border-top: 1px solid rgba(0, 0, 0, 0.12);
-          border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+          border-top: 1px solid var(--simple-colors-default-theme-accent-6);
+          border-bottom: 1px solid var(--simple-colors-default-theme-accent-6);
         }
         .table th {
           position: relative;
@@ -109,6 +91,7 @@ class CsvRender extends PolymerElement {
           position: absolute;
         }
         #download paper-button {
+          color: var(--simple-colors-default-theme-accent-6);
           border-radius: 36px;
           width: 36px;
           height: 36px;
@@ -125,58 +108,95 @@ class CsvRender extends PolymerElement {
         #download paper-button:hover,
         #download paper-button:focus,
         #download paper-button:active {
-          outline: 2px solid grey;
+          color: var(--simple-colors-default-theme-accent-8);
+          outline: 2px solid var(--simple-colors-default-theme-accent-6);
         }
-      </style>
+      `
+    ];
+  }
+  /**
+   * HTMLElement
+   */
+  constructor() {
+    super();
+    this.table = [];
+    this.tableHeadings = [];
+    this.tableData = "";
+    import("@lrnwebcomponents/hexagon-loader/hexagon-loader.js");
+    import("@polymer/iron-ajax/iron-ajax.js");
+    import("@polymer/iron-icons/iron-icons.js");
+    import("@polymer/iron-icon/iron-icon.js");
+    import("@polymer/paper-button/paper-button.js");
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
+  }
+  /**
+   * LitElement life cycle - property changed
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "color") {
+        this._getAccentColor(this[propName], oldValue);
+      }
+    });
+  }
+  /**
+   * LitElement render
+   */
+  render() {
+    return html`
       <iron-ajax
         auto
-        url="[[dataSource]]"
+        url="${this.dataSource}"
         handle-as="text"
         debounce-duration="500"
-        last-response="{{tableData}}"
-        on-response="handleResponse"
+        @last-response-changed="${this.tableDataChanged}"
+        @response="${this.handleResponse}"
       ></iron-ajax>
       <hexagon-loader
         id="loading"
+        accent-color="${this.accentColor}"
         loading
-        color="[[color]]"
         item-count="4"
         size="small"
       ></hexagon-loader>
-      <a
-        href="[[dataSource]]"
-        id="download"
-        tabindex="-1"
-        style$="color:[[hexColor]]"
-      >
+      <a href="${this.dataSource}" id="download" tabindex="-1">
         <paper-button
           ><iron-icon icon="file-download"></iron-icon
         ></paper-button>
       </a>
-      <paper-tooltip for="download" animation-delay="200" offset="14"
-        >Download table data</paper-tooltip
+      <simple-tooltip for="download" animation-delay="200" offset="14"
+        >Download table data</simple-tooltip
       >
-      <table class="table" summary="[[summary]]">
-        <template is="dom-if" if="[[caption]]">
-          <caption>
-            [[caption]]
-          </caption>
-        </template>
+      <table class="table" summary="${this.summary}">
+        ${this.caption
+          ? html`
+              <caption>
+                ${this.caption}
+              </caption>
+            `
+          : ""}
         <thead>
           <tr>
-            <template is="dom-repeat" items="[[tableHeadings]]" as="heading">
-              <th scope="col">[[heading]]</th>
-            </template>
+            ${this.tableHeadings.map(
+              heading =>
+                html`
+                  <th scope="col">${heading}</th>
+                `
+            )}
           </tr>
         </thead>
         <tbody>
-          <template is="dom-repeat" items="[[table]]" as="row">
-            <tr>
-              <template is="dom-repeat" items="[[row]]" as="col">
-                <td>[[col]]</td>
-              </template>
-            </tr>
-          </template>
+          ${this.table.map(
+            row => html`
+              <tr>
+                ${row.map(
+                  col => html`
+                    <td>${col}</td>
+                  `
+                )}
+              </tr>
+            `
+          )}
         </tbody>
       </table>
     `;
@@ -185,13 +205,17 @@ class CsvRender extends PolymerElement {
   static get tag() {
     return "csv-render";
   }
+  tableDataChanged(e) {
+    this.tableData = e.detail.value;
+  }
   static get properties() {
     return {
       /**
        * Location of the CSV file.
        */
       dataSource: {
-        type: String
+        type: String,
+        attribute: "data-source"
       },
 
       /**
@@ -210,37 +234,26 @@ class CsvRender extends PolymerElement {
        * Table busted out as an array.
        */
       table: {
-        type: Array,
-        value: []
+        type: Array
       },
       /**
        * Headings from the first row of the csv
        */
       tableHeadings: {
-        type: Array,
-        value: []
+        type: Array
       },
       /**
        * Raw data pulled in from the csv file.
        */
       tableData: {
         type: String,
-        value: ""
-      },
-      /**
-       * Class for the color
-       */
-      hexColor: {
-        type: String,
-        computed: "_getHexColor(color)"
+        attribute: "table-data"
       },
       /**
        * Color class work to apply
        */
       color: {
-        type: String,
-        value: "grey",
-        reflectToAttribute: true
+        type: String
       }
     };
   }
@@ -278,13 +291,15 @@ class CsvRender extends PolymerElement {
     }
     return ret;
   }
-  _getHexColor(color) {
-    let name = color.replace("-text", "");
-    let tmp = new SimpleColors();
-    if (tmp.colors[name]) {
-      return tmp.colors[name][6];
+
+  _getAccentColor(color) {
+    color = color.replace("-text", "");
+    if (
+      (!this.accentColor || this.accentColor === "grey") &&
+      this.colors[color]
+    ) {
+      this.accentColor = color;
     }
-    return "#000000";
   }
 }
 window.customElements.define(CsvRender.tag, CsvRender);

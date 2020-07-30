@@ -3,13 +3,13 @@
  * @license Apache-2.0, see License.md for full text.
  */
 import { LitElement, html, css } from "lit-element/lit-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 /**
  * `meme-maker`
  * Connects lrndesign-gallery to HAX
  * @demo demo/index.html
  * @microcopy - the mental model for this element
  *  - go forth and make dank memes yo
+ * @element meme-maker
  */
 class MemeMaker extends LitElement {
   static get styles() {
@@ -73,7 +73,12 @@ class MemeMaker extends LitElement {
   render() {
     return html`
       <figure>
-        <img .src="${this.imageUrl}" .alt="${this.alt}" />
+        <img
+          loading="lazy"
+          src="${this.imageUrl}"
+          .alt="${this.alt}"
+          aria-describedby="${this.describedBy || ""}"
+        />
         <figcaption class="top-text">${this.topText}</figcaption>
         <figcaption class="bottom-text">${this.bottomText}</figcaption>
       </figure>
@@ -85,8 +90,6 @@ class MemeMaker extends LitElement {
   constructor() {
     super();
     this.alt = "";
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(MemeMaker.haxProperties, MemeMaker.tag, this);
   }
   static get properties() {
     return {
@@ -95,6 +98,13 @@ class MemeMaker extends LitElement {
        */
       alt: {
         type: String
+      },
+      /**
+       * Aria-describedby data passed down to appropriate tag
+       */
+      describedBy: {
+        type: String,
+        attribute: "described-by"
       },
       /**
        * url to the meme image
@@ -123,6 +133,18 @@ class MemeMaker extends LitElement {
     };
   }
   /**
+   * Hook for HAX to support progressive enhancement and return a string
+   * to place in the slot of this tag for RSS, bots and legacy formats
+   */
+  haxProgressiveEnhancement() {
+    return `
+    ${this.topText ? `<div>${this.topText}</div>` : ""}
+      <img src="${this.imageUrl}" alt="${
+      this.alt
+    }" preload="lazy" aria-describedby="${this.describedBy || ""}"/>
+    ${this.bottomText ? `<div>${this.bottomText}</div>` : ""}`;
+  }
+  /**
    * Attached to the DOM, now fire.
    */
   static get haxProperties() {
@@ -133,20 +155,21 @@ class MemeMaker extends LitElement {
       gizmo: {
         title: "Meme",
         description: "Make a meme out of an image",
-        icon: "editor:title",
+        icon: "hax:meme",
         color: "orange",
-        groups: ["Content", "Text", "Meme", "Funny"],
+        groups: ["Media", "Funny"],
         handles: [
           {
             type: "image",
             source: "imageUrl",
             title: "topText",
             author: "bottomText",
-            alt: "alt"
+            alt: "alt",
+            ariaDescribedby: "describedBy"
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -189,8 +212,31 @@ class MemeMaker extends LitElement {
             icon: "editor:title"
           }
         ],
-        advanced: []
-      }
+        advanced: [
+          {
+            property: "describedBy",
+            title: "aria-describedby",
+            description:
+              "Space-separated list of IDs for elements that describe the image.",
+            inputMethod: "textfield"
+          }
+        ]
+      },
+      saveOptions: {
+        wipeSlot: true
+      },
+      demoSchema: [
+        {
+          tag: "meme-maker",
+          content: "",
+          properties: {
+            alt: "Cat stalking a small toy",
+            imageUrl: "https://cdn2.thecatapi.com/images/9j5.jpg",
+            topText: "I bring you",
+            bottomText: "the death"
+          }
+        }
+      ]
     };
   }
 }

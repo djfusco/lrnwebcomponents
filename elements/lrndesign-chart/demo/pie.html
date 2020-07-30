@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <title>LrndesignChart: lrndesign-chart Demo</title>
-    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <script src="../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
+    
+    <script src="../../../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
     <script type="module">
       import '@polymer/iron-demo-helpers/demo-snippet.js';
-      import '../lrndesign-chart.js';
+      import '../lib/lrndesign-pie.js';
     </script>
     <style is="custom-style" include="demo-pages-shared-styles">
     </style>
@@ -22,13 +22,14 @@
               width: 300px;
               height: 300px;
               display: inline-block;
+              padding: 20px;
             }
         </style>
         <template>
           <lrndesign-pie chart-title="A pie chart of favorite foods" data-source="pie.csv"></lrndesign-pie>
           <lrndesign-pie dark chart-title="A pie chart of favorite foods" data-source="pie.csv"></lrndesign-pie>
-          <lrndesign-pie accent-color="blue" chart-title="A pie chart of favorite foods" data-source="pie.csv"></lrndesign-pie>
-          <lrndesign-pie dark accent-color="blue" chart-title="A pie chart of favorite foods" data-source="pie.csv"></lrndesign-pie>
+          <lrndesign-pie accent-color="blue" chart-title="A pie chart of favorite foods" data-source="pie.csv" donut></lrndesign-pie>
+          <lrndesign-pie dark accent-color="blue" chart-title="A pie chart of favorite foods" data-source="pie.csv" donut show-table></lrndesign-pie>
         </template>
       </demo-snippet>
     </div>

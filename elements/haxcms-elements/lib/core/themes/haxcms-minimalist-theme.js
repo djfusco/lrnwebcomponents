@@ -2,26 +2,26 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXCMSTheme } from "@lrnwebcomponents/haxcms-elements/lib/core/HAXCMSThemeWiring.js";
+import { html } from "@polymer/polymer/polymer-element.js";
+import { HAXCMSPolymerElementTheme } from "@lrnwebcomponents/haxcms-elements/lib/core/HAXCMSPolymerElementTheme.js";
 import { MinimalistTemplate } from "@lrnwebcomponents/haxcms-elements/lib/ui-components/templates/minimalist-template.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 /**
  * `haxcms-minimalist-theme`
  * `Minimalist design, just a whole page really.
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
-class HAXCMSMinimalistTheme extends HAXCMSTheme(
-  MinimalistTemplate(PolymerElement)
+class HAXCMSMinimalistTheme extends MinimalistTemplate(
+  HAXCMSPolymerElementTheme
 ) {
   // render function
   static get template() {
     let template = super.template;
     return html`
-      <style>
+      <style include="simple-colors-shared-styles-polymer">
         :host {
           display: block;
           font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial,
@@ -175,15 +175,6 @@ class HAXCMSMinimalistTheme extends HAXCMSTheme(
             color: black;
             display: inline-flex;
           }
-          --site-title-tooltip: {
-            --paper-tooltip-background: #000000;
-            --paper-tooltip-opacity: 1;
-            --paper-tooltip-text-color: #ffffff;
-            --paper-tooltip-delay-in: 0;
-            --paper-tooltip: {
-              border-radius: 0;
-            }
-          }
           --site-title-link-hover: {
             background-color: #dee2e6;
           }
@@ -202,6 +193,7 @@ class HAXCMSMinimalistTheme extends HAXCMSTheme(
           }
         }
         site-menu-button {
+          --site-menu-button-button-hover-background-color: #dee2e6;
           --site-menu-button-button: {
             color: black;
             display: inline-flex;
@@ -213,9 +205,6 @@ class HAXCMSMinimalistTheme extends HAXCMSTheme(
             width: 50px;
             min-width: unset;
             line-height: 1.5;
-          }
-          --site-menu-button-button-hover: {
-            background-color: #dee2e6;
           }
         }
         site-top-menu[sticky] {
@@ -248,13 +237,11 @@ class HAXCMSMinimalistTheme extends HAXCMSTheme(
             justify-content: center;
           }
           --site-top-menu-tooltip: {
-            --paper-tooltip-background: #000000;
-            --paper-tooltip-opacity: 1;
-            --paper-tooltip-text-color: #ffffff;
-            --paper-tooltip-delay-in: 0;
-            --paper-tooltip: {
-              border-radius: 0;
-            }
+            --simple-tooltip-background: #000000;
+            --simple-tooltip-opacity: 1;
+            --simple-tooltip-text-color: #ffffff;
+            --simple-tooltip-delay-in: 0;
+            --simple-tooltip-border-radius: 0;
           }
           color: #007bff;
           --site-top-menu-bg: white;
@@ -273,41 +260,19 @@ class HAXCMSMinimalistTheme extends HAXCMSTheme(
             background-color: #dee2e6;
           }
         }
-        site-print-button {
-          --site-print-button-button: {
-            color: black;
-          }
-          --site-print-button-tooltip: {
-            --paper-tooltip-background: #000000;
-            --paper-tooltip-opacity: 1;
-            --paper-tooltip-text-color: #ffffff;
-            --paper-tooltip-delay-in: 0;
-            --paper-tooltip: {
-              border-radius: 0;
-            }
-          }
-          --site-print-button-button-hover: {
-            background-color: #dee2e6;
-          }
+        site-print-button simple-tooltip {
+          --simple-tooltip-background: #000000;
+          --simple-tooltip-opacity: 1;
+          --simple-tooltip-text-color: #ffffff;
+          --simple-tooltip-delay-in: 0;
+          --simple-tooltip-border-radius: 0;
         }
-        site-top-menu:not([sticky]) site-print-button {
-          --site-print-button-button: {
-            color: black;
-            display: inline-flex;
-            border: 1px solid #dee2e6;
-            height: 50px;
-            width: 50px;
-            line-height: 1.5;
-          }
-        }
+
         scroll-button {
           position: fixed;
           right: 0;
           bottom: 50px;
           z-index: 10000;
-          --scroll-button-button: {
-            border-radius: 10px;
-          }
         }
         .spacing {
           height: 50px;

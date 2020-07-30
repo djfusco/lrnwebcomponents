@@ -5,7 +5,7 @@ import "@polymer/paper-item/paper-item.js";
 import "@polymer/paper-listbox/paper-listbox.js";
 import { IronValidatableBehavior } from "@polymer/iron-validatable-behavior/iron-validatable-behavior.js";
 import { mixinBehaviors } from "@polymer/polymer/lib/legacy/class.js";
-
+import "@polymer/polymer/lib/elements/dom-repeat.js";
 class EcoJsonSchemaEnum extends mixinBehaviors(
   [IronValidatableBehavior],
   PolymerElement
@@ -13,6 +13,9 @@ class EcoJsonSchemaEnum extends mixinBehaviors(
   static get template() {
     return html`
       <style is="custom-style" include="iron-flex iron-flex-alignment">
+        :host ([hidden]) {
+          display: none;
+        }
         paper-input {
           --paper-input-container-label: {
             white-space: normal;
@@ -80,7 +83,7 @@ class EcoJsonSchemaEnum extends mixinBehaviors(
   }
   _schemaChanged() {
     var schema = this.schema;
-    var inputEl = this.$.dropdown;
+    var inputEl = this.shadowRoot.querySelector("#dropdown");
 
     if (schema.component && schema.component.properties) {
       Object.keys(schema.component.properties).forEach(function(prop) {
@@ -98,9 +101,9 @@ class EcoJsonSchemaEnum extends mixinBehaviors(
   }
   _errorChanged() {
     if (this.error) {
-      this.$.dropdown.invalid = true;
+      this.shadowRoot.querySelector("#dropdown").invalid = true;
     } else {
-      this.$.dropdown.invalid = false;
+      this.shadowRoot.querySelector("#dropdown").invalid = false;
     }
   }
   _isSchemaValue(type) {

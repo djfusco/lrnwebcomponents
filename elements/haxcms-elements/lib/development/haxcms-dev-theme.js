@@ -2,12 +2,10 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
-import { HAXCMSTheme } from "@lrnwebcomponents/haxcms-elements/lib/core/HAXCMSThemeWiring.js";
+import { html } from "@polymer/polymer/polymer-element.js";
+import { HAXCMSPolymerElementTheme } from "@lrnwebcomponents/haxcms-elements/lib/core/HAXCMSPolymerElementTheme.js";
 import "@polymer/paper-button/paper-button.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
-import "@lrnwebcomponents/hax-body/lib/hax-shared-styles.js";
+import "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 import "@polymer/iron-list/iron-list.js";
 /**
  * `haxcms-dev-theme`
@@ -15,14 +13,12 @@ import "@polymer/iron-list/iron-list.js";
  *  which allows you to build things that just work using JSON Outline Schema as it's "backend"
  * and then IF hax is around it'll show up :)`
  *
- * @customElement
- * @polymer
+
  * @demo demo/index.html
  */
-class HAXCMSDevTheme extends HAXCMSTheme(PolymerElement) {
+class HAXCMSDevTheme extends HAXCMSPolymerElementTheme {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "haxcms-dev-theme";
@@ -31,6 +27,7 @@ class HAXCMSDevTheme extends HAXCMSTheme(PolymerElement) {
     super();
     import("@polymer/paper-card/paper-card.js");
     import("@polymer/iron-icons/iron-icons.js");
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
     import("@lrnwebcomponents/haxcms-elements/lib/ui-components/active-item/site-active-title.js");
     import("@lrnwebcomponents/haxcms-elements/lib/ui-components/blocks/site-children-block.js");
     import("@lrnwebcomponents/haxcms-elements/lib/ui-components/navigation/site-breadcrumb.js");
@@ -46,20 +43,11 @@ class HAXCMSDevTheme extends HAXCMSTheme(PolymerElement) {
   // render function
   static get template() {
     return html`
-      <style include="hax-shared-styles">
+      <style include="simple-colors-shared-styles-polymer">
         :host {
           display: block;
           /* theme color which is dictated by the manifest */
           background-color: var(--haxcms-color, black);
-        }
-        site-render-query.cardlist {
-          --site-query-iron-list: {
-            padding: 16px;
-            margin: 0 auto;
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
-          }
         }
         paper-card {
           width: 200px;
@@ -90,7 +78,10 @@ class HAXCMSDevTheme extends HAXCMSTheme(PolymerElement) {
           display: flex;
         }
         site-top-menu {
-          --site-top-menu-bg: #37474f;
+          --site-top-menu-bg: var(
+            --simple-colors-default-theme-blue-grey-7,
+            #37474f
+          );
           --site-top-menu-link-color: #ffffff;
           --site-top-menu-indicator-color: var(--haxcms-color, #ffffff);
           --site-top-menu-link-active-color: yellow;
@@ -106,28 +97,11 @@ class HAXCMSDevTheme extends HAXCMSTheme(PolymerElement) {
         }
         site-children-block {
           --site-children-block-button-active: {
-            background-color: #37474f;
+            background-color: var(
+              --simple-colors-default-theme-blue-grey-7,
+              #37474f
+            );
             color: #ffffff;
-          }
-        }
-        site-menu-button {
-          --site-menu-button-icon: {
-            width: 32px;
-            height: 32px;
-          }
-        }
-        site-print-button {
-          --site-print-button-button: {
-            color: white;
-          }
-          --site-print-button-tooltip: {
-            --paper-tooltip-background: #000000;
-            --paper-tooltip-opacity: 1;
-            --paper-tooltip-text-color: #ffffff;
-            --paper-tooltip-delay-in: 0;
-            --paper-tooltip: {
-              border-radius: 0;
-            }
           }
         }
       </style>
@@ -168,12 +142,15 @@ class HAXCMSDevTheme extends HAXCMSTheme(PolymerElement) {
         <h2>title: [[manifest.title]]</h2>
         <div>description: [[manifest.description]]</div>
         <div>
-          icon: <iron-icon icon="[[manifest.metadata.icon]]"></iron-icon>
+          icon:
+          <iron-icon
+            icon="[[manifest.metadata.theme.variables.icon]]"
+          ></iron-icon>
         </div>
         <div>
           image:
           <img
-            src$="[[manifest.metadata.image]]"
+            src$="[[manifest.metadata.theme.variables.image]]"
             height="200px"
             width="200px"
           />
@@ -192,17 +169,18 @@ class HAXCMSDevTheme extends HAXCMSTheme(PolymerElement) {
           <div style="padding:8px;">
             <paper-card
               heading="[[item.title]]"
-              image="[[item.metadata.image]]"
+              image="[[item.metadata.fields.image]]"
               elevation="1"
               animated-shadow="false"
             >
               <div class="card-content">
                 <div>description: [[item.description]]</div>
+                <div>slug: [[item.slug]]</div>
                 <div>location: [[item.location]]</div>
                 <div>changed: [[item.metadata.updated]]</div>
               </div>
               <div class="card-actions">
-                <a tabindex="-1" href$="[[item.location]]"
+                <a tabindex="-1" href$="[[item.slug]]"
                   ><paper-button data-id$="[[item.id]]"
                     >Set as active</paper-button
                   ></a
@@ -221,8 +199,7 @@ class HAXCMSDevTheme extends HAXCMSTheme(PolymerElement) {
    * that it ensures that happens
    */
   _itemTapped(e) {
-    var normalizedEvent = dom(e);
-    var local = normalizedEvent.localTarget;
+    var local = e.target;
     var activeId = local.getAttribute("data-id");
     if (
       local.tagName === "PAPER-BUTTON" &&

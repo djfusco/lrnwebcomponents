@@ -1,29 +1,20 @@
 /**
- * Copyright 2018 The Pennsylvania State University
+ * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { pathFromUrl } from "@polymer/polymer/lib/utils/resolve-url.js";
-import "@polymer/paper-material/paper-material.js";
-import "@polymer/paper-fab/paper-fab.js";
-import "@polymer/paper-icon-button/paper-icon-button.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 import "@lrnwebcomponents/es-global-bridge/es-global-bridge.js";
 /**
  * `wave-player`
  * `A player for visualizing a sound file`
- *
- * @customElement
- * @polymer
- * @polymerLegacy
  * @demo demo/index.html
+ * @element wave-player
  */
-class WavePlayer extends SchemaBehaviors(PolymerElement) {
-  static get template() {
-    return html`
-      <style>
+class WavePlayer extends SchemaBehaviors(LitElement) {
+  static get styles() {
+    return [
+      css`
         :host {
           height: 150px;
           background-color: var(--dark-primary-color);
@@ -163,158 +154,116 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
         .right {
           left: calc(75% - 20px);
         }
-
         .hidden {
           display: none;
         }
-
         @media only screen and (max-width: 500px) {
           .albuminfo {
             width: 100%;
           }
         }
-      </style>
+      `
+    ];
+  }
+  render() {
+    return html`
       <paper-fab
         id="playbutton"
         class="circleAnimation"
         disabled=""
         icon="av:play-arrow"
-        on-click="togglePlay"
+        @click="${this.togglePlay}"
       ></paper-fab>
       <paper-material id="controls" class="controls hidden" elevation="2">
         <paper-icon-button
           class="centred middle"
           style="color: white;"
           icon="av:pause"
-          on-click="togglePlay"
+          @click="${this.togglePlay}"
         ></paper-icon-button>
         <paper-icon-button
           id="replay"
           class="centred"
           style="color: white;"
           icon="av:replay-30"
-          on-click="throwBack"
+          @click="${this.throwBack}"
         ></paper-icon-button>
         <paper-icon-button
           id="mute"
           class="centred"
           style="color: white;"
           icon="av:volume-up"
-          on-click="toggleMute"
+          @click="${this.toggleMute}"
         ></paper-icon-button>
       </paper-material>
       <div id="container" class="waveContainer" elevation="0"></div>
       <div id="albuminfo" class="albuminfo">
-        <img class="coverart" src="[[coverart]]" />
-        <span class="title">[[title]]</span>
-        <span class="subtitle">[[subtitle]]</span>
+        <img loading="lazy" class="coverart" src="${this.coverart}" />
+        <span class="title">${this.title}</span>
+        <span class="subtitle">${this.subtitle}</span>
       </div>
     `;
   }
-
   static get tag() {
     return "wave-player";
   }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      let notifiedProps = [
+        "src",
+        "title",
+        "subtitle",
+        "coverart",
+        "lean",
+        "wavecolor",
+        "progresscolor"
+      ];
+      if (notifiedProps.includes(propName)) {
+        // notify
+        let eventName = `${propName
+          .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, "$1-$2")
+          .toLowerCase()}-changed`;
+        this.dispatchEvent(
+          new CustomEvent(eventName, {
+            detail: {
+              value: this[propName]
+            }
+          })
+        );
+      }
+      if (propName == "src") {
+        this._srcChanged(this[propName], oldValue);
+      }
+    });
+  }
   static get properties() {
-    let props = {
-      /**
-       * The source of the audio file to be played
-       *
-       * @attribute src
-       * @type String
-       * @default NULL
-       */
+    return {
+      ...super.properties,
       src: {
-        type: String,
-        notify: true,
-        observer: "_srcChanged"
+        type: String
       },
-      /**
-       * The main (bold) title
-       *
-       * @attribute title
-       * @type String
-       * @default NULL
-       */
       title: {
-        type: String,
-        value: "",
-        notify: true
+        type: String
       },
-      /**
-       * The smaller subtitle, for chapter heading or composer.
-       *
-       * @attribute subtitle
-       * @type String
-       * @default NULL
-       */
       subtitle: {
-        type: String,
-        value: "",
-        notify: true
+        type: String
       },
-      /**
-       * The sourse for cover art
-       *
-       * @attribute coverart
-       * @type String
-       * @default art.jpg
-       */
       coverart: {
-        type: String,
-        value: "",
-        notify: true
+        type: String
       },
-      /**
-       * container for the wave object
-       *
-       * @attribute wavesurfer
-       * @type Object
-       */
       wavesurfer: {
         type: Object
       },
-      /**
-       * Determines if the FOB is on the left or the right
-       *
-       * @attribute lean
-       * @type String
-       * @default left
-       */
       lean: {
-        type: String,
-        value: "left",
-        notify: true
+        type: String
       },
-      /**
-       * Color of the Wave
-       *
-       * @attribute wavecolor
-       * @type String
-       * @default #ffffff
-       */
       wavecolor: {
-        type: String,
-        value: "#ffffff",
-        notify: true
+        type: String
       },
-      /**
-       * Color of the completed section of the wave
-       *
-       * @attribute progresscolor
-       * @type String
-       * @default #CFD8DC
-       */
       progresscolor: {
-        type: String,
-        value: "#CFD8DC",
-        notify: true
+        type: String
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   /**
    * Source changed, let's test if we should update wavesurfer
@@ -330,14 +279,21 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
    */
   constructor() {
     super();
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/iron-icons/av-icons.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(WavePlayer.haxProperties, WavePlayer.tag, this);
-    });
-    const basePath = pathFromUrl(decodeURIComponent(import.meta.url));
-    const location = `${basePath}lib/wavesurfer.js/dist/wavesurfer.js`;
+    this.title = "";
+    this.subtitle = "";
+    this.coverart = "";
+    this.lean = "left";
+    this.wavecolor = "#ffffff";
+    this.progresscolor = "#CFD8DC";
+    setTimeout(() => {
+      import("@polymer/paper-material/paper-material.js");
+      import("@polymer/paper-fab/paper-fab.js");
+      import("@polymer/paper-icon-button/paper-icon-button.js");
+      import("@polymer/iron-icons/iron-icons.js");
+      import("@polymer/iron-icons/av-icons.js");
+    }, 0);
+    const basePath = this.pathFromUrl(decodeURIComponent(import.meta.url));
+    const location = `${basePath}lib/wavesurferjs/dist/wavesurfer.js`;
     window.addEventListener(
       "es-bridge-wavesurfer-loaded",
       this._wavesurferLoaded.bind(this)
@@ -355,29 +311,36 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
   /**
    * Ready life cycle
    */
-  ready() {
-    super.ready();
+  firstUpdated() {
     if (this.lean === "right") {
-      this.$.playbutton.style.right = "25";
-      this.$.controls.style.right = "0";
+      this.shadowRoot.querySelector("#playbutton").style.right = "25";
+      this.shadowRoot.querySelector("#controls").style.right = "0";
     } else {
-      this.$.playbutton.style.left = "25";
-      this.$.controls.style.left = "0";
+      this.shadowRoot.querySelector("#playbutton").style.left = "25";
+      this.shadowRoot.querySelector("#controls").style.left = "0";
     }
     if (this.name === "") {
-      this.$.albuminfo.classList.add("hidden");
+      this.shadowRoot.querySelector("#albuminfo").classList.add("hidden");
     }
     // basic default for coverart if none
     if (this.coverart === "") {
-      const basePath = pathFromUrl(decodeURIComponent(import.meta.url));
+      const basePath = this.pathFromUrl(decodeURIComponent(import.meta.url));
       this.coverart = `${basePath}lib/art.jpg`;
     }
+  }
+  // simple path from a url modifier
+  pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf("/") + 1);
   }
   /**
    * invoke wavesurfer once we know it's globally scoped
    */
   _wavesurferLoaded() {
     this.__wavesurfer = true;
+    window.removeEventListener(
+      "es-bridge-wavesurfer-loaded",
+      this._wavesurferLoaded.bind(this)
+    );
     this.initWaveSurfer();
   }
   /**
@@ -385,12 +348,12 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
    */
   activateAnimation() {
     var self = this;
-    var waveStyle = this.$.container;
-    var buttonStyle = this.$.playbutton;
-    var controlsStyle = this.$.controls;
-    var muteStyle = this.$.mute;
-    var replayStyle = this.$.replay;
-    var albumStyle = this.$.albuminfo;
+    var waveStyle = this.shadowRoot.querySelector("#container");
+    var buttonStyle = this.shadowRoot.querySelector("#playbutton");
+    var controlsStyle = this.shadowRoot.querySelector("#controls");
+    var muteStyle = this.shadowRoot.querySelector("#mute");
+    var replayStyle = this.shadowRoot.querySelector("#replay");
+    var albumStyle = this.shadowRoot.querySelector("#albuminfo");
     var coverartStyle = albumStyle.querySelector(".coverart");
     var nameStyle = albumStyle.querySelector(".title");
     var titleStyle = albumStyle.querySelector(".subtitle");
@@ -402,9 +365,9 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
     nameStyle.classList.add("nameActive");
     titleStyle.classList.add("titleActive");
     if (self.lean === "right") {
-      this.$.playbutton.style.right = "0";
+      this.shadowRoot.querySelector("#playbutton").style.right = "0";
     } else {
-      this.$.playbutton.style.left = "0";
+      this.shadowRoot.querySelector("#playbutton").style.left = "0";
     }
     waveStyle.classList.add("waveActive");
     setTimeout(function() {
@@ -421,12 +384,12 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
    */
   deactivateAnimation() {
     var self = this;
-    var waveStyle = this.$.container;
-    var buttonStyle = this.$.playbutton;
-    var controlsStyle = this.$.controls;
-    var muteStyle = this.$.mute;
-    var replayStyle = this.$.replay;
-    var albumStyle = this.$.albuminfo;
+    var waveStyle = this.shadowRoot.querySelector("#container");
+    var buttonStyle = this.shadowRoot.querySelector("#playbutton");
+    var controlsStyle = this.shadowRoot.querySelector("#controls");
+    var muteStyle = this.shadowRoot.querySelector("#mute");
+    var replayStyle = this.shadowRoot.querySelector("#replay");
+    var albumStyle = this.shadowRoot.querySelector("#albuminfo");
     var coverartStyle = albumStyle.querySelector(".coverart");
     var nameStyle = albumStyle.querySelector(".title");
     var titleStyle = albumStyle.querySelector(".subtitle");
@@ -457,7 +420,7 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
    */
   initWaveSurfer() {
     window.wavesurferobject = new WaveSurfer({
-      container: this.$.container,
+      container: this.shadowRoot.querySelector("#container"),
       waveColor: this.wavecolor,
       progressColor: this.progresscolor, // --primary-background-color
       fillParent: true,
@@ -468,7 +431,7 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
       window.wavesurferobject.load(this.src);
     }
     window.wavesurferobject.on("ready", () => {
-      this.$.playbutton.removeAttribute("disabled");
+      this.shadowRoot.querySelector("#playbutton").removeAttribute("disabled");
     });
     window.wavesurferobject.on("finish", () => {
       this.deactivateAnimation();
@@ -480,7 +443,9 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
   togglePlay(e) {
     // make sure we have the correct instance loaded before we play
     window.wavesurferobject.playPause();
-    var iconType = this.$.playbutton.getAttribute("icon");
+    var iconType = this.shadowRoot
+      .querySelector("#playbutton")
+      .getAttribute("icon");
     if (iconType === "av:play-arrow") {
       this.activateAnimation();
     } else {
@@ -491,7 +456,7 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
    * Toggle mute on and off
    */
   toggleMute(e) {
-    var muteStyle = this.$.mute;
+    var muteStyle = this.shadowRoot.querySelector("#mute");
     var iconType = muteStyle.getAttribute("icon");
     window.wavesurferobject.toggleMute();
     if (iconType === "av:volume-up") {
@@ -516,7 +481,7 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
         description: "Audio that is just like spotify.",
         icon: "av:play-circle-filled",
         color: "purple",
-        groups: ["Video", "Media"],
+        groups: ["Audio", "Media"],
         handles: [
           {
             type: "audio",
@@ -526,7 +491,7 @@ class WavePlayer extends SchemaBehaviors(PolymerElement) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {

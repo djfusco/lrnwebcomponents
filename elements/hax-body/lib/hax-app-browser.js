@@ -1,116 +1,68 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { microTask } from "@polymer/polymer/lib/utils/async.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
-import "@lrnwebcomponents/grafitto-filter/grafitto-filter.js";
-import "@polymer/iron-list/iron-list.js";
-import "@polymer/iron-pages/iron-pages.js";
-import "./hax-shared-styles.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { winEventsElement } from "@lrnwebcomponents/utils/utils.js";
+import "./hax-tray-button.js";
+
 /**
  * `hax-app-browser`
+ * @element hax-app-browser
+ *
  * `Browse a list of apps. This provides a listing of our gizmos that we've integrated with.`
  * @microcopy - the mental model for this element
  * - hax-app - expression of how to communicate and visualize a data source
  * - gizmo - silly name for the general public when talking about hax-app and what it provides in the end
  */
-class HaxAppBrowser extends PolymerElement {
-  constructor() {
-    super();
-    import("@polymer/paper-input/paper-input.js");
-    import("@polymer/paper-item/paper-item.js");
-    import("@lrnwebcomponents/dropdown-select/dropdown-select.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-app-browser-item.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-app-search.js");
-  }
-  static get template() {
-    return html`
-      <style include="hax-shared-styles">
+class HaxAppBrowser extends winEventsElement(LitElement) {
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
         }
         :host *[hidden] {
           display: none;
         }
-        #ironlist {
-          min-height: 132px;
-          margin: 0;
-          padding: 10px;
-        }
-        hax-app-browser-item {
-          margin: 10px;
-          -webkit-transition: 0.3s all linear;
-          transition: 0.3s all linear;
-        }
-        .title {
-          position: relative;
-          padding: 16px;
-          outline: 0;
-          font-weight: 600;
-          text-align: left;
-          margin: 0;
-          background-color: var(--hax-color-menu-heading-bg);
-          font-size: 18px;
-          line-height: 18px;
-          font-family: "Noto Serif", serif;
-          color: var(--hax-color-text);
-        }
-        grafitto-filter {
-          color: var(--hax-color-text);
-        }
         .toolbar-inner {
-          display: inline-flex;
-          padding: 0 16px;
+          display: block;
+          padding: 0;
+          width: 100%;
         }
-      </style>
-      <h3 class="title">[[title]]</h3>
-      <div class="toolbar-inner">
-        <dropdown-select
-          id="filtertype"
-          label="Filter by"
-          value="details.title"
-        >
-          <paper-item value="details.title">Title</paper-item>
-        </dropdown-select>
-        <paper-input
-          label="Filter"
-          id="inputfilter"
-          aria-controls="filter"
-          value=""
-          always-float-label=""
-        ></paper-input>
+        .item-wrapper {
+          text-align: center;
+        }
+      `
+    ];
+  }
+  constructor() {
+    super();
+    this.__winEvents = {
+      "hax-store-property-updated": "_haxStorePropertyUpdated",
+      "hax-search-source-updated": "_searchSelected"
+    };
+    this.searching = false;
+    this.activeApp = null;
+    this.appList = [];
+    this.hasActive = false;
+    import("@lrnwebcomponents/hax-body/lib/hax-app-search.js");
+  }
+  render() {
+    return html`
+      <div class="item-wrapper">
+        ${this.appList.map(
+          app => html`
+            <hax-tray-button
+              index="${app.index}"
+              label="${app.details.title}"
+              icon="${app.details.icon}"
+              color="${app.details.color}"
+              event-name="search-selected"
+              event-data="${app.index}"
+            ></hax-tray-button>
+          `
+        )}
       </div>
-      <grafitto-filter
-        id="filter"
-        items="[[__appList]]"
-        like=""
-        where="details.title"
-        as="filtered"
-      >
-        <template>
-          <iron-list id="ironlist" items="[[filtered]]" as="app" grid="">
-            <template>
-              <div class="app-container">
-                <hax-app-browser-item
-                  index="[[app.index]]"
-                  title="[[app.details.title]]"
-                  icon="[[app.details.icon]]"
-                  image="[[app.details.tag]]"
-                  color="[[app.details.color]]"
-                  meta="[[app.details.meta]]"
-                  groups="[[app.details.groups]]"
-                  handles="[[app.details.handles]]"
-                  description="[[app.details.description]]"
-                  rating="[[app.details.rating]]"
-                  tags="[[app.details.tags]]"
-                ></hax-app-browser-item>
-              </div>
-            </template>
-          </iron-list>
-        </template>
-      </grafitto-filter>
       <hax-app-search
         id="haxappsearch"
-        hidden$="[[!searching]]"
+        .hidden="${!this.searching}"
       ></hax-app-search>
       <slot></slot>
     `;
@@ -127,92 +79,46 @@ class HaxAppBrowser extends PolymerElement {
         type: String
       },
       /**
-       * Title of the browser, for translation.
-       */
-      title: {
-        type: String,
-        value: "Find"
-      },
-      /**
        * Searching mode
        */
       searching: {
         type: Boolean,
-        reflectToAttribute: true,
-        value: false
+        reflect: true
       },
       /**
        * Global activeApp object.
        */
       activeApp: {
-        type: Object,
-        value: null,
-        observer: "_activeAppChanged"
+        type: Object
       },
       /**
        * If we have an active, scale everything
        */
       hasActive: {
-        reflectToAttribute: true,
-        value: false,
-        type: Boolean
+        reflect: true,
+        type: Boolean,
+        attribute: "has-active"
+      },
+      appList: {
+        type: Array
       }
     };
   }
-  /**
-   * life cycle
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    this.resetBrowser();
-    afterNextRender(this, function() {
-      this.shadowRoot
-        .querySelector("#inputfilter")
-        .addEventListener("value-changed", e => {
-          this.shadowRoot.querySelector("#filter").like = e.target.value;
-        });
-      this.shadowRoot
-        .querySelector("#filtertype")
-        .addEventListener("change", e => {
-          this.shadowRoot.querySelector("#inputfilter").value = "";
-          this.shadowRoot.querySelector("#filter").where = e.detail.value;
-          this.shadowRoot.querySelector("#filter").like = "";
-        });
-      document.body.addEventListener(
-        "hax-app-selected",
-        this._appSelected.bind(this)
-      );
-      document.body.addEventListener(
-        "hax-store-property-updated",
-        this._haxStorePropertyUpdated.bind(this)
-      );
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "activeApp") {
+        this._activeAppChanged(this[propName], oldValue);
+      }
     });
   }
-
-  /**
-   * Detached life cycle
-   */
-  disconnectedCallback() {
-    document.body.removeEventListener(
-      "hax-app-selected",
-      this._appSelected.bind(this)
-    );
-    document.body.removeEventListener(
-      "hax-store-property-updated",
-      this._haxStorePropertyUpdated.bind(this)
-    );
-    super.disconnectedCallback();
-  }
-
   /**
    * App has been selected.
    */
-  _appSelected(e) {
+  _searchSelected(e) {
     // item bubbled up
     if (typeof e.detail !== typeof undefined) {
-      this.set("__activeApp", e.detail);
       this.searching = true;
-      window.HaxStore.write("activeApp", this.__appList[e.detail], this);
+      window.HaxStore.write("activeApp", this.appList[e.detail], this);
     }
   }
 
@@ -221,68 +127,44 @@ class HaxAppBrowser extends PolymerElement {
    */
   _activeAppChanged(newValue, oldValue) {
     if (typeof oldValue !== typeof undefined && newValue != null) {
-      window.HaxStore.instance.haxManager.searching = true;
       this.hasActive = true;
     } else {
       this.hasActive = false;
     }
   }
-
   /**
    * Store updated, sync.
    */
   _haxStorePropertyUpdated(e) {
     if (
+      this.shadowRoot &&
       e.detail &&
-      typeof e.detail.value !== typeof undefined &&
-      e.detail.property
+      e.detail.value &&
+      e.detail.property === "appList"
     ) {
-      this.set(e.detail.property, e.detail.value);
+      this.resetBrowser();
+    } else if (
+      e.detail &&
+      e.detail.value &&
+      e.detail.property === "activeApp"
+    ) {
+      this.activeApp = e.detail.value;
     }
+  }
+  firstUpdated(changedProperties) {
+    if (super.firstUpdated) {
+      super.firstUpdated(changedProperties);
+    }
+    // app list registers early and has no imports so on
+    // fast environments it's alreayd loaded
+    this.resetBrowser();
   }
   /**
    * Reset this browser.
    */
   resetBrowser() {
-    microTask.run(() => {
-      this.searching = false;
-      this.set("__appList", window.HaxStore.instance.appList);
-      if (
-        this.shadowRoot
-          .querySelector("#filter")
-          .shadowRoot.querySelector("#ironlist")
-      ) {
-        this.shadowRoot
-          .querySelector("#filter")
-          .shadowRoot.querySelector("#ironlist").filtered = this.__appList;
-      }
-      this.shadowRoot.querySelector("#inputfilter").value = "";
-      this.shadowRoot.querySelector("#filtertype").value = "details.title";
-      this.shadowRoot.querySelector("#filter").value = "";
-      this.shadowRoot.querySelector("#filter").filter();
-      this.shadowRoot.querySelector("#filter").where = "details.title";
-      this.shadowRoot.querySelector("#filter").like = "";
-      setTimeout(() => {
-        if (
-          this.shadowRoot
-            .querySelector("#filter")
-            .shadowRoot.querySelector("#ironlist")
-        ) {
-          this.shadowRoot
-            .querySelector("#filter")
-            .shadowRoot.querySelector("#ironlist")
-            .dispatchEvent(
-              new CustomEvent("iron-resize", {
-                bubbles: true,
-                cancelable: true,
-                composed: true,
-                detail: true
-              })
-            );
-          window.dispatchEvent(new Event("resize"));
-        }
-      }, 100);
-    });
+    this.searching = false;
+    this.appList = [...window.HaxStore.instance.appList];
   }
 }
 window.customElements.define(HaxAppBrowser.tag, HaxAppBrowser);

@@ -1,26 +1,26 @@
 /**
- * Copyright 2018 The Pennsylvania State University
+ * Copyright 2020 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import { A11yBehaviors } from "@lrnwebcomponents/a11y-behaviors/a11y-behaviors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
+import { SimpleColorsSuper } from "@lrnwebcomponents/simple-colors/simple-colors.js";
 /**
  * `hero-banner`
  * `That thing no one wants to make over and over again yet always does...`
  * @demo demo/index.html
+ * @element hero-banner
  */
-class HeroBanner extends A11yBehaviors(SimpleColors) {
+class HeroBanner extends SimpleColorsSuper(LitElement) {
   constructor() {
     super();
     import("@polymer/paper-button/paper-button.js");
     import("@polymer/iron-image/iron-image.js");
   }
-  static get template() {
-    return html`
-      <style>
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
         :host {
           display: block;
           width: 100%;
@@ -36,10 +36,10 @@ class HeroBanner extends A11yBehaviors(SimpleColors) {
           --hero-banner-image-bg: var(--simple-colors-default-theme-grey-3);
           --hero-banner-button-weight: bold;
           --hero-banner-button-color: var(
-            --simple-colors-default-theme-accent-6
+            --simple-colors-default-theme-accent-5
           );
           --hero-banner-button-hover-color: var(
-            --simple-colors-default-theme-accent-5
+            --simple-colors-default-theme-accent-4
           );
         }
         :host([dark]) {
@@ -92,7 +92,7 @@ class HeroBanner extends A11yBehaviors(SimpleColors) {
         }
         .linkbutton:focus paper-button,
         .linkbutton:hover paper-button {
-          background-color: var(---hero-banner-button-hover-color);
+          background-color: var(--hero-banner-button-hover-color);
         }
         @media screen and (max-width: 720px) {
           .title {
@@ -118,19 +118,29 @@ class HeroBanner extends A11yBehaviors(SimpleColors) {
             width: 300px;
           }
         }
-      </style>
+      `
+    ];
+  }
+  render() {
+    return html`
       <iron-image
         class="image"
-        src\$="[[image]]"
-        fade=""
-        preload=""
+        src="${this.image}"
+        fade
+        preload
         sizing="cover"
+        aria-describedby="${this.ariaDescribedby || ""}"
       ></iron-image>
       <div class="itemwrapper">
-        <div class="title">[[title]]</div>
-        <div class="details">[[details]]</div>
-        <a class="linkbutton" href\$="[[buttonLink]]"
-          ><paper-button raised="">[[buttonText]]</paper-button></a
+        <div class="title">${this.title}</div>
+        <div class="details">${this.details}</div>
+        <a
+          class="linkbutton"
+          href="${this.buttonLink || ""}"
+          ?hidden="${!this.buttonLink}"
+          ><paper-button raised=""
+            >${this.buttonText || "Find out more"}</paper-button
+          ></a
         >
       </div>
     `;
@@ -141,13 +151,13 @@ class HeroBanner extends A11yBehaviors(SimpleColors) {
   }
 
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
       /**
        * Title
        */
       title: {
-        type: String,
-        value: "Title"
+        type: String
       },
       /**
        * Image
@@ -159,39 +169,32 @@ class HeroBanner extends A11yBehaviors(SimpleColors) {
        * Details / teaser text
        */
       details: {
-        type: String,
-        value: "Details"
+        type: String
       },
       /**
        * button label
        */
       buttonText: {
         type: String,
-        value: "Find out more"
+        attribute: "button-text"
       },
       /**
        * url for the button
        */
       buttonLink: {
+        type: String,
+        attribute: "button-link"
+      },
+      /*
+       * accessible long description
+       */
+      ariaDescribedby: {
+        attribute: "aria-decsribedby",
         type: String
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
 
-  /**
-   * Attached to the DOM, now fire.
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(HeroBanner.haxProperties, HeroBanner.tag, this);
-    });
-  }
   static get haxProperties() {
     return {
       canScale: false,
@@ -214,7 +217,7 @@ class HeroBanner extends A11yBehaviors(SimpleColors) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -300,7 +303,7 @@ class HeroBanner extends A11yBehaviors(SimpleColors) {
             icon: "icons:radio-button-unchecked"
           },
           {
-            property: "aaccentColor",
+            property: "accentColor",
             title: "Accent color",
             description: "Select the accent color use",
             inputMethod: "colorpicker",
@@ -322,7 +325,15 @@ class HeroBanner extends A11yBehaviors(SimpleColors) {
             icon: "icons:link"
           }
         ],
-        advanced: []
+        advanced: [
+          {
+            property: "ariaDescribedby",
+            title: "aria-decsribedby",
+            description:
+              "Space-separated id list for long descriptions that appear elsewhere",
+            inputMethod: "textfield"
+          }
+        ]
       }
     };
   }

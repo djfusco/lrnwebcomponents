@@ -1,73 +1,94 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import { html, css } from "lit-element/lit-element.js";
+import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
 import "@lrnwebcomponents/simple-modal/simple-modal.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
-import "@polymer/paper-button/paper-button.js";
-import "@polymer/neon-animation/neon-animation.js";
-import "@polymer/neon-animation/neon-animations.js";
-import "@polymer/iron-icons/iron-icons.js";
-import "./lrnsys-button-inner.js";
 /**
 `lrnsys-dialog`
 
 * @demo demo/index.html
 */
-class LrnsysDialog extends PolymerElement {
-  static get template() {
+class LrnsysDialog extends SimpleColors {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        :host {
+          display: inline-block;
+          --lrnsys-dialog-color: var(--simple-colors-foreground1, #000);
+          --lrnsys-dialog-background-color: var(--simple-colors-background1);
+          --lrnsys-dialog-toolbar-background-color: var(
+            --simple-colors-background3
+          );
+          --lrnsys-dialog-secondary-background-color: rgba(255, 255, 255, 0.7);
+        }
+        :host([dark]) {
+          --lrnsys-dialog-toolbar-background-color: var(
+            --simple-colors-background1
+          );
+          --lrnsys-dialog-background-color: var(--simple-colors-background3);
+          --lrnsys-dialog-secondary-background-color: rgba(0, 0, 0, 0.7);
+        }
+        #dialogtrigger {
+          display: inline-block;
+          min-width: unset;
+          margin: var(--lrnsys-dialog-button-margin);
+          padding: var(--lrnsys-dialog-button-padding);
+        }
+      `
+    ];
+  }
+  /**
+   * HTMLElement
+   */
+  constructor() {
+    super();
+    this.disabled = false;
+    this.dynamicImages = false;
+    this.focusState = false;
+    this.avatar = "";
+    this.icon = "";
+    this.text = "";
+    this.headingClass = "white-text black";
+    setTimeout(() => {
+      import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
+      import("@polymer/paper-button/paper-button.js");
+      import("@polymer/neon-animation/neon-animation.js");
+      import("@polymer/neon-animation/neon-animations.js");
+      import("@polymer/iron-icons/iron-icons.js");
+      import("./lrnsys-button-inner.js");
+    }, 0);
+    this.__modal = window.SimpleModal.requestAvailability();
+  }
+  render() {
     return html`
-      <custom-style>
-        <style>
-          :host {
-            display: inline-block;
-            --lrnsys-dialog-color: var(--simple-colors-foreground1, #000);
-            --lrnsys-dialog-background-color: var(--simple-colors-background1);
-            --lrnsys-dialog-toolbar-background-color: var(
-              --simple-colors-background3
-            );
-            --lrnsys-dialog-secondary-background-color: rgba(
-              255,
-              255,
-              255,
-              0.7
-            );
-          }
-          :host([dark]) {
-            --lrnsys-dialog-toolbar-background-color: var(
-              --simple-colors-background1
-            );
-            --lrnsys-dialog-background-color: var(--simple-colors-background3);
-            --lrnsys-dialog-secondary-background-color: rgba(0, 0, 0, 0.7);
-          }
-          #dialogtrigger {
-            display: inline-block;
-            min-width: unset;
-            margin: var(--lrnsys-dialog-button-margin);
-            padding: var(--lrnsys-dialog-button-padding);
-            @apply --lrnsys-dialog-button;
-          }
-        </style>
-      </custom-style>
       <paper-button
-        class$="[[class]]"
+        class="${this.class}"
         id="dialogtrigger"
-        on-click="openDialog"
-        raised="[[raised]]"
-        disabled$="[[disabled]]"
-        title="[[alt]]"
-        aria-label$="[[alt]]"
+        @click="${this.openDialog}"
+        @focus-changed="${this.focusToggle}"
+        @mousedown="${this.tapEventOn}"
+        @mouseover="${this.tapEventOn}"
+        @mouseout="${this.tapEventOff}"
+        ?raised="${this.raised}"
+        ?disabled="${this.disabled}"
+        title="${this.alt}"
+        aria-label="${this.alt}"
       >
         <lrnsys-button-inner
-          avatar$="[[avatar]]"
-          icon$="[[icon]]"
-          text$="[[text]]"
+          avatar="${this.avatar}"
+          icon="${this.icon}"
+          text="${this.text}"
         >
-          <slot name="button" slot="button"></slot>
+          <slot name="button"></slot>
         </lrnsys-button-inner>
       </paper-button>
-      <paper-tooltip for="dialogtrigger" animation-delay="0" hidden$="[[!alt]]"
-        >[[alt]]</paper-tooltip
+      <simple-tooltip
+        for="dialogtrigger"
+        animation-delay="0"
+        ?hidden="${!this.alt}"
+        >${this.alt}</simple-tooltip
       >
     `;
   }
@@ -75,9 +96,12 @@ class LrnsysDialog extends PolymerElement {
   static get tag() {
     return "lrnsys-dialog";
   }
-
+  /**
+   * LitElement / popular convention
+   */
   static get properties() {
     return {
+      ...super.properties,
       /**
        * Icon to present for clicking.
        */
@@ -107,7 +131,7 @@ class LrnsysDialog extends PolymerElement {
        */
       alt: {
         type: String,
-        reflectToAttribute: true
+        reflect: true
       },
       /**
        * Header for the dialog
@@ -119,35 +143,35 @@ class LrnsysDialog extends PolymerElement {
        * Disabled state.
        */
       disabled: {
-        type: Boolean,
-        value: false
+        type: Boolean
       },
       /**
        * Classes to add / subtract based on the item being hovered
        */
       hoverClass: {
-        type: String
+        type: String,
+        attribute: "hover-class"
       },
       /**
        * Default heading classes.
        */
       headingClass: {
         type: String,
-        value: "white-text black"
+        attribute: "heading-class"
       },
       /**
        * Support for dynamic loading of iron-image elements that are in the content slot.
        */
       dynamicImages: {
         type: Boolean,
-        value: false
+        attribute: "dynamic-images"
       },
       /**
        * Tracks if focus state is applied
        */
       focusState: {
         type: Boolean,
-        value: false
+        attribute: "focus-state"
       }
     };
   }
@@ -161,7 +185,7 @@ class LrnsysDialog extends PolymerElement {
       var classes = this.hoverClass.split(" ");
       classes.forEach((item, index) => {
         if (item != "") {
-          this.$.dialogtrigger.classList.add(item);
+          this.shadowRoot.querySelector("#dialogtrigger").classList.add(item);
         }
       });
     }
@@ -176,7 +200,9 @@ class LrnsysDialog extends PolymerElement {
       var classes = this.hoverClass.split(" ");
       classes.forEach((item, index) => {
         if (item != "") {
-          this.$.dialogtrigger.classList.remove(item);
+          this.shadowRoot
+            .querySelector("#dialogtrigger")
+            .classList.remove(item);
         }
       });
     }
@@ -189,7 +215,7 @@ class LrnsysDialog extends PolymerElement {
    */
   openDialog() {
     // assemble everything in the slot
-    let nodes = dom(this).getEffectiveChildNodes();
+    let nodes = this.children;
     let h = document.createElement("span");
     let c = document.createElement("span");
     let node = {};
@@ -221,6 +247,7 @@ class LrnsysDialog extends PolymerElement {
     }
     const evt = new CustomEvent("simple-modal-show", {
       bubbles: true,
+      composed: true,
       cancelable: true,
       detail: {
         title: this.header,
@@ -228,7 +255,7 @@ class LrnsysDialog extends PolymerElement {
           header: h,
           content: c
         },
-        invokedBy: this.$.dialogtrigger,
+        invokedBy: this.shadowRoot.querySelector("#dialogtrigger"),
         clone: true
       }
     });
@@ -255,68 +282,16 @@ class LrnsysDialog extends PolymerElement {
       classes.forEach((item, index) => {
         if (item != "") {
           if (this.focusState) {
-            this.$.dialogtrigger.classList.add(item);
+            this.shadowRoot.querySelector("#dialogtrigger").classList.add(item);
           } else {
-            this.$.dialogtrigger.classList.remove(item);
+            this.shadowRoot
+              .querySelector("#dialogtrigger")
+              .classList.remove(item);
           }
         }
       });
     }
     this.focusState = !this.focusState;
-  }
-  /**
-   * Ready lifecycle
-   */
-  ready() {
-    super.ready();
-    this.__modal = window.SimpleModal.requestAvailability();
-  }
-
-  /**
-   * Attached lifecycle
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      this.$.dialogtrigger.addEventListener(
-        "focused-changed",
-        this.focusToggle.bind(this)
-      );
-      this.$.dialogtrigger.addEventListener(
-        "mousedown",
-        this.tapEventOn.bind(this)
-      );
-      this.$.dialogtrigger.addEventListener(
-        "mouseover",
-        this.tapEventOn.bind(this)
-      );
-      this.$.dialogtrigger.addEventListener(
-        "mouseout",
-        this.tapEventOff.bind(this)
-      );
-    });
-  }
-  /**
-   * detached lifecycle
-   */
-  disconnectedCallback() {
-    this.$.dialogtrigger.removeEventListener(
-      "focused-changed",
-      this.focusToggle.bind(this)
-    );
-    this.$.dialogtrigger.removeEventListener(
-      "mousedown",
-      this.tapEventOn.bind(this)
-    );
-    this.$.dialogtrigger.removeEventListener(
-      "mouseover",
-      this.tapEventOn.bind(this)
-    );
-    this.$.dialogtrigger.removeEventListener(
-      "mouseout",
-      this.tapEventOff.bind(this)
-    );
-    super.disconnectedCallback();
   }
 }
 window.customElements.define(LrnsysDialog.tag, LrnsysDialog);

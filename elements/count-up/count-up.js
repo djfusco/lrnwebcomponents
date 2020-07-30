@@ -2,27 +2,22 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import { CountUp } from "countup.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { IntersectionObserverMixin } from "@lrnwebcomponents/intersection-element/lib/IntersectionObserverMixin.js";
+import { CountUp } from "./lib/countup.js";
 
 /**
  * `count-up`
  * `count up js wrapper with minimal styling`
- *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @lit-html
- * @lit-element
+ * @litElement
  * @demo demo/index.html
+ * @element count-up
  */
-class CountUpElement extends PolymerElement {
-  // render function
-  static get template() {
-    return html`
-      <style>
+class CountUpElement extends IntersectionObserverMixin(LitElement) {
+  //styles function
+  static get styles() {
+    return [
+      css`
         :host {
           display: inline-flex;
           --count-up-color: #000000;
@@ -41,9 +36,16 @@ class CountUpElement extends PolymerElement {
 
         #counter {
           color: var(--count-up-color);
-          @apply --count-up-number;
+          font-weight: var(--count-up-number-font-weight);
+          font-size: var(--count-up-number-font-size);
         }
-      </style>
+      `
+    ];
+  }
+
+  // render function
+  render() {
+    return html`
       <div class="wrapper">
         <slot name="prefix"></slot>
         <div id="counter"></div>
@@ -130,95 +132,80 @@ class CountUpElement extends PolymerElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       /**
        * Starting point for counting
        */
       start: {
-        name: "start",
-        type: "Number",
-        value: 0
+        type: Number
       },
       /**
        * End point for counting stopping
        */
       end: {
-        name: "end",
-        type: "Number",
-        value: 100
+        type: Number
       },
       /**
        * Duration to count
        */
       duration: {
-        name: "duration",
-        type: "Number",
-        value: 2.5
+        type: Number
       },
       /**
        * Disable easing animation
        */
       noeasing: {
-        name: "noeasing",
-        type: "Boolean",
-        value: false
+        type: Boolean
       },
       /**
        * decimal places to show
        */
       decimalplaces: {
-        name: "decimalPlaces",
-        type: "Number",
-        value: 0
+        type: Number
       },
       /**
        * separator for 100s groupings
        */
       separator: {
-        name: "separator",
-        type: "String",
-        value: ","
+        type: String
       },
       /**
        * decimal point character
        */
       decimal: {
-        name: "decimal",
-        type: "String",
-        value: "."
+        type: String
       },
       /**
        * prefix string before the number counting
        */
       prefixtext: {
-        name: "prefixtext",
-        type: "String",
-        value: " "
+        type: String
       },
       /**
        * suffix string after the number counting
        */
       suffixtext: {
-        name: "suffixtext",
-        type: "String",
-        value: " "
+        type: String
       },
       thresholds: {
-        type: "Array",
-        value: [0.0, 0.25, 0.5, 0.75, 1.0]
+        type: Array
       },
       rootMargin: {
-        type: "String",
-        value: "0px"
+        type: String,
+        attribute: "root-margin"
       },
       ratio: {
-        type: "Number",
-        reflectToAttribute: true,
-        readOnly: true
+        type: Number,
+        reflect: true
       },
       visibleLimit: {
-        type: "Number",
-        value: 0.5,
-        reflectToAttribute: true
+        type: Number,
+        reflect: true,
+        attribute: "visible-limit"
+      },
+      elementVisible: {
+        type: Boolean
       }
     };
   }
@@ -227,26 +214,25 @@ class CountUpElement extends PolymerElement {
    * Store the tag name to make it easier to obtain directly.
    * @notice function name must be here for tooling to operate correctly
    */
-  tag() {
+  static get tag() {
     return "count-up";
   }
+  constructor() {
+    super();
+    this.start = 0;
+    this.end = 100;
+    this.duration = 2.5;
+    this.noeasing = false;
+    this.decimalplaces = 0;
+    this.separator = ",";
+    this.decimal = ".";
+    this.prefixtext = " ";
+    this.suffixtext = " ";
+  }
   /**
-   * life cycle, element is afixed to the DOM
+   * LitElement ready
    */
-  connectedCallback() {
-    super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(CountUpElement.haxProperties, "count-up", this);
-    // setup the intersection observer
-    this.observer = new IntersectionObserver(
-      this.handleIntersectionCallback.bind(this),
-      {
-        root: document.rootElement,
-        rootMargin: this.rootMargin,
-        threshold: this.thresholds
-      }
-    );
-    this.observer.observe(this);
+  firstUpdated() {
     const options = {
       startVal: this.start,
       decimalPlaces: this.decimalplaces,
@@ -257,23 +243,23 @@ class CountUpElement extends PolymerElement {
       prefix: this.prefixtext,
       suffix: this.suffixtext
     };
-    this._countUp = new CountUp(this.$.counter, this.end, options);
+    this._countUp = new CountUp(
+      this.shadowRoot.querySelector("#counter"),
+      this.end,
+      options
+    );
   }
-  handleIntersectionCallback(entries) {
-    for (let entry of entries) {
-      this._setRatio(Number(entry.intersectionRatio).toFixed(2));
-      if (this.ratio >= this.visibleLimit) {
-        // now we care
+  /**
+   * When our interection element claims we are visible then
+   * we can start counting
+   */
+  updated(propertiesChanged) {
+    propertiesChanged.forEach((oldValue, propName) => {
+      if (propName == "elementVisible" && this[propName]) {
         this._countUp.start();
       }
-    }
+    });
   }
-  // static get observedAttributes() {
-  //   return [];
-  // }
-  // disconnectedCallback() {}
-
-  // attributeChangedCallback(attr, oldValue, newValue) {}
 }
-customElements.define("count-up", CountUpElement);
+customElements.define(CountUpElement.tag, CountUpElement);
 export { CountUpElement, CountUp };

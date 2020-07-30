@@ -1,19 +1,18 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import "@polymer/iron-icon/iron-icon.js";
-import "./lib/stop-icon.js";
 /**
  * `stop-note`
  * `A note that directs people to an action item of different warning levels`
  * @demo demo/index.html
- * @microcopy - the mental model for this element
- * -
+ * @element stop-note
  */
-class StopNote extends SchemaBehaviors(PolymerElement) {
-  static get template() {
-    return html`
-      <style>
+class StopNote extends SchemaBehaviors(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           width: auto;
@@ -89,19 +88,27 @@ class StopNote extends SchemaBehaviors(PolymerElement) {
           padding: 5px;
           width: auto;
         }
-      </style>
+      `
+    ];
+  }
+  render() {
+    return html`
       <div class="container">
         <div class="svg_wrap">
-          <div class="svg"><iron-icon icon="[[icon]]"></iron-icon></div>
+          <div class="svg"><iron-icon icon="${this.icon}"></iron-icon></div>
         </div>
         <div class="message_wrap">
-          <div class="main_message">[[title]]</div>
+          <div class="main_message">${this.title}</div>
           <div class="secondary_message"><slot name="message"></slot></div>
-          <div class="link" hidden$="[[!url]]">
-            <a href="[[url]]" target\$="[[_urlTarget(url)]]"
-              >More Information &gt;</a
-            >
-          </div>
+          ${this.url
+            ? html`
+                <div class="link">
+                  <a href="${this.url}" id="link">
+                    More Information &gt;
+                  </a>
+                </div>
+              `
+            : ``}
         </div>
       </div>
     `;
@@ -109,40 +116,41 @@ class StopNote extends SchemaBehaviors(PolymerElement) {
   static get tag() {
     return "stop-note";
   }
+  constructor() {
+    super();
+    import("@polymer/iron-icon/iron-icon.js");
+    import("./lib/stop-icon.js");
+    this.url = null;
+    this.icon = "stopnoteicons:stop-icon";
+  }
   static get properties() {
     return {
       /**
        * Title Message
        */
       title: {
-        type: String,
-        value: "Title",
-        reflectToAttribute: true
+        type: String
       },
       /**
        * url to additional resources
        */
       url: {
-        type: String,
-        value: null,
-        reflectToAttribute: true
+        type: String
       },
       /**
        * Icon selected
        */
       icon: {
-        type: String,
-        value: "stopnoteicons:stop-icon",
-        observer: "_iconChanged",
-        reflectToAttribute: true
+        type: String
       }
     };
   }
-  /**
-   * Update styles based on icon selected.
-   */
-  _iconChanged(icon) {
-    this.updateStyles();
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "url") {
+        this._urlTarget(this[propName]);
+      }
+    });
   }
   /**
    * Evaluates url for correct targeting.
@@ -151,10 +159,11 @@ class StopNote extends SchemaBehaviors(PolymerElement) {
     if (url) {
       const external = this._outsideLink(url);
       if (external) {
-        return "_blank";
+        let link = this.shadowRoot.querySelector("#link");
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
       }
     }
-    return false;
   }
   /**
    * Internal function to check if a url is external
@@ -176,7 +185,7 @@ class StopNote extends SchemaBehaviors(PolymerElement) {
         description: "A message to alert readers to specific directions.",
         icon: "icons:report",
         color: "orange",
-        groups: ["Video", "Media"],
+        groups: ["Education", "Content"],
         handles: [
           {
             type: "text",
@@ -184,7 +193,7 @@ class StopNote extends SchemaBehaviors(PolymerElement) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -240,16 +249,27 @@ class StopNote extends SchemaBehaviors(PolymerElement) {
           }
         ],
         advanced: []
-      }
+      },
+      demoSchema: [
+        {
+          tag: "stop-note",
+          properties: {
+            title: "Hold up there"
+          },
+          content:
+            '<span slot="message"><strong>Read these important things!</strong>\n</span>\n'
+        },
+        {
+          tag: "stop-note",
+          properties: {
+            title: "Warning",
+            icon: "stopnoteicons:warning-icon"
+          },
+          content:
+            '<span slot="message">You can write any warning message you want here.</span>\n'
+        }
+      ]
     };
-  }
-  /**
-   * Attached to the DOM, now fire.
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(StopNote.haxProperties, StopNote.tag, this);
   }
 }
 window.customElements.define(StopNote.tag, StopNote);

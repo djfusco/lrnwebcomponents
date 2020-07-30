@@ -1,26 +1,17 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 /**
  * `parallax-image`
  * @demo demo/index.html
+ * @element parallax-image
  */
-class ParallaxImage extends SchemaBehaviors(PolymerElement) {
-  constructor() {
-    super();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        ParallaxImage.haxProperties,
-        ParallaxImage.tag,
-        this
-      );
-    });
-  }
-  static get template() {
-    return html`
-      <style>
+class ParallaxImage extends SchemaBehaviors(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           --parallax-image-background: "";
@@ -69,17 +60,21 @@ class ParallaxImage extends SchemaBehaviors(PolymerElement) {
             font-size: 16px;
           }
         }
-      </style>
-
-      <a href="[[url]]" target$="[[_urlTarget(url)]]">
-        <div class="parallax_container">
-          <div id="bgParallax" class="parallax">
-            <div class="title" id="titleParallax">
-              <slot name="parallax_heading"></slot>
-            </div>
+      `
+    ];
+  }
+  render() {
+    return html`
+      <div
+        class="parallax_container"
+        aria-describedby="${this.describedBy || ""}"
+      >
+        <div id="bgParallax" class="parallax">
+          <div class="title" id="titleParallax">
+            <slot name="parallax_heading"></slot>
           </div>
         </div>
-      </a>
+      </div>
     `;
   }
 
@@ -88,74 +83,56 @@ class ParallaxImage extends SchemaBehaviors(PolymerElement) {
   }
 
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
       /**
        * Image
        */
       imageBg: {
         type: String,
-        value: "",
-        reflectToAttribute: true
+        attribute: "image-bg",
+        reflect: true
       },
       /**
-       * Url
+       * Aria-describedby data passed down to appropriate tag
        */
-      url: {
+      describedBy: {
         type: String,
-        value: "",
-        reflectToAttribute: true
+        attribute: "described-by"
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
-
-  static get observers() {
-    return ["__updateStyles(imageBg)"];
+  constructor() {
+    super();
+    this.imageBg = "";
   }
-
-  _urlTarget(url) {
-    if (url) {
-      const external = this._outsideLink(url);
-      if (external) {
-        return "_blank";
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "imageBg") {
+        this.style.setProperty(
+          "--parallax-image-background",
+          `url(${this.imageBg})`
+        );
       }
-    }
-    return false;
-  }
-  /**
-   * Internal function to check if a url is external
-   */
-  _outsideLink(url) {
-    if (url.indexOf("http") != 0) return false;
-    var loc = location.href,
-      path = location.pathname,
-      root = loc.substring(0, loc.indexOf(path));
-    return url.indexOf(root) != 0;
-  }
-  __updateStyles(imageBg) {
-    this.updateStyles({ "--parallax-image-background": `url(${imageBg})` });
-  }
-  ready() {
-    super.ready();
-    const bgParallax = this.$.bgParallax;
-    const titleParallax = this.$.titleParallax;
-    window.addEventListener("scroll", e => {
-      const yParallaxPosition = window.scrollY * -0.2;
-      const yParallaxPositionTitle = yParallaxPosition * 1.4;
-      bgParallax.style.backgroundPosition = `center ${yParallaxPosition}px`;
-      titleParallax.style.transform = `translate3D(0, ${yParallaxPositionTitle}px, 0)`;
     });
+  }
+
+  scrollBy(e) {
+    const bgParallax = this.shadowRoot.querySelector("#bgParallax");
+    const titleParallax = this.shadowRoot.querySelector("#titleParallax");
+    const yParallaxPosition = window.scrollY * -0.2;
+    const yParallaxPositionTitle = yParallaxPosition * 1.4;
+    bgParallax.style.backgroundPosition = `center ${yParallaxPosition}px`;
+    titleParallax.style.transform = `translate3D(0, ${yParallaxPositionTitle}px, 0)`;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    setTimeout(() => {
+      window.addEventListener("scroll", this.scrollBy.bind(this));
+    }, 0);
   }
   disconnectedCallback() {
-    window.removeEventListener("scroll", e => {
-      const yParallaxPosition = window.scrollY * -0.2;
-      const yParallaxPositionTitle = yParallaxPosition * 1.4;
-      bgParallax.style.backgroundPosition = `center ${yParallaxPosition}px`;
-      titleParallax.style.transform = `translate3D(0, ${yParallaxPositionTitle}px, 0)`;
-    });
+    window.removeEventListener("scroll", this.scrollBy.bind(this));
     super.disconnectedCallback();
   }
   static get haxProperties() {
@@ -164,41 +141,55 @@ class ParallaxImage extends SchemaBehaviors(PolymerElement) {
       canPosition: true,
       canEditSource: false,
       gizmo: {
-        title: "Sample gizmo",
-        description: "The user will be able to see this for selection in a UI.",
+        title: "Parallax image",
+        description: "Image scroll by",
         icon: "av:play-circle-filled",
         color: "grey",
-        groups: ["Video", "Media"],
+        groups: ["Image", "Media"],
         handles: [
           {
-            type: "video",
-            url: "source"
+            type: "image",
+            url: "source",
+            ariaDescribedby: "describedBy"
           }
         ],
         meta: {
-          author: "Your organization on github"
+          author: "ELMS:LN"
         }
       },
       settings: {
         quick: [
           {
-            property: "title",
-            title: "Title",
-            description: "The title of the element",
-            inputMethod: "textfield",
-            icon: "editor:title"
+            property: "imageBg",
+            title: "Image",
+            description: "image",
+            inputMethod: "haxupload",
+            icon: "image"
           }
         ],
         configure: [
           {
-            property: "title",
-            title: "Title",
-            description: "The title of the element",
-            inputMethod: "textfield",
-            icon: "editor:title"
+            property: "imageBg",
+            title: "Image",
+            description: "image to be involved in the background",
+            inputMethod: "haxupload"
+          },
+          {
+            slot: "parallax_heading",
+            title: "Heading area",
+            description: "Heading text area",
+            inputMethod: "textarea"
           }
         ],
-        advanced: []
+        advanced: [
+          {
+            property: "describedBy",
+            title: "aria-describedby",
+            description:
+              "Space-separated list of IDs for elements that describe the image.",
+            inputMethod: "textfield"
+          }
+        ]
       }
     };
   }

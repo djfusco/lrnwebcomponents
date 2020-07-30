@@ -4,12 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <title>SimpleColors: simple-colors Demo</title>
-    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    
+    <script src="../../../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
+    <script src="../../../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
     <script type="module">
-      import '../node_modules/@polymer/iron-demo-helpers/demo-snippet.js';
+      import '@polymer/iron-demo-helpers/demo-snippet.js';
       import '../lib/simple-colors-picker.js';
     </script>
-    <style is="custom-style" include="demo-pages-shared-styles">
+    <style>
       .demo, .demo p {
         display: flex;
         justify-content: space-between;
@@ -26,16 +28,19 @@
       <h2>Default Color Picker</h2>
       <demo-snippet>
         <template>
-          <div class="demo">
+          <div>
             <p>
               <label>Acccent-Color Names: </label>
-              <simple-colors-picker id="accents" value="pink">
+              <simple-colors-picker 
+                id="accents" 
+                block-label
+                value="pink">
               </simple-colors-picker>
             </p>
           </div>
           <script>
             document.getElementById('accents').addEventListener('change',e => {
-              if(e.detail.value !== null) alert('accent-color="'+e.detail.value+'"');
+              if(e.detail.value !== null) console.log('accent-color="'+e.detail.value+'"');
             });
           </script>
         </template>
@@ -46,14 +51,17 @@
         <template>
           <div class="demo">
             <p>
-              <label>CSS Variable Shades: </label>
-              <simple-colors-picker id="shades" hide-option-labels shades>
+              <simple-colors-picker 
+                id="shades" 
+                hide-option-labels 
+                label="CSS Variable Shades"
+                shades>
               </simple-colors-picker>
             </p>
           </div>
           <script>
             document.getElementById('shades').addEventListener('change',e => {
-              if(e.detail.value !== null) alert('color: var(--'+e.detail.value+');');
+              if(e.detail.value !== null) console.log('color: var(--'+e.detail.value+');');
             });
           </script>
         </template>

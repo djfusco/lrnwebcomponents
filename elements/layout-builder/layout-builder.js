@@ -3,16 +3,16 @@
  * @license Apache-2.0, see License.md for full text.
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 import "@polymer/paper-button/paper-button.js";
 /**
  * `layout-builder`
+ * @element layout-builder
  * `A new UI for adding content to layouts`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
@@ -88,14 +88,16 @@ class LayoutBuilder extends PolymerElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       type: {
         name: "type",
-        type: "Boolean",
+        type: Boolean,
         value: "layout"
       },
       id: {
         name: "id",
-        type: "String",
+        type: String,
         reflecttoAttribute: true
       }
     };
@@ -113,8 +115,6 @@ class LayoutBuilder extends PolymerElement {
    */
   connectedCallback() {
     super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(LayoutBuilder.haxProperties, LayoutBuilder.tag, this);
     this.id = this._generateUUID();
   }
   _handleAddChild() {

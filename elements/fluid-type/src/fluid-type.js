@@ -5,16 +5,39 @@
 
 /**
  * `fluid-type`
+ * @element fluid-type
  * `A simple fluid-type sizing wrapper element to apply to anything`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @demo demo/index.html
  */
 class FluidType extends HTMLElement {
-  /* REQUIRED FOR TOOLING DO NOT TOUCH */
+  // render function
+  get html() {
+    return `
+<style>
+:host {
+  --fluid-type-min-size: 1;
+  --fluid-type-max-size: 2;
+  --fluid-type-min-screen: 20;
+  --fluid-type-max-screen: 88;
+
+  font-size: calc(
+    (var(--fluid-type-min-size) * 1rem) + (var(--fluid-type-max-size) - var(--fluid-type-min-size)) * (100vw - (var(--fluid-type-min-screen) * 1rem)) /
+      (var(--fluid-type-max-screen) - var(--fluid-type-min-screen))
+  );
+}
+        </style>
+<slot></slot>`;
+  }
+
+  // properties available to the custom element for data binding
+  static get properties() {
+    return { ...super.properties };
+  }
 
   /**
    * Store the tag name to make it easier to obtain directly.

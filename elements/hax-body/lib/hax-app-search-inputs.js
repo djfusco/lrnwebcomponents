@@ -1,10 +1,12 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import "@lrnwebcomponents/eco-json-schema-form/lib/eco-json-schema-object.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
-import "./hax-shared-styles.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import "@lrnwebcomponents/simple-fields/simple-fields.js";
+import {
+  HaxSchematizer,
+  HaxElementizer
+} from "@lrnwebcomponents/hax-body-behaviors/lib/HAXFields.js";
 /**
 `hax-app-search-inputs`
- An element that brokers the visual display of a listing of material from an end point. The goal is to normalize data from some location which is media centric. This expects to get at least enough data in order to form a grid of items which are selectable. It's also generically implemented so that anything can be hooked up as a potential source for input (example: youtube API or custom in-house solution). The goal is to return enough info via fired event so that hax-manager can tell hax-body that the user selected a tag, properties, slot combination so that hax-body can turn the selection into a custom element / element injected into the hax-body slot.
+ An element that brokers the visual display of a listing of material from an end point. The goal is to normalize data from some location which is media centric. This expects to get at least enough data in order to form a grid of items which are selectable. It's also generically implemented so that anything can be hooked up as a potential source for input (example: youtube API or custom in-house solution). The goal is to return enough info via fired event so that we can tell hax-body that the user selected a tag, properties, slot combination so that hax-body can turn the selection into a custom element / element injected into the hax-body slot.
 
 * @demo demo/index.html
 
@@ -13,19 +15,17 @@ import "./hax-shared-styles.js";
  - hax-app-search - element controlling the experience of searching an app
  - hax-body - the text are ultimately we are trying to insert this item into
 */
-class HaxAppSearchInputs extends PolymerElement {
-  constructor() {
-    super();
-    import("@polymer/paper-input/paper-input.js");
-    import("@polymer/paper-item/paper-item.js");
-  }
-  static get template() {
-    return html`
-      <style include="hax-shared-styles">
+class HaxAppSearchInputs extends LitElement {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
         }
-        eco-json-schema-object {
+        simple-fields {
           color: var(--hax-color-text);
         }
         .search-label {
@@ -35,22 +35,37 @@ class HaxAppSearchInputs extends PolymerElement {
           margin: 0;
           padding: 0;
         }
-      </style>
-      <div class="search-label">Search [[label]]</div>
-      <eco-json-schema-object
+      `
+    ];
+  }
+  constructor() {
+    super();
+    this.label = "app";
+  }
+  render() {
+    return html`
+      <div class="search-label">Search ${this.label}</div>
+      <simple-fields
         id="form"
-        schema="[[schema]]"
-        value="{{values}}"
-      ></eco-json-schema-object>
+        .schema="${this.schema}"
+        .schematizer="${HaxSchematizer}"
+        .elementizer="${HaxElementizer}"
+        @value-changed="${this.searchValuesChanged}"
+      ></simple-fields>
     `;
   }
-
+  searchValuesChanged(e) {
+    if (typeof e.detail.value !== "string") {
+      // dispatch the event directly so that we can data bind to input
+      this.dispatchEvent(
+        new CustomEvent("search-values-changed", {
+          detail: e.detail.value
+        })
+      );
+    }
+  }
   static get tag() {
     return "hax-app-search-inputs";
-  }
-
-  static get observers() {
-    return ["_valueChanged(values.*)"];
   }
 
   static get properties() {
@@ -59,14 +74,7 @@ class HaxAppSearchInputs extends PolymerElement {
        * Title.
        */
       label: {
-        type: String,
-        value: "app"
-      },
-      /**
-       * Search input values mapped to schema inputs.
-       */
-      values: {
-        type: Object
+        type: String
       },
       /**
        * Schema used to generate the input types.
@@ -75,20 +83,6 @@ class HaxAppSearchInputs extends PolymerElement {
         type: Object
       }
     };
-  }
-
-  /**
-   * Search input was added.
-   */
-  _valueChanged(change) {
-    this.dispatchEvent(
-      new CustomEvent("hax-app-search-values-changed", {
-        bubbles: true,
-        cancelable: true,
-        composed: true,
-        detail: change.base
-      })
-    );
   }
 }
 window.customElements.define(HaxAppSearchInputs.tag, HaxAppSearchInputs);

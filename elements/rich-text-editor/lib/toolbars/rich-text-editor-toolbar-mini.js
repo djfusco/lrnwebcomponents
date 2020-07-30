@@ -2,7 +2,7 @@
  * Copyright 2019 Penn State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { html } from "@polymer/polymer/polymer-element.js";
 import { RichTextEditorToolbar } from "./rich-text-editor-toolbar.js";
 import "@lrnwebcomponents/absolute-position-behavior/absolute-position-behavior.js";
 /**
@@ -12,9 +12,9 @@ import "@lrnwebcomponents/absolute-position-behavior/absolute-position-behavior.
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
- * @demo demo/mini.html mini floating toolbar
+ * @demo ./demo/mini.html mini floating toolbar
  */
 class RichTextEditorToolbarMini extends RichTextEditorToolbar {
   constructor() {
@@ -146,7 +146,6 @@ class RichTextEditorToolbarMini extends RichTextEditorToolbar {
   }
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "rich-text-editor-toolbar-mini";

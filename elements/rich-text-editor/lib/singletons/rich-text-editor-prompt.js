@@ -7,21 +7,6 @@ import "@polymer/iron-a11y-keys/iron-a11y-keys.js";
 import "@lrnwebcomponents/simple-popover/simple-popover.js";
 import "@lrnwebcomponents/simple-fields/simple-fields.js";
 import "../buttons/rich-text-editor-button-styles.js";
-
-// register globally so we can make sure there is only one
-window.RichTextEditorPrompt = window.RichTextEditorPrompt || {};
-// request if this exists. This helps invoke the element existing in the dom
-// as well as that there is only one of them. That way we can ensure everything
-// is rendered through the same modal
-window.RichTextEditorPrompt.requestAvailability = () => {
-  if (!window.RichTextEditorPrompt.instance) {
-    window.RichTextEditorPrompt.instance = document.createElement(
-      "rich-text-editor-prompt"
-    );
-    document.body.appendChild(window.RichTextEditorPrompt.instance);
-  }
-  return window.RichTextEditorPrompt.instance;
-};
 /**
  * `rich-text-editor-prompt`
  * `A utility that manages the state of multiple rich-text-prompts on one page.`
@@ -29,16 +14,15 @@ window.RichTextEditorPrompt.requestAvailability = () => {
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
  */
 class RichTextEditorPrompt extends PolymerElement {
   /* REQUIRED FOR TOOLING DO NOT TOUCH */ // render function
   static get template() {
     return html`
-      <style include="rich-text-editor-button-styles">
+      <style include="rich-text-editor-styles rich-text-editor-button-styles">
         :host {
-          --simple-popover-padding: 0 10px;
           --paper-input-container-focus-color: var(
             --rich-text-editor-focus-color,
             #000
@@ -49,14 +33,25 @@ class RichTextEditorPrompt extends PolymerElement {
           );
         }
         :host #prompt {
-          width: 200px;
+          display: none;
+          width: 300px;
+          max-width: 300px;
+          --simple-popover-padding: 0px;
         }
-        :host #prompt:not([hidden]) #form {
+        :host #prompt[for]{
+          display: block;
+          z-index: 2;
+        }
+        :host #prompt[for] #form {
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: space-between;
-          z-index: 999999;
+          z-index: 2;
+        }
+        :host #formfields {
+          width: calc(100% - 20px);
+          padding: 10px 10px 0;
         }
         :host #prompt paper-input {
           padding: 0;
@@ -65,30 +60,32 @@ class RichTextEditorPrompt extends PolymerElement {
         :host #cancel {
           min-width: unset;
         }
-        :host #cancel.rtebutton:focus,
-        :host #cancel.rtebutton:hover {
-          color: var(
-            --rich-text-editor-cancel-color,
-            var(--rich-text-editor-error-color)
-          );
-          background-color: var(
-            --rich-text-editor-cancel-hover-color,
-            var(--rich-text-editor-button-hover-bg)
-          );
+        :host #formfields {
+          overflow: visible;
         }
-        :host #confirm.rtebutton:focus,
-        :host #confirm.rtebutton:hover {
-          color: var(
-            --rich-text-editor-confirm-color,
-            var(--rich-text-editor-focus-color)
-          );
-          background-color: var(
-            --rich-text-editor-confirm-hover-color,
-            var(--rich-text-editor-button-hover-bg)
-          );
+        :host #cancel {
+          color: var(--rich-text-editor-button-color);
+          background-color: var(--rich-text-editor-button-bg);
+
+        }
+        :host #cancel:focus,
+        :host #cancel:hover {
+          color: var(--rich-text-editor-button-hover-color);
+          background-color: var(--rich-text-editor-button-hover-bg);
+        }
+        :host #confirm {
+          color: var(--rich-text-editor-button-color);
+          background-color: var(--rich-text-editor-button-bg);
+
+        }
+        :host #confirm:focus,
+        :host #confirm:hover {
+          color: var(--rich-text-editor-button-hover-color);
+          background-color: var(--rich-text-editor-button-hover-bg);
         }
         :host .actions {
           width: 100%;
+          padding-bottom: 3px;
           display: flex;
           align-items: center;
           justify-content: flex-end;
@@ -101,12 +98,12 @@ class RichTextEditorPrompt extends PolymerElement {
         id="prompt"
         auto
         for$="[[for]]"
-        hidden$="[[!for]]"
       >
         <form id="form">
           <simple-fields
             id="formfields"
             autofocus
+            hide-line-numbers
             fields="[[fields]]"
             value="{{value}}"
           ></simple-fields>
@@ -115,36 +112,36 @@ class RichTextEditorPrompt extends PolymerElement {
             <paper-button
               id="cancel"
               class="rtebutton"
-              controls="[[__targetId]]"
+              controls$="[[for]]"
               on-click="_cancel"
               tabindex="0"
             >
               <iron-icon id="icon" aria-hidden icon="clear"> </iron-icon>
               <span id="label" class="offscreen">Cancel</span>
             </paper-button>
-            <paper-tooltip id="tooltip" for="cancel">Cancel</paper-tooltip>
+            <simple-tooltip id="tooltip" for="cancel">Cancel</simple-tooltip>
             <paper-button
               id="confirm"
               class="rtebutton"
-              controls="[[__targetId]]"
+              controls$="[[for]]"
               on-click="_confirm"
               tabindex="0"
             >
               <iron-icon id="icon" aria-hidden icon="check"> </iron-icon>
               <span id="label" class="offscreen">OK</span>
             </paper-button>
-            <paper-tooltip id="tooltip" for="confirm">OK</paper-tooltip>
+            <simple-tooltip id="tooltip" for="confirm">OK</simple-tooltip>
           </div>
           <iron-a11y-keys
             id="a11ycancel"
             target="[[__a11ycancel]]"
-            keys="enter"
+            keys="enter space"
             on-keys-pressed="_cancel"
           >
           <iron-a11y-keys
             id="a11yconfirm"
             target="[[__a11yconfirm]]"
-            keys="enter"
+            keys="enter space"
             on-keys-pressed="_confirm"
           >
           </iron-a11y-keys>
@@ -155,7 +152,6 @@ class RichTextEditorPrompt extends PolymerElement {
 
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "rich-text-editor-prompt";
@@ -168,13 +164,12 @@ class RichTextEditorPrompt extends PolymerElement {
        * Is the  target id.
        */
       for: {
-        type: String,
-        value: null
+        type: String
       },
       /**
        * The selected text.
        */
-      selection: {
+      range: {
         type: Object,
         value: null
       },
@@ -222,26 +217,32 @@ class RichTextEditorPrompt extends PolymerElement {
    */
   connectedCallback() {
     super.connectedCallback();
-    this.__a11yconfirm = this.$.confirm;
-    this.__a11ycancel = this.$.cancel;
-    this.addEventListener("blur", e => {
+    this.__a11yconfirm = this.shadowRoot.querySelector("#confirm");
+    this.__a11ycancel = this.shadowRoot.querySelector("#cancel");
+    /*
+    TODO blur  doesnt work with select dropdowns
+     this.addEventListener("blur", e => {
+      console.log("blur", document.activeElement);
       this._cancel(e);
-    });
+    });*/
   }
 
   /**
-   * Loads element into array
+   * Associates a button and its selection data with the prompt
+   * @param {object} button the button to associate with the prompt
+   * @returns {void}
    */
   setTarget(button) {
     this.clearTarget();
-    this.set("fields", button.fields);
+    this.set("fields", button.__fields);
     this.set("value", button.value);
     this.__button = button;
-    this.for = button.__selectionContents.getAttribute("id");
+    if (button.__selection) this.for = button.__selection.getAttribute("id");
   }
 
   /**
-   * Unloads element from array
+   * Disassociates the button and selection data from the prompt
+   * @returns {void}
    */
   clearTarget() {
     if (!this.__button) return;
@@ -251,7 +252,9 @@ class RichTextEditorPrompt extends PolymerElement {
     this.__button = null;
   }
   /**
-   * Handles button tap;
+   * Handles cancel button
+   * @param {event} e the event
+   * @returns {void}
    */
   _cancel(e) {
     e.preventDefault();
@@ -260,7 +263,9 @@ class RichTextEditorPrompt extends PolymerElement {
     this.clearTarget();
   }
   /**
-   * Handles button tap;
+   * Handles the confirm button
+   * @param {event} e the event
+   * @returns {void}
    */
   _confirm(e) {
     e.preventDefault();
@@ -271,3 +276,18 @@ class RichTextEditorPrompt extends PolymerElement {
 }
 window.customElements.define(RichTextEditorPrompt.tag, RichTextEditorPrompt);
 export { RichTextEditorPrompt };
+
+// register globally so we can make sure there is only one
+window.RichTextEditorPrompt = window.RichTextEditorPrompt || {};
+// request if this exists. This helps invoke the element existing in the dom
+// as well as that there is only one of them. That way we can ensure everything
+// is rendered through the same modal
+window.RichTextEditorPrompt.requestAvailability = () => {
+  if (!window.RichTextEditorPrompt.instance) {
+    window.RichTextEditorPrompt.instance = document.createElement(
+      "rich-text-editor-prompt"
+    );
+    document.body.appendChild(window.RichTextEditorPrompt.instance);
+  }
+  return window.RichTextEditorPrompt.instance;
+};

@@ -4,101 +4,107 @@
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { setPassiveTouchGestures } from "@polymer/polymer/lib/utils/settings.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
 import "@polymer/iron-ajax/iron-ajax.js";
-import "@lrnwebcomponents/elmsln-loading/elmsln-loading.js";
+import "@lrnwebcomponents/jwt-login/jwt-login.js";
+import "@lrnwebcomponents/hexagon-loader/hexagon-loader.js";
 import "@lrnwebcomponents/json-outline-schema/json-outline-schema.js";
 import "@lrnwebcomponents/simple-toast/simple-toast.js";
 import "@lrnwebcomponents/simple-modal/simple-modal.js";
 import "@lrnwebcomponents/simple-datetime/simple-datetime.js";
-import "@lrnwebcomponents/jwt-login/jwt-login.js";
-import "@vaadin/vaadin-grid/vaadin-grid.js";
-import "@vaadin/vaadin-grid/vaadin-grid-column.js";
-import "@vaadin/vaadin-grid/vaadin-grid-sort-column.js";
-import "@vaadin/vaadin-grid/vaadin-grid-filter-column.js";
-import "@vaadin/vaadin-grid/vaadin-grid-selection-column.js";
-import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/simple-fields/simple-fields.js";
+import "@lrnwebcomponents/simple-fields/lib/simple-fields-field.js";
+import "@lrnwebcomponents/simple-modal/lib/simple-modal-template.js";
+import { SimpleColorsPolymer } from "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
+import "@vaadin/vaadin-upload/vaadin-upload.js";
+import "../haxcms-site-store.js";
+import {
+  HaxSchematizer,
+  HaxElementizer
+} from "@lrnwebcomponents/hax-body-behaviors/lib/HAXFields.js";
 /**
  * `haxcms-site-listing`
  * `A listing of all sites being managed by this instance.`
  */
+
 class HAXCMSSiteListing extends PolymerElement {
   /**
    * created life cycle
    */
   constructor() {
     super();
-    this.SimpleColors = new SimpleColors();
+    this.SimpleColors = new SimpleColorsPolymer();
     setPassiveTouchGestures(true);
-    import("@lrnwebcomponents/simple-login/simple-login.js");
-    import("@lrnwebcomponents/simple-login/lib/simple-login-avatar.js");
-    import("@polymer/iron-image/iron-image.js");
-    import("@lrnwebcomponents/simple-colors/lib/simple-colors-picker.js");
-    import("@polymer/paper-button/paper-button.js");
-    import("@polymer/iron-icon/iron-icon.js");
-    import("@polymer/paper-icon-button/paper-icon-button.js");
-    import("@polymer/app-layout/app-header/app-header.js");
-    import("@polymer/app-layout/app-toolbar/app-toolbar.js");
-    import("@polymer/paper-item/paper-item.js");
-    import("@polymer/paper-input/paper-input.js");
-    import("@polymer/paper-dialog/paper-dialog.js");
-    import("@polymer/paper-dialog-scrollable/paper-dialog-scrollable.js");
-    import("@polymer/paper-tooltip/paper-tooltip.js");
-    import("@lrnwebcomponents/simple-picker/simple-picker.js");
-    import("@lrnwebcomponents/simple-icon-picker/simple-icon-picker.js");
-    import("@lrnwebcomponents/magazine-cover/magazine-cover.js");
-    import("@lrnwebcomponents/eco-json-schema-form/eco-json-schema-form.js");
-    import("@lrnwebcomponents/eco-json-schema-form/lib/eco-json-schema-object.js");
-    window.HAXCMS = {};
-    afterNextRender(this, function() {
-      import("@polymer/iron-icons/iron-icons.js");
-      import("@polymer/iron-icons/editor-icons.js");
-      import("@polymer/iron-icons/notification-icons.js");
-      import("@polymer/iron-icons/av-icons.js");
-      import("@polymer/iron-icons/device-icons.js");
-      import("@polymer/iron-icons/image-icons.js");
-      import("@polymer/iron-icons/social-icons.js");
-    });
+    this.HaxSchematizer = HaxSchematizer;
+    this.HaxElementizer = HaxElementizer;
+    import("@lrnwebcomponents/haxcms-elements/lib/core/site-list/haxcms-site-listing-deps.js");
   }
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
+
   static get tag() {
     return "haxcms-site-listing";
-  }
-  // render function
+  } // render function
+
   static get template() {
     return html`
-      <style>
-        :host {
-          --haxcms-site-listing-color-dark: var(--simple-colors-default-theme-blue-11);
-          --haxcms-site-listing-color-light: #FFFFFF;
-          --haxcms-site-listing-color-hover: var(--simple-colors-default-theme-blue-8);
-          outline-color: var(--haxcms-site-listing-color-hover);
-        }
+      <style include="simple-colors-shared-styles-polymer">
         paper-icon-button {
-          --paper-icon-button-ink-color: var(--haxcms-site-listing-color-light);
+          --paper-icon-button-ink-color: var(--haxcms-system-action-color);
         }
-        app-toolbar div.main-title {
-          margin-left: 8px;
+        .toolbar div.main-title {
+          margin-left: 50px;
           font-size: 24px;
-          min-width: 50px;
         }
-        app-header {
-          color: var(--haxcms-site-listing-color-light);
-          @apply --layout-fixed-top;
-          --app-header-background-rear-layer: {
-            background-color: var(--haxcms-site-listing-color-dark);
-          }
+        .toolbar {
+          display: flex;
+          padding: 8px;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          color: var(--simple-colors-default-theme-accent-11, #111111);
+          background-color: var(
+            --simple-colors-default-theme-accent-2,
+            #eeeeee
+          );
+          z-index: 1;
+          line-height: 120%;
+          align-items: center;
         }
-        app-toolbar {
-          color: var(--haxcms-site-listing-color-light);
-          background-color: var(--haxcms-site-listing-color-dark);
+        a11y-collapse-group {
+          margin-top: 64px;
+        }
+        a11y-collapse div[slot="heading"] {
+          height: 64px;
+          line-height: 64px;
+          font-size: 30px;
+          cursor: pointer;
+        }
+        jos-render {
+          --jos-render-margin: 0px;
+          --jos-render-padding: 8px;
+        }
+        course-card {
+          height: 350px;
+          width: 150px;
+          overflow: hidden;
+          --course-card-filter: grayscale(80%);
+        }
+        course-card:active,
+        course-card:hover {
+          --course-card-filter-hover: grayscale(0%);
         }
         vaadin-grid {
-          margin-top: 64px;
+          margin-top: 24px;
           height: calc(100vh - 64px);
+        }
+        simple-datetime {
+          color: black;
+        }
+        vaadin-checkbox {
+          border: 1px solid black;
+          background-color: var(--simple-colors-default-theme-blue-1);
         }
         .login-prompt {
           margin: 80px auto 0;
@@ -108,11 +114,6 @@ class HAXCMSSiteListing extends PolymerElement {
         .login-prompt[hidden] {
           display: none;
         }
-        .login-prompt div {
-          margin-right: 32px;
-          font-size: 30px;
-          width: 35%;
-        }
         .login-prompt div#selfie {
           position: absolute;
           margin: 0;
@@ -121,19 +122,57 @@ class HAXCMSSiteListing extends PolymerElement {
           z-index: 3;
         }
         .hide-camera {
-          display:none;
+          display: none;
         }
         .login-prompt div#selfie img {
           z-index: 2;
           position: absolute;
-          margin: 0 0 0 -122.5px;
+          margin: 0 0 0 -78px;
           width: 355px;
           height: 200px;
+          display: block;
+        }
+        simple-login {
+          background: #eeeeee;
+          color: var(--haxcms-system-bg);
+          --primary-color: var(--haxcms-system-bg);
+          --primary-text-color: var(--haxcms-system-bg);
+          --simple-fields-accent-color: var(--haxcms-system-action-color);
+          --login-btn-background-color: var(--haxcms-system-bg);
+          --login-btn-raised-background-color: var(
+            --haxcms-system-action-color
+          );
+          --login-form-color: var(--haxcms-system-bg);
+          --login-btn-width: 80%;
+          --login-btn-display: flex;
+        }
+        .forgot {
+          margin: 32px 0 -16px 0;
+          padding: 0;
+          font-size: 12px;
+          text-align: center;
+        }
+        hax-logo {
+          margin-top: -50px;
+          margin-bottom: 16px;
+          text-align: center;
+          --hax-logo-font-size: 24px;
+          --hax-logo-letter-spacing: 0px;
+        }
+        .camera-buttons {
+          width: 100%;
+          justify-content: center;
+          display: flex;
+        }
+        simple-modal-template[modal-id="help"] {
+          --simple-modal-width: 60vw;
         }
         paper-dialog {
           width: 60vw;
-          min-height: 60vh;
-          top: 15vh;
+        }
+        paper-dialog-scrollable {
+          overflow: scroll;
+          height: 40vh;
         }
         h2.dialog-header {
           background-color: var(--haxcms-site-listing-color-dark);
@@ -165,44 +204,30 @@ class HAXCMSSiteListing extends PolymerElement {
         .action-button iron-icon {
           margin-right: 8px;
         }
-        paper-input {
-          --paper-input-container-focus-color: var(--haxcms-site-listing-color-hover);
-        }
-        #newsitecolor {
-          padding: 4px;
-          margin: 0;
-          display: inline-flex;
-          vertical-align: middle;
-        }
-        #newsitecolor > * {
-          display: inline-flex;
-          align-self: center;
-          margin-right: 8px;
-          --simple-colors-picker-preview-size: 20px;
+        simple-fields-field {
+          --simple-fields-accent-color: var(--haxcms-site-listing-color-hover);
         }
         .small-location {
           font-size: 11px;
-          text-align: center;
           font-style: italic;
         }
-        #loading {
-          width: 100%;
-          z-index: 1000;
-          opacity: 0.8;
-          padding: 16px;
-          text-align: center;
-          align-content: center;
-          justify-content: center;
-          height: 100vh;
-          position: absolute;
-          background-color: rgba(250, 250, 250, 0.8);
-          transition: all linear 0.8s;
-          visibility: visible;
+        #grid {
+          font-size: 13px;
         }
-        #loading div {
-          font-size: 32px;
-          font-weight: bold;
-          padding: 16px;
+        #loading {
+          z-index: 1000;
+          opacity: 1;
+          padding: 24px;
+          top: calc(50vh - 0.5vw);
+          left: 0;
+          width: 100%;
+          height: 1vw;
+          position: absolute;
+          position: sticky;
+          background-color: rgba(250, 250, 250, 0.8);
+          transition: all linear 1s;
+          visibility: visible;
+          color: white;
         }
         #loading[data-loading] {
           background-color: rgba(0, 0, 0, 0);
@@ -211,28 +236,27 @@ class HAXCMSSiteListing extends PolymerElement {
         }
         a {
           text-decoration: none;
+          color: black;
         }
         .site-title {
+          display: block;
           font-size: 20px;
-          color: black;
-          text-align: center;
           width: 100%;
-          text-transform: unset;
           min-width: unset;
+          text-decoration: underline;
         }
         .site-title:hover,
         .site-title:active,
         .site-title:focus {
-          background-color: var(--haxcms-site-listing-color-hover);
-          color: var(--haxcms-site-listing-color-light);
+          text-decoration: none;
         }
         .operations paper-button {
           font-weight: 500;
-          font-size: 20px;
-          color: var(--haxcms-site-listing-color-light);
+          font-size: 18px;
+          color: black;
+          background-color: var(--haxcms-site-listing-color-light);
           margin: 0;
           padding: 8px;
-          min-width: 100px;
           width: auto;
           display: inline-flex;
           height: 48px;
@@ -243,10 +267,15 @@ class HAXCMSSiteListing extends PolymerElement {
           background-color: var(--haxcms-site-listing-color-light);
           color: var(--haxcms-site-listing-color-hover);
         }
+        .operations.right {
+          right: 0;
+          position: absolute;
+          display: inline-flex;
+        }
         #add {
           background-color: var(--haxcms-site-listing-color-hover);
           color: (--haxcms-site-listing-color-light);
-          transition: .2s all linear;
+          transition: 0.2s all linear;
         }
         #add:hover,
         #add:active,
@@ -254,20 +283,20 @@ class HAXCMSSiteListing extends PolymerElement {
           background-color: var(--haxcms-site-listing-color-light);
           color: var(--haxcms-site-listing-color-hover);
         }
-
         .selected-operations {
           margin: 0 16px;
           transition: 0.3s linear all;
           display: inline-flex;
           visibility: visible;
           opacity: 1;
-          border-left: 2px solid var(--haxcms-site-listing-color-light);
-          border-right: 2px solid var(--haxcms-site-listing-color-light);
-          height: 64px;
+          align-content: center;
+          justify-content: space-evenly;
+          width: 100%;
         }
-        .selected-operations[data-hidden] {
+        *[hidden] {
           visibility: hidden;
           opacity: 0;
+          display: none;
         }
         .selected-operations paper-button {
           background-color: var(--haxcms-site-listing-color-light);
@@ -283,7 +312,7 @@ class HAXCMSSiteListing extends PolymerElement {
         .selected-operations paper-button:hover,
         .selected-operations paper-button:focus {
           background-color: var(--haxcms-site-listing-color-hover);
-          color: var(--haxcms-site-listing-color-light); !important;
+          color: var(--haxcms-site-listing-color-light) !important;
         }
         .danger {
           color: var(--simple-colors-default-theme-red-7) !important;
@@ -291,312 +320,459 @@ class HAXCMSSiteListing extends PolymerElement {
         .danger:hover {
           color: var(--haxcms-site-listing-color-light) !important;
         }
-        #newsiteicon {
-          display: inline-flex;
+        #userphoto {
+          width: 40px;
+          height: 40px;
+          margin-right: 4px;
+          border-radius: 50%;
         }
-        eco-json-schema-object {
-          --eco-json-schema-object-form: {
-            -ms-flex: unset;
-            -webkit-flex: unset;
-            flex: unset;
-            -webkit-flex-basis: unset;
-            flex-basis: unset;
+        @media screen and (max-width: 1080px) {
+          .selected-operations .small-hide {
+            display: none;
           }
         }
-        #configform {
-          --eco-json-schema-object-form: {
-            display: block !important;
+        @media screen and (max-width: 800px) {
+          .main-title {
+            display: none;
+          }
+        }
+        @media screen and (max-width: 700px) {
+          .small-hide {
+            display: none;
           }
         }
       </style>
-      <div>
-        <jwt-login
-          id="jwt"
-          method="[[method]]"
-          body="[[jwtBody]]"
-          url="[[__loginPath]]"
-          logout-url="[[__logoutPath]]"
-          jwt="{{jwt}}"
-        ></jwt-login>
-        <iron-ajax
-          id="loaddata"
-          auto=""
-          loading="{{__loading}}"
-          url="[[dataSource]]"
-          handle-as="json"
-          debounce-duration="250"
-          last-response="{{sitesResponse}}"
-        ></iron-ajax>
-        <iron-ajax
-          id="createrequest"
-          method="[[method]]"
-          body="[[createParams]]"
-          headers='{"Authorization": "Bearer [[jwt]]"}'
-          content-type="application/json"
-          url="[[__createNewSitePath]]"
-          handle-as="json"
-          on-response="handleCreateResponse"
-        ></iron-ajax>
-        <iron-ajax
-          id="downloadrequest"
-          method="[[method]]"
-          body="[[downloadParams]]"
-          headers='{"Authorization": "Bearer [[jwt]]"}'
-          content-type="application/json"
-          url="[[__downloadSitePath]]"
-          handle-as="json"
-          on-response="handleDownloadResponse"
-        ></iron-ajax>
-        <iron-ajax
-          id="archiverequest"
-          method="[[method]]"
-          body="[[archiveParams]]"
-          headers='{"Authorization": "Bearer [[jwt]]"}'
-          content-type="application/json"
-          url="[[__archiveSitePath]]"
-          handle-as="json"
-          on-response="handleArchiveResponse"
-        ></iron-ajax>
-        <iron-ajax
-          id="deleterequest"
-          method="[[method]]"
-          body="[[deleteParams]]"
-          headers='{"Authorization": "Bearer [[jwt]]"}'
-          content-type="application/json"
-          url="[[__deleteSitePath]]"
-          handle-as="json"
-          on-response="handleDeleteResponse"
-        ></iron-ajax>
-        <iron-ajax
-          id="clonerequest"
-          method="[[method]]"
-          body="[[cloneParams]]"
-          headers='{"Authorization": "Bearer [[jwt]]"}'
-          content-type="application/json"
-          url="[[__cloneSitePath]]"
-          handle-as="json"
-          on-response="handleCloneResponse"
-        ></iron-ajax>
-        <iron-ajax
-          id="publishrequest"
-          method="[[method]]"
-          body="[[publishParams]]"
-          headers='{"Authorization": "Bearer [[jwt]]"}'
-          content-type="application/json"
-          url="[[__publishSitePath]]"
-          handle-as="json"
-          on-response="handlePublishResponse"
-        ></iron-ajax>
-        <iron-ajax
-          id="getconfigrequest"
-          method="[[method]]"
-          body="[[configParams]]"
-          headers='{"Authorization": "Bearer [[jwt]]"}'
-          content-type="application/json"
-          url="[[__getConfigPath]]"
-          handle-as="json"
-          on-response="handleConfigResponse"
-        ></iron-ajax>
-        <iron-ajax
-          id="setconfigrequest"
-          method="[[method]]"
-          body="[[setConfigParams]]"
-          headers='{"Authorization": "Bearer [[jwt]]"}'
-          content-type="application/json"
-          url="[[__setConfigPath]]"
-          handle-as="json"
-          on-response="handleSetConfigResponse"
-        ></iron-ajax>
-      </div>
+      <jwt-login
+        id="jwt"
+        method="[[method]]"
+        url="[[__loginPath]]"
+        refresh-url="[[__refreshPath]]"
+        logout-url="[[__logoutPath]]"
+        jwt="{{jwt}}"
+      ></jwt-login>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="loaddata"
+        auto=""
+        loading="{{__loading}}"
+        url="[[dataSource]]"
+        handle-as="json"
+        debounce-duration="250"
+        last-response="{{sitesResponse}}"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="createrequest"
+        method="[[method]]"
+        body="[[createParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__createNewSitePath]]"
+        handle-as="json"
+        on-response="handleCreateResponse"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="gitimportrequest"
+        method="[[method]]"
+        body="[[gitImportParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__gitImportSitePath]]"
+        handle-as="json"
+        on-response="handleGitImportResponse"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="downloadrequest"
+        method="[[method]]"
+        body="[[downloadParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__downloadSitePath]]"
+        handle-as="json"
+        on-response="handleDownloadResponse"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="archiverequest"
+        method="[[method]]"
+        body="[[archiveParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__archiveSitePath]]"
+        handle-as="json"
+        on-response="handleArchiveResponse"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="deleterequest"
+        method="[[method]]"
+        body="[[deleteParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__deleteSitePath]]"
+        handle-as="json"
+        on-response="handleDeleteResponse"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="clonerequest"
+        method="[[method]]"
+        body="[[cloneParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__cloneSitePath]]"
+        handle-as="json"
+        on-response="handleCloneResponse"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="publishrequest"
+        method="[[method]]"
+        body="[[publishParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__publishSitePath]]"
+        handle-as="json"
+        on-response="handlePublishResponse"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="syncrequest"
+        method="[[method]]"
+        body="[[syncParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__syncSitePath]]"
+        handle-as="json"
+        on-response="handleSyncResponse"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="getconfigrequest"
+        method="[[method]]"
+        body="[[configParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__getConfigPath]]"
+        handle-as="json"
+        on-response="handleConfigResponse"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="setconfigrequest"
+        method="[[method]]"
+        body="[[setConfigParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__setConfigPath]]"
+        handle-as="json"
+        on-response="handleSetConfigResponse"
+      ></iron-ajax>
+      <iron-ajax
+        reject-with-request
+        on-last-error-changed="lastErrorChanged"
+        id="getuserdatarequest"
+        method="[[method]]"
+        body="[[getUserDataParams]]"
+        headers='{"Authorization": "Bearer [[jwt]]"}'
+        content-type="application/json"
+        url="[[__getUserDataPath]]"
+        handle-as="json"
+        on-response="handleGetUserDataResponse"
+      ></iron-ajax>
       <div id="loading" data-loading\$="[[!__loading]]">
-        <elmsln-loading size="large"></elmsln-loading>
-        <div>Loading..</div>
+        <hexagon-loader
+          item-count="4"
+          color="white"
+          loading
+          size="large"
+        ></hexagon-loader>
       </div>
-      <app-header reveals>
-        <app-toolbar>
-          <slot name="app-header-pre"></slot>
-          <div class="operations">
-            <paper-button
-              on-click="_addTap"
-              id="add"
-              raised
-              hidden$="[[!loggedIn]]"
-            >
-              <iron-icon icon="icons:add"></iron-icon> Create site
-            </paper-button>
-          </div>
-          <div class="main-title">[[title]]</div>
-          <div class="selected-operations" data-hidden$="[[!hasSelectedItems]]">
-            <paper-button on-click="_bulkSitesConfirm" id="publish" raised>
-              <iron-icon icon="editor:publish"></iron-icon> Publish
-            </paper-button>
-            <paper-button on-click="_bulkSitesConfirm" id="clone" raised>
-              <iron-icon icon="icons:content-copy"></iron-icon> Clone
-            </paper-button>
-            <paper-button on-click="_bulkSitesConfirm" id="download" raised>
-              <iron-icon icon="icons:file-download"></iron-icon> Download
-            </paper-button>
-            <paper-button on-click="_bulkSitesConfirm" id="archive" raised>
-              <iron-icon icon="icons:archive"></iron-icon> Archive
-            </paper-button>
-            <paper-button
-              on-click="_bulkSitesConfirm"
-              id="delete"
-              raised
-              class="danger"
-            >
-              <iron-icon icon="icons:delete-forever"></iron-icon> Delete
-            </paper-button>
-          </div>
-          <div class="operations">
-            <paper-button
-              on-click="_settingsTap"
-              id="settings"
-              raised
-              hidden$="[[!showSpecialButtons(hideGlobalSettings,loggedIn)]]"
-            >
-              <iron-icon icon="icons:settings"></iron-icon> Settings
-            </paper-button>
-            <paper-button
-              hidden$="[[!showSpecialButtons(hideLogin,loggedIn)]]"
-              on-click="_loginUserRoutine"
-              id="login"
-              ><iron-icon icon="[[__loginIcon]]"></iron-icon>
-              [[__loginText]]</paper-button
-            >
-          </div>
-        </app-toolbar>
-      </app-header>
-
-      <vaadin-grid
-        hidden$="[[!loggedIn]]"
-        id="grid"
-        items="[[sites]]"
-        theme="row-dividers"
-        column-reordering-allowed
-        multi-sort
-      >
-        <vaadin-grid-selection-column
-          auto-select
-          frozen
-        ></vaadin-grid-selection-column>
-        <vaadin-grid-filter-column width="6em" path="title">
-          <template>
-            <a tabindex="-1" href$="[[item.location]]" target="_blank"
-              ><paper-button raised class="site-title"
-                >[[item.title]]
-                <iron-icon
-                  style="width:12px;height:12px;"
-                  icon="icons:launch"
-                ></iron-icon
-              ></paper-button>
-              <div class="small-location">[[cleanLocation(item.location)]]</div>
-            </a>
-          </template>
-        </vaadin-grid-filter-column>
-        <vaadin-grid-filter-column
-          width="2em"
-          path="metadata.theme.name"
-          header="Theme"
-        ></vaadin-grid-filter-column>
-        <vaadin-grid-sort-column
-          width="1em"
-          path="metadata.pageCount"
-          header="Pages"
-        ></vaadin-grid-sort-column>
-        <vaadin-grid-sort-column
-          width="1em"
-          header="Last published"
-          path="metadata.lastPublished"
-        >
-          <template>
-            <template is="dom-if" if="[[item.metadata.lastPublished]]">
-              <simple-datetime
-                format="M jS, Y"
-                timestamp="[[item.metadata.lastPublished]]"
-                unix
-              ></simple-datetime>
-            </template>
-          </template>
-        </vaadin-grid-sort-column>
-        <vaadin-grid-sort-column
-          width="1em"
-          header="Updated"
-          path="metadata.updated"
-        >
-          <template>
-            <template is="dom-if" if="[[item.metadata.updated]]">
-              <simple-datetime
-                format="M jS, Y"
-                timestamp="[[item.metadata.updated]]"
-                unix
-              ></simple-datetime>
-            </template>
-          </template>
-        </vaadin-grid-sort-column>
-        <vaadin-grid-sort-column
-          width="1em"
-          header="Created"
-          path="metadata.created"
-        >
-          <template>
-            <template is="dom-if" if="[[item.metadata.created]]">
-              <simple-datetime
-                format="M jS, Y"
-                timestamp="[[item.metadata.created]]"
-                unix
-              ></simple-datetime>
-            </template>
-          </template>
-        </vaadin-grid-sort-column>
-        <vaadin-grid-column width="1em" header="Icon">
-          <template
-            ><iron-icon icon="[[item.metadata.icon]]"></iron-icon
-          ></template>
-        </vaadin-grid-column>
-        <vaadin-grid-column width="1em" header="Color">
-          <template>
-            <div
-              style$="border:1px solid black;width:48px;height:48px;background-color:[[item.metadata.hexCode]];"
-            ></div>
-          </template>
-        </vaadin-grid-column>
-        <vaadin-grid-column width="1em" header="Banner">
-          <template
-            ><iron-image
-              sizing="contain"
-              preload
-              src$="[[item.metadata.image]]"
-              style="width:100px; height:48px;"
-            ></iron-image
-          ></template>
-        </vaadin-grid-column>
-      </vaadin-grid>
-      <div class="login-prompt" hidden$="[[loggedIn]]">
-        <div>
-          <h1>Log into HAXcms</h1>
-          <p>
-            Hey I mean we think you look awesome, don't get us wrong. We just
-            need more then your mug in order to let you into the future.
-          </p>
-          <p>
-            So please. please please please.... login and get this party started
-            :)
-          </p>
+      <div class="toolbar">
+        <slot name="app-header-pre"></slot>
+        <div class="operations">
+          <paper-button
+            on-click="_addTap"
+            id="add"
+            raised
+            hidden$="[[!loggedIn]]"
+            title="Create new site"
+          >
+            <iron-icon icon="icons:add"></iron-icon>
+            <span class="small-hide">New site</span>
+          </paper-button>
+          <paper-button
+            on-click="_importTap"
+            id="import"
+            raised
+            hidden$="[[!loggedIn]]"
+            title="Import site"
+          >
+            <iron-icon icon="icons:cloud-download"></iron-icon>
+            <span class="small-hide">Import</span>
+          </paper-button>
         </div>
+        <div class="main-title" hidden$="[[!loggedIn]]">[[title]]</div>
+        <div class="operations right">
+          <paper-button
+            on-click="_helpTap"
+            id="help"
+            raised
+            title="Help"
+            hidden$="[[!showSpecialButtons(hideGlobalSettings,loggedIn)]]"
+          >
+            <iron-icon icon="icons:help"></iron-icon>
+            <span class="small-hide">Help</span>
+          </paper-button>
+          <paper-button
+            on-click="_settingsTap"
+            id="settings"
+            raised
+            title="Settings"
+            hidden$="[[!showSpecialButtons(hideGlobalSettings,loggedIn)]]"
+          >
+            <iron-icon icon="icons:settings"></iron-icon>
+            <span class="small-hide">Settings</span>
+          </paper-button>
+          <paper-button
+            hidden$="[[!showSpecialButtons(hideLogin,loggedIn)]]"
+            id="login"
+            on-click="_logoutUserRoutine"
+            title="Logout"
+          >
+            <template is="dom-if" if="[[!logoutPhoto]]">
+              <iron-icon icon="[[__loginIcon]]" class="small-hide"></iron-icon>
+            </template>
+            <template is="dom-if" if="[[logoutPhoto]]">
+              <img id="userphoto" src="[[logoutPhoto]]" class="small-hide" />
+            </template>
+            [[__loginText]]</paper-button
+          >
+        </div>
+      </div>
+      <a11y-collapse-group heading-button expanded hidden$="[[!loggedIn]]">
+        <a11y-collapse>
+          <div slot="heading">Card view</div>
+          <jos-render slot="content"></jos-render>
+        </a11y-collapse>
+        <a11y-collapse>
+          <div slot="heading">Table view / bulk operations</div>
+          <div slot="content">
+            <div class="selected-operations" id="ops">
+              <paper-button
+                title="Publish"
+                on-click="_bulkSitesConfirm"
+                id="publish"
+                raised
+              >
+                <iron-icon icon="editor:publish"></iron-icon>
+                <span class="small-hide">Publish site</span>
+              </paper-button>
+              <paper-button
+                title="Sync git"
+                on-click="_bulkSitesConfirm"
+                id="sync"
+                raised
+              >
+                <iron-icon icon="notification:sync"></iron-icon>
+                <span class="small-hide">Sync git</span>
+              </paper-button>
+              <paper-button
+                title="Copy site"
+                on-click="_bulkSitesConfirm"
+                id="clone"
+                raised
+              >
+                <iron-icon icon="icons:content-copy"></iron-icon>
+                <span class="small-hide">Copy site</span>
+              </paper-button>
+              <paper-button
+                title="Download zip"
+                on-click="_bulkSitesConfirm"
+                id="download"
+                raised
+              >
+                <iron-icon icon="icons:file-download"></iron-icon>
+                <span class="small-hide">Download zip</span>
+              </paper-button>
+              <paper-button
+                title="Archive"
+                on-click="_bulkSitesConfirm"
+                id="archive"
+                raised
+              >
+                <iron-icon icon="icons:archive"></iron-icon>
+                <span class="small-hide">Archive site</span>
+              </paper-button>
+              <paper-button
+                on-click="_bulkSitesConfirm"
+                id="delete"
+                raised
+                class="danger"
+                title="Delete forever"
+              >
+                <iron-icon icon="icons:delete-forever"></iron-icon>
+                <span class="small-hide">Delete forever</span>
+              </paper-button>
+            </div>
+            <vaadin-grid
+              id="grid"
+              items="[[sites]]"
+              theme="row-dividers"
+              column-reordering-allowed
+              multi-sort
+            >
+              <vaadin-grid-selection-column
+                width="5em"
+                auto-select
+                frozen
+              ></vaadin-grid-selection-column>
+              <vaadin-grid-filter-column
+                header="Site name"
+                width="240px"
+                path="title"
+              >
+                <template>
+                  <portal-launcher>
+                    <a class="site-title" href$="[[item.slug]]">
+                      <div>[[item.title]]</div>
+                      <div class="small-location">
+                        [[cleanLocation(item.slug)]]
+                      </div>
+                    </a>
+                  </portal-launcher>
+                </template>
+              </vaadin-grid-filter-column>
+              <vaadin-grid-filter-column
+                path="metadata.theme.name"
+                header="Theme"
+                width="80px"
+              ></vaadin-grid-filter-column>
+              <vaadin-grid-sort-column header="Updated" path="metadata.updated">
+                <template>
+                  <template is="dom-if" if="[[item.metadata.site.updated]]">
+                    <simple-datetime
+                      format="M jS, Y"
+                      timestamp="[[item.metadata.site.updated]]"
+                      unix
+                    ></simple-datetime>
+                  </template>
+                </template>
+              </vaadin-grid-sort-column>
+              <vaadin-grid-sort-column header="Created" path="metadata.created">
+                <template>
+                  <template is="dom-if" if="[[item.metadata.site.created]]">
+                    <simple-datetime
+                      format="M jS, Y"
+                      timestamp="[[item.metadata.site.created]]"
+                      unix
+                    ></simple-datetime>
+                  </template>
+                </template>
+              </vaadin-grid-sort-column>
+              <vaadin-grid-column header="Icon">
+                <template
+                  ><iron-icon
+                    icon="[[item.metadata.theme.variables.icon]]"
+                  ></iron-icon
+                ></template>
+              </vaadin-grid-column>
+              <vaadin-grid-sort-column
+                header="Last published"
+                path="metadata.lastPublished"
+              >
+                <template>
+                  <template
+                    is="dom-if"
+                    if="[[item.metadata.site.static.lastPublished]]"
+                  >
+                    <simple-datetime
+                      format="M jS, Y"
+                      timestamp="[[item.metadata.site.static.lastPublished]]"
+                      unix
+                    ></simple-datetime>
+                  </template>
+                </template>
+              </vaadin-grid-sort-column>
+              <vaadin-grid-sort-column
+                path="metadata.pageCount"
+                header="Pages"
+              ></vaadin-grid-sort-column>
+              <vaadin-grid-column header="Color">
+                <template>
+                  <div
+                    style$="border:1px solid black;width:64px;height:48px;background-color:[[item.metadata.theme.variables.hexCode]];"
+                  ></div>
+                </template>
+              </vaadin-grid-column>
+              <vaadin-grid-column header="Logo" width="64px">
+                <template
+                  ><iron-image
+                    sizing="contain"
+                    preload
+                    src$="[[item.slug]][[item.metadata.site.logo]]"
+                    style="width:64px; height:64px;"
+                  ></iron-image
+                ></template>
+              </vaadin-grid-column>
+            </vaadin-grid>
+          </div>
+        </a11y-collapse>
+      </a11y-collapse-group>
+      <div class="login-prompt" hidden$="[[loggedIn]]">
         <simple-login>
+          <hax-logo size="mini" hide-hax><span>HAXcms login</span></hax-logo>
+          <div class="camera-buttons">
+            <paper-icon-button
+              id="snap"
+              icon="image:camera-alt"
+              title="Snap photo"
+            ></paper-icon-button>
+            <paper-icon-button
+              id="newsnap"
+              icon="icons:cancel"
+              title="Clear photo"
+            ></paper-icon-button>
+          </div>
           <simple-login-avatar>
             <div id="selfie"></div>
             <simple-login-camera id="camera" autoplay></simple-login-camera>
           </simple-login-avatar>
-          <paper-button id="snap" raised slot="buttons"
-            >Snap photo</paper-button
-          >
-          <paper-button id="newsnap" raised slot="buttons"
-            >Clear photo</paper-button
-          >
+          <p class="forgot" slot="buttons">
+            Forget your login? Check <strong>_config/config.php</strong>
+          </p>
         </simple-login>
+        <vaadin-upload
+          capture
+          headers='{"Authorization": "Bearer [[jwt]]"}'
+          method="[[method]]"
+          form-data-name="file-upload"
+          hidden
+          id="fileupload"
+        ></vaadin-upload>
       </div>
+      <simple-modal-template modal-id="help" title="Help">
+        <div slot="header">Help directions</div>
+        <p slot="content">
+          <md-block
+            source="https://raw.githubusercontent.com/elmsln/HAXcms/master/HAXDocs.md"
+          ></md-block>
+        </p>
+        <div slot="buttons"><mwc-button dialog-dismiss>Close</mwc-button></div>
+      </simple-modal-template>
       <paper-dialog id="confirm">
         <h2 class="dialog-header">
           [[activeOpertion]] these [[selectedItems.length]] sites
@@ -626,35 +802,19 @@ class HAXCMSSiteListing extends PolymerElement {
           >
         </div>
       </paper-dialog>
-      <paper-dialog id="newdialog">
+      <paper-dialog id="createsite">
         <h2 class="dialog-header">Create new site</h2>
-        <div>
-          <paper-input
-            id="newsitetitle"
-            label="Title"
-            required
-            autofocus
-            value="{{siteTitle}}"
-          ></paper-input>
-          <paper-input
-            id="newsitedescription"
-            label="Description"
-          ></paper-input>
-          <paper-input
-            id="newsiteimage"
-            label="Image"
-            value="[[activeItem.metadata.image]]"
-          ></paper-input>
-          <label for="newsitecolor">Select a color:</label>
-          <simple-colors-picker id="newsitecolor"></simple-colors-picker>
-          <simple-picker id="newsitetheme" label="Theme"></simple-picker>
-          <label for="newsiteicon">Select an icon:</label>
-          <simple-icon-picker
-            id="newsiteicon"
-            hide-option-labels
-            value="[[activeItem.metadata.icon]]"
-          ></simple-icon-picker>
-        </div>
+        <paper-dialog-scrollable>
+          <form>
+            <simple-fields
+              id="createsitefields"
+              autofocus
+              schematizer="[[HaxSchematizer]]"
+              elementizer="[[HaxElementizer]]"
+            >
+            </simple-fields>
+          </form>
+        </paper-dialog-scrollable>
         <div class="buttons">
           <paper-button
             on-click="_createSite"
@@ -671,10 +831,37 @@ class HAXCMSSiteListing extends PolymerElement {
           >
         </div>
       </paper-dialog>
+      <paper-dialog id="importsite">
+        <h2 class="dialog-header">Import site from git repo</h2>
+        <simple-fields-field
+          id="importurl"
+          label="Git url"
+          type="text"
+        ></simple-fields-field>
+        <div class="buttons">
+          <paper-button
+            on-click="_gitImportSite"
+            class="action-button"
+            dialog-confirm
+            id="importsite"
+            raised
+            ><iron-icon icon="icons:home"></iron-icon> Import</paper-button
+          >
+          <paper-button class="action-button" dialog-dismiss
+            ><iron-icon icon="icons:thumb-down"></iron-icon>
+            Cancel</paper-button
+          >
+        </div>
+      </paper-dialog>
       <paper-dialog id="settingsdialog">
         <h2 class="dialog-header">Edit HAXCMS configuration</h2>
         <paper-dialog-scrollable>
-          <eco-json-schema-object id="settingsform"></eco-json-schema-object>
+          <simple-fields
+            id="settingsform"
+            schematizer="[[HaxSchematizer]]"
+            elementizer="[[HaxElementizer]]"
+          >
+          </simple-fields>
         </paper-dialog-scrollable>
         <div class="buttons">
           <paper-button
@@ -696,27 +883,33 @@ class HAXCMSSiteListing extends PolymerElement {
   /**
    * Parse JSON Outline Schema for the items and bind that to sites
    */
+
   _sitesResponseChanged(newValue, oldValue) {
     if (newValue) {
       if (typeof newValue.items !== typeof undefined) {
         this.title = newValue.title;
         this.set("sites", []);
         this.set("sites", newValue.items);
+        this.shadowRoot.querySelector("jos-render").items = newValue.items;
         this.notifyPath("sites.*");
       }
     }
   }
+
   cleanLocation(location) {
-    return location.replace("/_sites/", "").replace("/", "");
+    if (location) {
+      return location
+        .replace("/_sites/", "")
+        .replace("/sites/", "")
+        .replace("/", "");
+    }
+    return location;
   }
+
   static get properties() {
     return {
       __loading: {
         type: Boolean
-      },
-      jwtBody: {
-        type: Object,
-        value: {}
       },
       /**
        * Object, JSON Outline Schema format
@@ -730,6 +923,7 @@ class HAXCMSSiteListing extends PolymerElement {
         type: String,
         value: "POST"
       },
+
       /**
        * Title
        */
@@ -737,22 +931,18 @@ class HAXCMSSiteListing extends PolymerElement {
         type: String,
         value: "My sites"
       },
-      /**
-       * Site title
-       */
-      siteTitle: {
-        type: String
-      },
       sites: {
         type: Array,
         notify: true
       },
+
       /**
        * Base path of where this is located.
        */
       basePath: {
         type: String
       },
+
       /**
        * If we should hide the login button all the time or not
        */
@@ -760,6 +950,7 @@ class HAXCMSSiteListing extends PolymerElement {
         type: Boolean,
         value: false
       },
+
       /**
        * If we should hide the login button all the time or not
        */
@@ -767,6 +958,7 @@ class HAXCMSSiteListing extends PolymerElement {
         type: Boolean,
         value: false
       },
+
       /**
        * Data Source to power the loading of sites in JSON Outline Schema format.
        */
@@ -774,6 +966,7 @@ class HAXCMSSiteListing extends PolymerElement {
         type: String,
         observer: "_dataSourceChanged"
       },
+
       /**
        * JSON Web token
        */
@@ -782,6 +975,12 @@ class HAXCMSSiteListing extends PolymerElement {
         notify: true,
         observer: "_jwtChanged"
       },
+      userData: {
+        type: Object,
+        value: {},
+        observer: "_userDataChanged"
+      },
+
       /**
        * Request params for creating a new site
        */
@@ -805,6 +1004,10 @@ class HAXCMSSiteListing extends PolymerElement {
         type: Object,
         value: {}
       },
+      syncParams: {
+        type: Object,
+        value: {}
+      },
       archiveParams: {
         type: Object,
         value: {}
@@ -817,14 +1020,25 @@ class HAXCMSSiteListing extends PolymerElement {
         type: Object,
         value: {}
       },
+      getUserDataParams: {
+        type: Object,
+        value: {}
+      },
       activeOpertion: {
         type: String
+      },
+      HaxSchematizer: {
+        type: Object
+      },
+      HaxElementizer: {
+        type: Object
       },
       selectedItems: {
         type: Array,
         value: [],
         observer: "_selectedItemsChanged"
       },
+
       /**
        * Active item that's being reviewed / has bubbled up.
        */
@@ -832,6 +1046,7 @@ class HAXCMSSiteListing extends PolymerElement {
         type: Object,
         notify: true
       },
+
       /**
        * Logged in state
        */
@@ -842,6 +1057,7 @@ class HAXCMSSiteListing extends PolymerElement {
         reflectToAttribute: true,
         observer: "_loggedInChanged"
       },
+
       /**
        * Edit mode
        */
@@ -852,35 +1068,49 @@ class HAXCMSSiteListing extends PolymerElement {
         value: false,
         observer: "_editModeChanged"
       },
-      hasSelectedItems: {
+      hideCamera: {
         type: Boolean,
         value: false
       },
-      hideCamera: {
-        type: Boolean,
+      logoutPhoto: {
+        type: String,
         value: false
       }
     };
   }
+
+  _userDataChanged(newValue) {
+    if (newValue.userName) {
+      this.title = newValue.userName + " sites";
+    }
+    if (newValue.userPicture) {
+      this.logoutPhoto = newValue.userPicture;
+    }
+  }
   /**
    * Show the login button if we have cause
    */
+
   showSpecialButtons(hideButton, loggedIn) {
     if (hideButton) {
       return false;
     }
+
     if (!loggedIn) {
       return false;
     }
+
     return true;
   }
+
   _selectedItemsChanged(newValue) {
     if (newValue && newValue.length > 0) {
-      this.hasSelectedItems = true;
+      this.shadowRoot.querySelector("#ops").removeAttribute("hidden");
     } else {
-      this.hasSelectedItems = false;
+      this.shadowRoot.querySelector("#ops").setAttribute("hidden", "hidden");
     }
   }
+
   _dataSourceChanged(newValue) {
     if (newValue) {
       this._dataSource = newValue + "?" + Math.floor(Date.now() / 1000);
@@ -889,6 +1119,7 @@ class HAXCMSSiteListing extends PolymerElement {
   /**
    * Request a user login if we need one or log out
    */
+
   _jwtLoggedIn(e) {
     if (e.detail) {
       this.loggedIn = true;
@@ -897,8 +1128,18 @@ class HAXCMSSiteListing extends PolymerElement {
     }
   }
   /**
+   * A token refresh just failed so force to login prompt / state
+   */
+  _tokenRefreshFailed(e) {
+    if (e.detail.value.status == 401) {
+      this.jwt = null;
+      this.loggedIn = false;
+    }
+  }
+  /**
    * Request a user login if we need one or log out
    */
+
   _editModeChanged(newValue) {
     if (newValue) {
       this.__editIcon = "icons:check";
@@ -909,55 +1150,37 @@ class HAXCMSSiteListing extends PolymerElement {
   /**
    * Open the new dialog when tapped
    */
+
   _addTap() {
-    // reset activeItem
-    this.set("activeItem", {});
-    this.set("activeItem", {
-      id: false,
-      title: "",
-      description: "",
-      metadata: {
-        siteName: "",
-        theme: "simple-blog",
-        image: "assets/banner.jpg",
-        color: "blue",
-        icon: "icons:add-circle-outline"
-      }
-    });
-    this.shadowRoot.querySelector("#newdialog").opened = true;
+    this._resetNewSiteForm();
+
+    this.shadowRoot.querySelector("#createsite").opened = true;
+  }
+  /**
+   * Open the import dialog when tapped
+   */
+
+  _importTap() {
+    this.shadowRoot.querySelector("#importurl").value = "";
+    this.shadowRoot.querySelector("#importsite").opened = true;
   }
   /**
    * Login state changed
    */
+
   _loggedInChanged(newValue, oldValue) {
     if (typeof oldValue !== typeof undefined) {
       if (newValue) {
+        document.body.setAttribute("data-logged-in", "data-logged-in");
         this.__loginText = "Log out";
         this.__loginIcon = "icons:account-circle";
-        const evt = new CustomEvent("simple-toast-show", {
-          bubbles: true,
-          composed: true,
-          cancelable: true,
-          detail: {
-            text: "Welcome, log in successful!",
-            duration: 4000
-          }
-        });
-        this.dispatchEvent(evt);
+        this.standardResponse("Welcome, log in successful!");
         this.shadowRoot.querySelector("#add").hidden = false;
       } else {
+        document.body.removeAttribute("data-logged-in");
         this.__loginText = "Log in";
         this.__loginIcon = "icons:power-settings-new";
-        const evt = new CustomEvent("simple-toast-show", {
-          bubbles: true,
-          composed: true,
-          cancelable: true,
-          detail: {
-            text: "You logged out",
-            duration: 4000
-          }
-        });
-        this.dispatchEvent(evt);
+        this.standardResponse("You logged out");
         this.shadowRoot.querySelector("#add").hidden = true;
       }
     }
@@ -965,51 +1188,42 @@ class HAXCMSSiteListing extends PolymerElement {
   /**
    * Request a user login if we need one or log out
    */
+
   _jwtChanged(newValue) {
     if (newValue) {
       this.__loginText = "Log out";
-      this.__loginIcon = "icons:account-circle";
+      this.__loginIcon = "icons:account-circle"; // see if we should update the photo from the webcam
+      // this value is available if we hit camera snap earlier in the operation
+
+      if (this.__cameraBlob) {
+        let file = new File(
+          [this.__cameraBlob],
+          "userPhoto" + Date.now() + ".jpg"
+        );
+        this.shadowRoot.querySelector("#fileupload").target =
+          this.__setUserPhotoPath + "&jwt=" + newValue;
+        this.shadowRoot.querySelector("#fileupload")._addFile(file);
+        this.shadowRoot.querySelector("#fileupload").uploadFiles();
+      } // refresh user data request, delay this in case we uploaded a photo
+      // @todo this is a lazy way of doing this
+
+      setTimeout(() => {
+        this.set("getUserDataParams", {});
+        this.set("getUserDataParams", {
+          jwt: newValue
+        });
+        this.notifyPath("getUserDataParams.*");
+        this.shadowRoot.querySelector("#getuserdatarequest").generateRequest();
+      }, 500);
     } else {
       this.__loginText = "Log in";
       this.__loginIcon = "icons:power-settings-new";
     }
   }
   /**
-   * Request a user login if we need one or log out
-   */
-  _loginUserRoutine(e) {
-    this.shadowRoot.querySelector("#jwt").toggleLogin();
-  }
-  /**
-   * Use events for real value in theme.
-   */
-  _themeChanged(e) {
-    // while not the actual spec for our theme metadata, this is the primary key
-    // so the backend can update it correctly on response
-    if (e.detail.value) {
-      this.set("activeItem.metadata.theme", e.detail.value);
-      this.notifyPath("activeItem.metadata.theme");
-    }
-  }
-  /**
-   * Use events for real value in color area.
-   */
-  _colorChanged(e) {
-    this.set("activeItem.metadata.cssVariable", e.detail.value);
-    this.notifyPath("activeItem.metadata.cssVariable");
-    this.set(
-      "activeItem.metadata.hexCode",
-      this.SimpleColors.colors[
-        e.detail.value
-          .replace("--simple-colors-default-theme-", "")
-          .replace("-7", "")
-      ][6]
-    );
-    this.notifyPath("activeItem.metadata.hexCode");
-  }
-  /**
    * Toggle edit state
    */
+
   _editTap(e) {
     this.editMode = !this.editMode;
   }
@@ -1018,40 +1232,84 @@ class HAXCMSSiteListing extends PolymerElement {
    */
   _settingsTap(e) {
     this._loadConfig();
+
     this.shadowRoot.querySelector("#settingsdialog").opened = true;
-    var evt = document.createEvent("UIEvents");
-    evt.initUIEvent("resize", true, false, window, 0);
-    window.dispatchEvent(evt);
   }
   /**
    * force the request to regenerate
    */
+
   refreshData(e) {
     this.shadowRoot.querySelector("#loaddata").generateRequest();
   }
+
   _gridSelectedItemsChanged(e) {
     // skip splicing, just rebuild whole object
     this.set("selectedItems", []);
-    this.set("selectedItems", e.path[0].selectedItems);
+    this.set(
+      "selectedItems",
+      this.shadowRoot.querySelector("#grid").selectedItems
+    );
   }
   /**
    * Attached life cycle
    */
+
   connectedCallback() {
-    super.connectedCallback();
-    // if we're on an insecure environment, hide the buttons for camera
+    super.connectedCallback(); // if we're on an insecure environment, hide the buttons for camera
+    window.addEventListener(
+      "jwt-login-refresh-error",
+      this._tokenRefreshFailed.bind(this)
+    );
+    window.addEventListener("jwt-token", this.updateJwt.bind(this));
     if (!navigator.mediaDevices) {
       this.shadowRoot.querySelector("#snap").style.display = "none";
       this.shadowRoot.querySelector("#newsnap").style.display = "none";
     }
+    // detect upload utilized
+    this.shadowRoot
+      .querySelector("#fileupload")
+      .addEventListener(
+        "upload-response",
+        this.handleSetUserPhotoResponse.bind(this)
+      );
+
     if (this.jwt) {
       this.loggedIn = true;
     }
+
     window.addEventListener(
       "sites-listing-refresh-data",
       this.refreshData.bind(this)
     );
-    afterNextRender(this, function() {
+    setTimeout(() => {
+      /**
+       * These are our bad actors in polyfill'ed browsers.
+       * This means that https://github.com/webcomponents/webcomponentsjs/commit/ce464bb533bf39b544c312906499a6044ee0d30d
+       * explains things but basically if shadow-dom is polyfilled
+       * then we can't safely execute a DOM manipulating execCommand.
+       * This
+       */
+      if (document.head.createShadowRoot || document.head.attachShadow) {
+      } else {
+        console.warn("Shadow DOM missing, ALL YOUR IE R BELONG TO US");
+        console.warn(
+          "HAXCMS DOES NOT LOVE YOUR OLD BROWSER FOR EDITING JUST VIEWING"
+        );
+        console.warn("You get no authoring experience. Good day to you!");
+        const evt = new CustomEvent("simple-toast-show", {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          detail: {
+            text:
+              "WARNING: You are using a polyfilled browser. HAXcms requires modern browsers, please upgrade or switch to a modern browser to edit in HAXcms!",
+            duration: 10000
+          }
+        });
+        this.dispatchEvent(evt);
+      }
+
       if (this.hideCamera) {
         this.shadowRoot.querySelector("#newsnap").classList.add("hide-camera");
         this.shadowRoot.querySelector("#snap").classList.add("hide-camera");
@@ -1059,6 +1317,7 @@ class HAXCMSSiteListing extends PolymerElement {
       } else {
         import("@lrnwebcomponents/simple-login/lib/simple-login-camera.js");
       }
+
       this.addEventListener(
         "simple-login-login",
         this.loginPromptEvent.bind(this)
@@ -1070,66 +1329,56 @@ class HAXCMSSiteListing extends PolymerElement {
           this._gridSelectedItemsChanged.bind(this)
         );
       this.__loginPath = window.appSettings.login;
+      this.__refreshPath = window.appSettings.refreshUrl;
       this.__logoutPath = window.appSettings.logout;
-      let themeOptions = [];
-      let firstTheme = null;
-      for (var theme in window.appSettings.themes) {
-        let item = [
-          {
-            alt: window.appSettings.themes[theme].name,
-            value: theme
-          }
-        ];
-        themeOptions.push(item);
-        if (!firstTheme) {
-          firstTheme = theme;
-        }
-      }
-      this.shadowRoot.querySelector("#newsitetheme").options = themeOptions;
-      if (!this.shadowRoot.querySelector("#newsitetheme").value) {
-        this.shadowRoot.querySelector("#newsitetheme").value = firstTheme;
-      }
       this.__setConfigPath = window.appSettings.setConfigPath;
+      this.__getUserDataPath = window.appSettings.getUserDataPath;
+      this.__setUserPhotoPath = window.appSettings.setUserPhotoPath;
       this.__getConfigPath = window.appSettings.getConfigPath;
       this.__createNewSitePath = window.appSettings.createNewSitePath;
+      this.__gitImportSitePath = window.appSettings.gitImportSitePath;
       this.__downloadSitePath = window.appSettings.downloadSitePath;
       this.__archiveSitePath = window.appSettings.archiveSitePath;
       this.__cloneSitePath = window.appSettings.cloneSitePath;
       this.__publishSitePath = window.appSettings.publishSitePath;
+      this.__syncSitePath = window.appSettings.syncSitePath;
       this.__revertSitePath = window.appSettings.revertSitePath;
-      this.__deleteSitePath = window.appSettings.deleteSitePath;
-      // case where backend has set the JWT ahead of time
+      this.__deleteSitePath = window.appSettings.deleteSitePath; // case where backend has set the JWT ahead of time
       // useful for systems that are managing login above HAXcms
+
       if (window.appSettings.jwt) {
         this.set("jwt", window.appSettings.jwt);
       }
+
       document.body.addEventListener(
         "haxcms-load-site",
         this.loadActiveSite.bind(this)
       );
-      this.shadowRoot
-        .querySelector("#newsitetheme")
-        .addEventListener("change", this._themeChanged.bind(this));
-      this.shadowRoot
-        .querySelector("#newsitecolor")
-        .addEventListener("change", this._colorChanged.bind(this));
       this.shadowRoot
         .querySelector("#snap")
         .addEventListener("click", this.snapPhoto.bind(this));
       this.shadowRoot
         .querySelector("#newsnap")
         .addEventListener("click", this.clearPhoto.bind(this));
-    });
+    }, 0);
   }
+
   async snapPhoto(e) {
-    const camera = this.shadowRoot.querySelector("#camera");
-    let img = await camera.takeASnap().then(camera.renderImage);
+    const camera = this.shadowRoot.querySelector("#camera"); // snap the photo to a blob
+
+    this.__cameraBlob = await camera.takeASnap().then(camera.imageBlob); // make an img to show on screen
+
+    let img = document.createElement("img"); // turn blob into a url to visualize locally
+
+    img.src = URL.createObjectURL(this.__cameraBlob);
     camera.removeAttribute("autoplay");
     const selfie = this.shadowRoot.querySelector("#selfie");
-    selfie.innerHTML = "";
+    selfie.innerHTML = ""; // append to dom so they see the photo
+
     selfie.appendChild(img);
     selfie.classList.add("has-snap");
   }
+
   clearPhoto(e) {
     const camera = this.shadowRoot.querySelector("#camera");
     camera.setAttribute("autoplay", "autoplay");
@@ -1137,18 +1386,161 @@ class HAXCMSSiteListing extends PolymerElement {
     selfie.innerHTML = "";
     selfie.classList.remove("has-snap");
   }
+
+  /**
+   * User login brokering event to sent off to jwt-login events
+   */
   loginPromptEvent(e) {
-    this.set("jwtBody", {});
-    this.set("jwtBody", {
+    this._loginUserRoutine({
       u: e.detail.u,
       p: e.detail.p
     });
-    this._loginUserRoutine(e);
+  }
+  _logoutUserRoutine() {
+    this.dispatchEvent(
+      new CustomEvent("jwt-login-logout", {
+        composed: true,
+        bubbles: true,
+        cancelable: false,
+        detail: {}
+      })
+    );
+  }
+  _loginUserRoutine(detail) {
+    this.dispatchEvent(
+      new CustomEvent("jwt-login-login", {
+        composed: true,
+        bubbles: true,
+        cancelable: false,
+        detail: detail
+      })
+    );
+  }
+  /**
+   * queue up the site creation form
+   */
+
+  _resetNewSiteForm() {
+    // establish the theme options based on globals that were set
+    let themeOptions = [];
+    let firstTheme = null;
+
+    for (var theme in window.appSettings.themes) {
+      themeOptions[theme] = window.appSettings.themes[theme].name;
+
+      if (!firstTheme) {
+        firstTheme = theme;
+      }
+    }
+
+    const fields = this.shadowRoot.querySelector("#createsitefields");
+    fields.fields = [
+      {
+        property: "id",
+        title: "id",
+        description: "",
+        inputMethod: "boolean",
+        hidden: true
+      },
+      {
+        property: "manifest",
+        inputMethod: "tabs",
+        properties: [
+          {
+            property: "site",
+            title: "Site details",
+            properties: [
+              {
+                property: "name",
+                title: "Site name",
+                description:
+                  "This forms the folder name and metadata title for the site",
+                inputMethod: "textfield",
+                required: true
+              },
+              {
+                property: "theme",
+                title: "Theme",
+                description: "Design for presenting your new site",
+                inputMethod: "select",
+                allowNull: false,
+                options: themeOptions,
+                required: true
+              },
+              {
+                property: "description",
+                title: "Description (optional)",
+                description:
+                  "Addition detail, for personal use as well as search engine optimization",
+                inputMethod: "textfield"
+              } /*,
+              {
+                property: "domain",
+                title: "URL (optional)",
+                description: "Optional domain name",
+                inputMethod: "textfield"
+              }*/
+            ]
+          },
+          {
+            property: "theme",
+            title: "Theme settings",
+            properties: [
+              /*              {
+                property: "image",
+                title: "Image",
+                description:
+                  "The image is typically used as the banner in themes",
+                inputMethod: "fileupload",
+                validationType: "url",
+                disabled: true
+              },*/
+              {
+                property: "icon",
+                title: "Pick an icon.",
+                description:
+                  "The icon is used in some designs areas to help you know what site your on",
+                inputMethod: "iconpicker"
+              },
+              {
+                property: "color",
+                title: "Color",
+                description:
+                  "Choose a primary color to tint the UI or be used in the theme",
+                inputMethod: "colorpicker"
+              }
+            ]
+          }
+        ]
+      }
+    ];
+    fields.value = {
+      id: false,
+      manifest: {
+        site: {
+          name: "",
+          description: "",
+          //domain: "",
+          theme: firstTheme
+        },
+        theme: {
+          //image: "assets/banner.jpg",
+          color: "blue",
+          icon: "icons:add-circle-outline"
+        }
+      }
+    };
   }
   /**
    * detached life cycle
    */
+
   disconnectedCallback() {
+    window.removeEventListener(
+      "jwt-login-refresh-error",
+      this._tokenRefreshFailed.bind(this)
+    );
+    window.removeEventListener("jwt-token", this.updateJwt.bind(this));
     window.removeEventListener(
       "sites-listing-refresh-data",
       this.refreshData.bind(this)
@@ -1174,12 +1566,6 @@ class HAXCMSSiteListing extends PolymerElement {
         this._gridSelectedItemsChanged.bind(this)
       );
     this.shadowRoot
-      .querySelector("#newsitetheme")
-      .removeEventListener("change", this._themeChanged.bind(this));
-    this.shadowRoot
-      .querySelector("#newsitecolor")
-      .removeEventListener("change", this._colorChanged.bind(this));
-    this.shadowRoot
       .querySelector("#jwt")
       .removeEventListener("jwt-logged-in", this._jwtLoggedIn.bind(this));
     super.disconnectedCallback();
@@ -1187,117 +1573,205 @@ class HAXCMSSiteListing extends PolymerElement {
   /**
    * Ready life cycle
    */
+
   ready() {
     super.ready();
     this.shadowRoot
       .querySelector("#jwt")
       .addEventListener("jwt-logged-in", this._jwtLoggedIn.bind(this));
+    setTimeout(() => {
+      this.shadowRoot
+        .querySelector('[modal-id="help"]')
+        .associateEvents(this.shadowRoot.querySelector("#help"));
+    }, 0);
     window.JSONOutlineSchema.requestAvailability();
     window.SimpleModal.requestAvailability();
     window.SimpleToast.requestAvailability();
+    const jos = this.shadowRoot.querySelector("jos-render");
+    jos.map = {
+      tag: "course-card",
+      path: "@lrnwebcomponents/product-card/lib/course-card.js",
+      properties: {
+        number: "title",
+        name: function(item) {
+          return item.slug
+            ? item.slug
+                .replace("/_sites/", "")
+                .replace("/sites/", "")
+                .replace("/", "")
+            : "";
+        },
+        url: "location",
+        image: function(item) {
+          if (item.metadata.site && item.metadata.site.logo) {
+            return item.slug + item.metadata.site.logo.replace(" ", "%20");
+          }
+          return item.slug + "assets/banner.jpg";
+        },
+        icon: function(item) {
+          if (
+            item.metadata.theme &&
+            item.metadata.theme.variables &&
+            item.metadata.theme.variables.icon
+          ) {
+            return item.metadata.theme.variables.icon;
+          }
+          return "icons:android";
+        },
+        author: function(item) {
+          if (item.metadata.author && item.metadata.author.name) {
+            return item.metadata.author.name;
+          }
+          return "";
+        },
+        accentColor: function(item) {
+          if (
+            item.metadata.theme &&
+            item.metadata.theme.variables &&
+            item.metadata.theme.variables.cssVariable
+          ) {
+            return item.metadata.theme.variables.cssVariable
+              .replace("--simple-colors-default-theme-", "")
+              .replace("-7", "");
+          }
+          return "";
+        },
+        size: "small",
+        dark: true,
+        alt: function(item) {
+          return "Select to access " + item.title;
+        }
+      }
+    };
   }
   /**
    * Simple method of loading whatever's been dictated as active.
    */
+
   loadActiveSite(e) {
     let findSite = this.sites.filter(site => {
       if (site.id !== e.detail.id) {
         return false;
       }
+
       return true;
     });
-    let item = findSite.pop();
-    // if location isn't there, push out to it
-    if (item.location) {
-      window.open(item.location);
+    let item = findSite.pop(); // if location isn't there, push out to it
+
+    if (item.slug) {
+      window.open(item.slug);
     } else {
-      window.open(this.basePath + "_sites/" + item.metadata.siteName + "/");
+      window.open(this.basePath + "_sites/" + item.metadata.site.name + "/");
     }
+  }
+  /**
+   * Import a site from a git repo
+   */
+
+  _gitImportSite(e) {
+    let values = Object.assign({
+      jwt: this.jwt,
+      site: {
+        git: {
+          url: this.shadowRoot.querySelector("#importurl").value
+        }
+      }
+    });
+    this.set("gitImportParams", {});
+    this.set("gitImportParams", values);
+    this.notifyPath("gitImportParams.*");
+    this.shadowRoot.querySelector("#gitimportrequest").generateRequest();
   }
   /**
    * Create a new site button was clicked
    */
+
   _createSite(e) {
-    // ship off a new call
-    this.set(
-      "createParams.siteName",
-      this.shadowRoot.querySelector("#newsitetitle").value
+    let values = Object.assign(
+      {
+        jwt: this.jwt
+      },
+      this.shadowRoot.querySelector("#createsitefields").value.manifest
     );
-    this.notifyPath("createParams.siteName");
-    this.set(
-      "createParams.description",
-      this.shadowRoot.querySelector("#newsitedescription").value
-    );
-    this.notifyPath("createParams.description");
-    // need to pull this from the active item bc of data binding silly
-    this.set("createParams.theme", this.activeItem.metadata.theme);
-    this.notifyPath("createParams.theme");
-    this.set("createParams.hexCode", this.activeItem.metadata.hexCode);
-    this.notifyPath("createParams.hexCode");
-    this.set("createParams.cssVariable", this.activeItem.metadata.cssVariable);
-    this.notifyPath("createParams.cssVariable");
-    this.set(
-      "createParams.image",
-      this.shadowRoot.querySelector("#newsiteimage").value
-    );
-    this.notifyPath("createParams.image");
-    this.set(
-      "createParams.icon",
-      this.shadowRoot.querySelector("#newsiteicon").icon
-    );
-    this.notifyPath("createParams.icon");
-    // pass along the jwt for user "session" purposes
-    this.set("createParams.jwt", this.jwt);
-    this.notifyPath("createParams.jwt");
-    this.shadowRoot.querySelector("#newsitetitle").value = "";
-    this.shadowRoot.querySelector("#newsitedescription").value = null;
+    this.set("createParams", {});
+    this.set("createParams", values);
+    this.notifyPath("createParams.*");
     this.shadowRoot.querySelector("#createrequest").generateRequest();
   }
   /**
    * Download site button was hit, package and send a zip
    */
+
   async _downloadSites(e) {
-    // ship off a new call
-    // pass along the jwt for user "session" purposes
-    this.set("downloadParams.jwt", this.jwt);
-    this.notifyPath("downloadParams.jwt");
+    this.set("downloadParams", {});
+    this.set("downloadParams", {
+      jwt: this.jwt,
+      site: {}
+    });
+    this.notifyPath("downloadParams.*");
+
     for (var i in this.selectedItems) {
       this.set("activeItem", {});
       this.set("activeItem", this.selectedItems[i]);
       this.set(
-        "downloadParams.siteName",
-        this.selectedItems[i].metadata.siteName
+        "downloadParams.site.name",
+        this.selectedItems[i].metadata.site.name
       );
-      this.notifyPath("downloadParams.siteName");
+      this.notifyPath("downloadParams.site.name");
       await this.shadowRoot.querySelector("#downloadrequest").generateRequest();
     }
   }
   /**
    * Archive sites
    */
+
   async _archiveSites(e) {
-    // ship off a new call
-    // pass along the jwt for user "session" purposes
-    this.set("archiveParams.jwt", this.jwt);
-    this.notifyPath("archiveParams.jwt");
+    this.set("archiveParams", {});
+    this.set("archiveParams", {
+      jwt: this.jwt,
+      site: {}
+    });
+    this.notifyPath("archiveParams.*");
+
     for (var i in this.selectedItems) {
       this.set("activeItem", {});
       this.set("activeItem", this.selectedItems[i]);
       this.set(
-        "archiveParams.siteName",
-        this.selectedItems[i].metadata.siteName
+        "archiveParams.site.name",
+        this.selectedItems[i].metadata.site.name
       );
-      this.notifyPath("archiveParams.siteName");
+      this.notifyPath("archiveParams.site.name");
       await this.shadowRoot.querySelector("#archiverequest").generateRequest();
     }
   }
   /**
    * Confirm delete
    */
+
   _bulkSitesConfirm(e) {
-    this.activeOpertion = e.target.id;
+    let target = false;
+    // resolve what got clicked on
+    if (e.target.id) {
+      target = e.target.id;
+    } else if (!e.path && e.originalTarget) {
+      if (e.originalTarget.id) {
+        target = e.originalTarget.id;
+      } else {
+        target = e.originalTarget.parentElement.id;
+      }
+    } else {
+      let path = e.path;
+      while (!target && path && path.length > 0) {
+        if (path[0].id) {
+          target = path[0].id;
+        }
+        path.shift();
+      }
+    }
+    this.activeOpertion = target;
     this.shadowRoot.querySelector("#confirm").opened = true;
   }
+
   async _confirmBulkOperation(e) {
     await this["_" + this.activeOpertion + "Sites"]();
     this.activeOpertion = "";
@@ -1306,90 +1780,130 @@ class HAXCMSSiteListing extends PolymerElement {
   /**
    * Delete sites
    */
+
   async _deleteSites(e) {
-    // ship off a new call
-    // pass along the jwt for user "session" purposes
-    this.set("deleteParams.jwt", this.jwt);
-    this.notifyPath("deleteParams.jwt");
+    this.set("deleteParams", {});
+    this.set("deleteParams", {
+      jwt: this.jwt,
+      site: {}
+    });
+    this.notifyPath("deleteParams.*");
+
     for (var i in this.selectedItems) {
       this.set("activeItem", {});
       this.set("activeItem", this.selectedItems[i]);
       this.set(
-        "deleteParams.siteName",
-        this.selectedItems[i].metadata.siteName
+        "deleteParams.site.name",
+        this.selectedItems[i].metadata.site.name
       );
-      this.notifyPath("deleteParams.siteName");
+      this.notifyPath("deleteParams.site.name");
       await this.shadowRoot.querySelector("#deleterequest").generateRequest();
     }
   }
   /**
    * Clone sites
    */
+
   async _cloneSites(e) {
-    // @todo obtain confirmation first
-    // ship off a new call
-    // pass along the jwt for user "session" purposes
-    this.set("cloneParams.jwt", this.jwt);
-    this.notifyPath("cloneParams.jwt");
+    this.set("cloneParams", {});
+    this.set("cloneParams", {
+      jwt: this.jwt,
+      site: {}
+    });
+    this.notifyPath("cloneParams.*");
+
     for (var i in this.selectedItems) {
       this.set("activeItem", {});
       this.set("activeItem", this.selectedItems[i]);
-      this.set("cloneParams.siteName", this.selectedItems[i].metadata.siteName);
-      this.notifyPath("cloneParams.siteName");
+      this.set(
+        "cloneParams.site.name",
+        this.selectedItems[i].metadata.site.name
+      );
+      this.notifyPath("cloneParams.site.name");
       await this.shadowRoot.querySelector("#clonerequest").generateRequest();
     }
   }
   /**
    * Clone sites
    */
+
   async _publishSites(e) {
-    // @todo obtain confirmation first
-    // ship off a new call
-    // pass along the jwt for user "session" purposes
-    this.set("publishParams.jwt", this.jwt);
-    this.notifyPath("publishParams.jwt");
+    this.set("publishParams", {});
+    this.set("publishParams", {
+      jwt: this.jwt,
+      site: {}
+    });
+    this.notifyPath("publishParams.*");
+
     for (var i in this.selectedItems) {
       this.set("activeItem", {});
       this.set("activeItem", this.selectedItems[i]);
       this.set(
-        "publishParams.siteName",
-        this.selectedItems[i].metadata.siteName
+        "publishParams.site.name",
+        this.selectedItems[i].metadata.site.name
       );
-      this.notifyPath("publishParams.siteName");
+      this.notifyPath("publishParams.site.name");
       await this.shadowRoot.querySelector("#publishrequest").generateRequest();
+    }
+  }
+  /**
+   * sync sites
+   */
+
+  async _syncSites(e) {
+    this.set("syncParams", {});
+    this.set("syncParams", {
+      jwt: this.jwt,
+      site: {}
+    });
+    this.notifyPath("syncParams.*");
+
+    for (var i in this.selectedItems) {
+      this.set("activeItem", {});
+      this.set("activeItem", this.selectedItems[i]);
+      this.set(
+        "syncParams.site.name",
+        this.selectedItems[i].metadata.site.name
+      );
+      this.notifyPath("syncParams.site.name");
+      await this.shadowRoot.querySelector("#syncrequest").generateRequest();
     }
   }
   /**
    * Load configuration
    */
+
   _loadConfig() {
     // pass along the jwt for user "session" purposes
-    this.set("configParams.jwt", this.jwt);
-    this.notifyPath("configParams.jwt");
-    this.set("configParams.token", this.createParams.token);
-    this.notifyPath("configParams.token");
+    this.set("configParams", {});
+    this.set("configParams", {
+      jwt: this.jwt,
+      token: this.createParams.token
+    });
+    this.notifyPath("configParams.*");
     this.shadowRoot.querySelector("#getconfigrequest").generateRequest();
   }
   /**
    * Save configuration
    */
+
   _saveConfig(e) {
     window.HAXCMS.config.values = this.shadowRoot.querySelector(
       "#settingsform"
     ).value;
-    // pass along the jwt for user "session" purposes
-    this.set("setConfigParams.values", {});
-    this.set("setConfigParams.values", window.HAXCMS.config.values);
-    this.notifyPath("setConfigParams.values.*");
-    this.set("setConfigParams.jwt", this.jwt);
-    this.notifyPath("setConfigParams.jwt");
-    this.set("setConfigParams.token", this.createParams.token);
-    this.notifyPath("setConfigParams.token");
+    this.set("setConfigParams", {});
+    this.set("setConfigParams", {
+      jwt: this.jwt,
+      token: this.createParams.token,
+      values: window.HAXCMS.config.values
+    });
+    this.notifyPath("setConfigParams.*");
     this.shadowRoot.querySelector("#setconfigrequest").generateRequest();
   }
   /**
    * Standard response that refreshes the listing too
    */
+
   standardResponse(toast, refresh = true) {
     if (refresh) {
       this.dispatchEvent(
@@ -1401,6 +1915,7 @@ class HAXCMSSiteListing extends PolymerElement {
         })
       );
     }
+
     this.dispatchEvent(
       new CustomEvent("simple-toast-show", {
         bubbles: true,
@@ -1408,7 +1923,7 @@ class HAXCMSSiteListing extends PolymerElement {
         cancelable: true,
         detail: {
           text: toast,
-          duration: 5000
+          duration: 2000
         }
       })
     );
@@ -1416,27 +1931,59 @@ class HAXCMSSiteListing extends PolymerElement {
   /**
    * Create a new site button was clicked
    */
+
   handleCreateResponse(e) {
     // update the listing data
     this._dataSource = this.dataSource + "?" + Math.floor(Date.now() / 1000);
     this.standardResponse(e.detail.response.title + " created!");
   }
+  /**
+   * Git import site response
+   */
+
+  handleGitImportResponse(e) {
+    // update the listing data
+    this._dataSource = this.dataSource + "?" + Math.floor(Date.now() / 1000);
+    this.standardResponse(e.detail.response.title + " imported!");
+  }
+
   handleConfigResponse(e) {
     window.HAXCMS.config = e.detail.response;
-    this.shadowRoot
-      .querySelector("#settingsform")
-      .set("schema", window.HAXCMS.config.schema);
-    this.shadowRoot
-      .querySelector("#settingsform")
-      .set("value", window.HAXCMS.config.values);
+    this.shadowRoot.querySelector("#settingsform").schema = {};
+    this.shadowRoot.querySelector("#settingsform").schema =
+      window.HAXCMS.config.schema;
+    this.shadowRoot.querySelector("#settingsform").value = {};
+    this.shadowRoot.querySelector("#settingsform").value =
+      window.HAXCMS.config.values;
+    var evt = document.createEvent("UIEvents");
+    evt.initUIEvent("resize", true, false, window, 0);
+    window.dispatchEvent(evt);
   }
+
   handleSetConfigResponse(e) {
     this.shadowRoot.querySelector("#settingsdialog").opened = false;
     this.standardResponse("HAXCMS configuration updated!");
   }
   /**
+   * Load user data up from the backend
+   */
+
+  handleGetUserDataResponse(e) {
+    this.userData = e.detail.response.data;
+  }
+  /**
+   * Callback after saving a photo to the backend
+   */
+
+  handleSetUserPhotoResponse(e) {
+    // remove this once we've saved it
+    delete this.__cameraBlob;
+    this.standardResponse("User photo saved!", false);
+  }
+  /**
    * Download a site
    */
+
   handleDownloadResponse(e) {
     let element = document.createElement("a");
     element.setAttribute("href", e.detail.response.link);
@@ -1446,18 +1993,107 @@ class HAXCMSSiteListing extends PolymerElement {
     document.body.removeChild(element);
     this.standardResponse(this.activeItem.title + " downloaded!");
   }
+
   handleArchiveResponse(e) {
     this.standardResponse(this.activeItem.title + " archived!");
   }
+
   handleDeleteResponse(e) {
     this.standardResponse(this.activeItem.title + " deleted!");
   }
+
   handleCloneResponse(e) {
     this.standardResponse(this.activeItem.title + " cloned!");
   }
+
   handlePublishResponse(e) {
     this.standardResponse(this.activeItem.title + " published!");
   }
+
+  handleSyncResponse(e) {
+    this.standardResponse(this.activeItem.title + " published!");
+  }
+
+  /**
+   * Handle the last error rolling in
+   */
+  lastErrorChanged(e) {
+    if (e.detail.value) {
+      let target = null;
+      if (e.path && e.path[0]) {
+        target = e.path[0];
+      } else if (e.originalTarget) {
+        target = e.originalTarget;
+      } else {
+        target = e.target;
+      }
+      // check for JWT needing refreshed vs busted but must be 403
+      switch (parseInt(e.detail.value.status)) {
+        // cookie data not found, need to go get it
+        case 401:
+          this.dispatchEvent(
+            new CustomEvent("jwt-login-logout", {
+              composed: true,
+              bubbles: true,
+              cancelable: false,
+              detail: {
+                redirect: true
+              }
+            })
+          );
+          break;
+        case 403:
+          // if this was a 403 it should be because of a bad jwt
+          // or out of date one. let's kick off a call to get a new one
+          // hopefully from the timing token, knowing this ALSO could kick
+          // over here.
+          this.dispatchEvent(
+            new CustomEvent("jwt-login-refresh-token", {
+              composed: true,
+              bubbles: true,
+              cancelable: false,
+              detail: {
+                element: {
+                  obj: this,
+                  callback: "refreshRequest",
+                  params: [target]
+                }
+              }
+            })
+          );
+          break;
+        default:
+          console.error(e);
+          const evt = new CustomEvent("simple-toast-show", {
+            bubbles: true,
+            composed: true,
+            cancelable: true,
+            detail: {
+              text: e.detail.value.status + " " + e.detail.value.statusText
+            }
+          });
+          window.dispatchEvent(evt);
+          break;
+      }
+    }
+  }
+  updateJwt(e) {
+    this.jwt = e.detail;
+  }
+  /**
+   * Attempt to salvage the request that was kicked off
+   * when our JWT needed refreshed
+   */
+  refreshRequest(jwt, element) {
+    // force the jwt to be the updated jwt
+    // this helps avoid any possible event timing issue
+    this.jwt = jwt;
+    element.body.jwt = jwt;
+    setTimeout(() => {
+      element.generateRequest();
+    }, 0);
+  }
 }
+
 window.customElements.define(HAXCMSSiteListing.tag, HAXCMSSiteListing);
 export { HAXCMSSiteListing };

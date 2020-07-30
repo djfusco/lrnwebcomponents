@@ -8,6 +8,7 @@ import "@lrnwebcomponents/random-image/random-image.js";
 import "@polymer/paper-button/paper-button.js";
 /**
  * `lrnsys-randomimage`
+ * @element lrnsys-randomimage
  * @demo demo/index.html
  */
 class LrnsysRandomimage extends PolymerElement {
@@ -45,7 +46,9 @@ class LrnsysRandomimage extends PolymerElement {
    * trigger a reload of the random-image element
    */
   reload(e) {
-    this.$.list.innerHTML = this.$.list.innerHTML;
+    this.shadowRoot.querySelector(
+      "#list"
+    ).innerHTML = this.shadowRoot.querySelector("#list").innerHTML;
   }
 }
 window.customElements.define(LrnsysRandomimage.tag, LrnsysRandomimage);

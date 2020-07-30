@@ -1,38 +1,27 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-class HaxToolbarMenu extends PolymerElement {
-  constructor() {
-    super();
-    import("@polymer/iron-icon/iron-icon.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/iron-icons/editor-icons.js");
-    import("@polymer/iron-icons/device-icons.js");
-    import("@polymer/iron-icons/hardware-icons.js");
-    import("@polymer/iron-icons/social-icons.js");
-    import("@polymer/iron-icons/av-icons.js");
-    import("@polymer/iron-icons/maps-icons.js");
-    import("@polymer/paper-item/paper-item.js");
-    import("@polymer/paper-listbox/paper-listbox.js");
-    import("@polymer/paper-menu-button/paper-menu-button.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-toolbar-item.js");
-  }
-  static get template() {
-    return html`
-      <style>
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import "@polymer/iron-icon/iron-icon.js";
+import "@polymer/paper-item/paper-item.js";
+import "@polymer/paper-listbox/paper-listbox.js";
+import "@polymer/paper-menu-button/paper-menu-button.js";
+import "@lrnwebcomponents/hax-body/lib/hax-toolbar-item.js";
+class HaxToolbarMenu extends LitElement {
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           box-sizing: border-box;
         }
+        iron-icon {
+          width: 10px;
+        }
         paper-menu-button {
-          color: rgba(0, 0, 0, 0.66);
           margin: 0;
           padding: 0;
           text-transform: none;
-          background-color: #ffffff;
           display: flex;
-          min-width: 24px;
+          min-width: unset;
         }
-
         paper-menu-button .label {
           font-size: 12px;
           margin-top: 4px;
@@ -47,37 +36,58 @@ class HaxToolbarMenu extends PolymerElement {
           transform: rotateY(180deg);
         }
 
-        paper-tooltip {
+        simple-tooltip {
           pointer-events: none;
         }
         paper-listbox {
           padding: 0;
         }
-      </style>
+      `
+    ];
+  }
+  render() {
+    return html`
       <paper-menu-button>
         <hax-toolbar-item
           id="button"
+          ?mini="${this.mini}"
+          ?action="${this.action}"
           slot="dropdown-trigger"
-          icon="[[icon]]"
-          hidden\$="[[!icon]]"
-          class\$="[[iconClass]]"
-          tooltip="[[tooltip]]"
-        ></hax-toolbar-item>
+          icon="${this.icon}"
+          .hidden="${!this.icon}"
+          .class="${this.iconClass}"
+          tooltip="${this.tooltip}"
+        >
+          <iron-icon icon="icons:expand-more"></iron-icon>
+        </hax-toolbar-item>
         <paper-listbox
           id="listbox"
           slot="dropdown-content"
-          selected="{{selected}}"
+          .selected="${this.selected}"
+          @selected-changed="${this.selectedChanged}"
         >
           <slot></slot>
         </paper-listbox>
       </paper-menu-button>
     `;
   }
-
+  selectedChanged(e) {
+    this.selected = e.detail.value;
+  }
   static get tag() {
     return "hax-toolbar-menu";
   }
-
+  constructor() {
+    super();
+    this.corner = "";
+    this.action = false;
+    this.tooltip = "";
+    this.tooltipDirection = "";
+    this.selected = 0;
+    setTimeout(() => {
+      this.addEventListener("click", this._menubuttonTap.bind(this));
+    }, 0);
+  }
   static get properties() {
     return {
       /**
@@ -85,65 +95,59 @@ class HaxToolbarMenu extends PolymerElement {
        */
       corner: {
         type: String,
-        reflectToAttribute: true,
-        value: ""
+        reflect: true
       },
-      /**
-       * Should we reset the selection after it is made
-       */
-      resetOnSelect: {
+      mini: {
         type: Boolean,
-        value: false
+        reflect: true
+      },
+      action: {
+        type: Boolean
+      },
+      icon: {
+        type: String
       },
       tooltip: {
-        type: String,
-        value: ""
+        type: String
       },
       tooltipDirection: {
         type: String,
-        value: ""
+        attribute: "tooltip-direction"
       },
       selected: {
-        type: String,
-        value: "",
-        notify: true,
-        observer: "_selectChanged"
+        type: Number
       }
     };
   }
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      this.addEventListener("click", this._menubuttonTap.bind(this));
+  /**
+   * property changed callback
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "selected") {
+        this.shadowRoot.querySelector("#button").focus();
+        // fire an event that this is a core piece of the system
+        this.dispatchEvent(
+          new CustomEvent("selected-changed", {
+            detail: this[propName]
+          })
+        );
+      }
     });
   }
-  disconnectedCallback() {
-    this.removeEventListener("click", this._menubuttonTap.bind(this));
-    super.disconnectedCallback();
-  }
-
-  /**
-   * Select changed to trip button.
-   */
-  _selectChanged(e) {
-    this.shadowRoot.querySelector("#button").focus();
-  }
-
   /**
    * Ensure menu is visible / default'ed.
    */
   _menubuttonTap(e) {
     this.shadowRoot.querySelector("#listbox").style.display = "inherit";
-    if (this.resetOnSelect) {
-      this.selected = "";
-    }
+    this.selected = "";
   }
-
   /**
    * Ensure menu is hidden.
    */
   hideMenu() {
     this.shadowRoot.querySelector("#listbox").style.display = "none";
+    this.selected = "";
   }
 }
 window.customElements.define(HaxToolbarMenu.tag, HaxToolbarMenu);

@@ -1,14 +1,14 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 import "@polymer/iron-a11y-keys/iron-a11y-keys.js";
 import "@lrnwebcomponents/simple-modal/simple-modal.js";
 /**
  * `lrndesign-imagemap`
+ * @element lrndesign-imagemap
  * creates an accessible image map
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
@@ -177,7 +177,7 @@ class LrndesignImagemap extends PolymerElement {
     temp.innerHTML = e.detail.response;
     let svg = temp.querySelector("svg"),
       svgid = getID(svg, "svg-" + Date.now()),
-      hdata = dom(root).querySelectorAll("lrndesign-imagemap-hotspot");
+      hdata = root.querySelectorAll("lrndesign-imagemap-hotspot");
     setAriaLabelledBy(root, svg, svgid);
     this.shadowRoot.querySelector("#svg").appendChild(svg);
 

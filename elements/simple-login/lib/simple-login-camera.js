@@ -1,5 +1,4 @@
 import "@lrnwebcomponents/es-global-bridge/es-global-bridge.js";
-import { pathFromUrl } from "@polymer/polymer/lib/utils/resolve-url.js";
 /**
  * Inspiration from https://github.com/wanoo21/MyCamera
  */
@@ -7,9 +6,13 @@ class SimpleLoginCamera extends HTMLElement {
   static get tag() {
     return "simple-login-camera";
   }
+  // simple path from a url modifier
+  pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf("/") + 1);
+  }
   constructor() {
     super();
-    const basePath = pathFromUrl(decodeURIComponent(import.meta.url));
+    const basePath = this.pathFromUrl(decodeURIComponent(import.meta.url));
     const location = `${basePath}../../../msr/MediaStreamRecorder.min.js`;
     window.ESGlobalBridge.requestAvailability();
     window.ESGlobalBridge.instance.load("msr", location);
@@ -117,6 +120,9 @@ class SimpleLoginCamera extends HTMLElement {
     img.src = URL.createObjectURL(blob);
     return img;
   }
+  imageBlob(blob) {
+    return blob;
+  }
   download(blob) {
     // uses the <a download> to download a Blob
     let a = document.createElement("a");
@@ -206,8 +212,8 @@ class SimpleLoginCamera extends HTMLElement {
     return `
       <style>
         :host {
-          height: var(--height, 400px);
-          width: var(--width, 400px);
+          width: var(--simple-login-camera-width, 200px);
+          height: var(--simple-login-camera-height, 200px);
         }
         #wrapper {
           display: flex;
@@ -215,19 +221,18 @@ class SimpleLoginCamera extends HTMLElement {
           align-items: center;
           flex-direction: column;
           position: relative;
-          background-color: var(--background-color, #ccc);
-          width: 100%;
-          height: 100%;
+          background-color: var(--simple-login-camera-background, var(--background-color, #ccc));
+          width: var(--simple-login-camera-width, 200px);
+          height: var(--simple-login-camera-height, 200px);
         }
         video {
-          width: 100%;
-          height: 100%;
+          width: calc(var(--simple-login-camera-height, 200px) * 16 / 9);
+          height: var(--simple-login-camera-height, 200px);
           background-color: rgba(0, 0, 0, 0);
         }
         .error {
-          color: var(--color, red);
+          color: var(-simple-login-camera-error, var(--color, red));
           font-size: 1em;
-          // font-weight: bold;
           text-align: center;
         }
         .custom-controls {

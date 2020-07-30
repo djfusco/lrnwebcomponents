@@ -2,27 +2,22 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import "@polymer/paper-icon-button/paper-icon-button.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
-import "@polymer/iron-icons/iron-icons.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+/**
+ * @deprecatedApply - required for @apply / invoking @apply css var convention
+ */
+import "@polymer/polymer/lib/elements/custom-style.js";
 /**
  * `scroll-button`
  * `button to scroll to an area or back to top`
- *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @polymer
  * @demo demo/index.html
+ * @element scroll-button
  */
-class ScrollButton extends PolymerElement {
-  // render function
-  static get template() {
-    return html`
-      <style>
+class ScrollButton extends LitElement {
+  //styles function
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           --scroll-button-z-index: 99;
@@ -32,36 +27,66 @@ class ScrollButton extends PolymerElement {
         :host([hidden]) {
           display: none;
         }
+
         paper-icon-button {
-          background-color: rgba(0, 0, 0, 0.6);
-          color: white;
-          @apply --scroll-button-button;
+          background-color: var(
+            --scroll-button-background-color,
+            rgba(0, 0, 0, 0.6)
+          );
+          color: var(--scroll-button-color, white);
         }
+
         paper-icon-button:hover,
         paper-icon-button:active,
         paper-icon-button:focus {
-          background-color: rgba(0, 0, 0, 1);
-          @apply --scroll-button-button-active;
+          color: var(--scroll-button-background-color, rgba(0, 0, 0, 1));
+          background-color: var(--scroll-button-color, white);
         }
-        paper-tooltip {
-          --paper-tooltip-background: #000000;
-          --paper-tooltip-opacity: 1;
-          --paper-tooltip-text-color: #ffffff;
-          --paper-tooltip-delay-in: 0;
-          --paper-tooltip: {
-            border-radius: 0;
+
+        simple-tooltip {
+          --simple-tooltip-background: var(
+            --scroll-button-tooltip-background-color,
+            #000000
+          );
+          --simple-tooltip-opacity: 1;
+          --simple-tooltip-text-color: var(
+            --scroll-button-tooltip-color,
+            #ffffff
+          );
+          --simple-tooltip-delay-in: 0;
+          --simple-tooltip-border-radius: 0;
+        }
+      `
+    ];
+  }
+
+  // render function
+  render() {
+    return html`
+      <custom-style>
+        <style>
+          paper-icon-button {
+            @apply --scroll-button-button;
           }
-          @apply --scroll-button-tooltip;
-        }
-      </style>
+          paper-icon-button:hover,
+          paper-icon-button:active,
+          paper-icon-button:focus {
+            @apply --scroll-button-button-active;
+          }
+          simple-tooltip {
+            @apply --scroll-button-tooltip;
+          }
+        </style>
+      </custom-style>
       <paper-icon-button
+        @click="${this.scrollEvent}"
         id="btn"
-        icon="[[icon]]"
-        title="[[label]]"
+        icon="${this.icon}"
+        aria-label="${this.label}"
       ></paper-icon-button>
-      <paper-tooltip for="btn" position="[[position]]" offset="14">
-        [[label]]
-      </paper-tooltip>
+      <simple-tooltip for="btn" position="${this.position}" offset="14">
+        ${this.label}
+      </simple-tooltip>
     `;
   }
 
@@ -119,28 +144,31 @@ class ScrollButton extends PolymerElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       target: {
-        name: "target",
-        type: "Object"
+        type: Object
       },
       icon: {
-        name: "icon",
-        type: "String",
-        value: "icons:expand-less"
+        type: String
       },
       label: {
-        name: "label",
-        type: "String",
-        value: "Scroll to top"
+        type: String
       },
       position: {
-        name: "position",
-        type: "String",
-        value: "top"
+        type: String
       }
     };
   }
-
+  constructor() {
+    super();
+    this.icon = "icons:expand-less";
+    this.label = "Scroll to top";
+    this.position = "top";
+    import("@polymer/paper-icon-button/paper-icon-button.js");
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
+    import("@polymer/iron-icons/iron-icons.js");
+  }
   /**
    * Store the tag name to make it easier to obtain directly.
    * @notice function name must be here for tooling to operate correctly
@@ -151,46 +179,20 @@ class ScrollButton extends PolymerElement {
   /**
    * life cycle, element is afixed to the DOM
    */
-  connectedCallback() {
-    super.connectedCallback();
-    this.$.btn.addEventListener("click", e => {
-      if (this.target) {
-        this.target.scrollIntoView({
-          behavior: "smooth",
-          block: "end",
-          inline: "nearest"
-        });
-      } else {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: "smooth"
-        });
-      }
-    });
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(ScrollButton.haxProperties, ScrollButton.tag, this);
-  }
-  /**
-   * life cycle, element is removed from the DOM
-   */
-  disconnectedCallback() {
-    this.$.btn.removeEventListener("click", e => {
-      if (this.target) {
-        this.target.scrollIntoView({
-          behavior: "smooth",
-          block: "end",
-          inline: "nearest"
-        });
-      } else {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: "smooth"
-        });
-      }
-    });
-    super.disconnectedCallback();
+  scrollEvent(e) {
+    if (this.target) {
+      this.target.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+        inline: "nearest"
+      });
+    } else {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth"
+      });
+    }
   }
 }
 window.customElements.define(ScrollButton.tag, ScrollButton);

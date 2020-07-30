@@ -2,10 +2,13 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
-import * as async from "@polymer/polymer/lib/utils/async.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import { html, css } from "lit-element/lit-element.js";
+import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
+/**
+ * @deprecatedApply - required for @apply / invoking @apply css var convention
+ */
+import "@polymer/polymer/lib/elements/custom-style.js";
+
 import "@polymer/app-layout/app-drawer/app-drawer.js";
 import "@polymer/neon-animation/neon-animation.js";
 import "@polymer/paper-button/paper-button.js";
@@ -26,15 +29,10 @@ window.SimpleDrawer.requestAvailability = () => {
 /**
  * `simple-drawer`
  * `a singleton drawer element`
- *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @polymer
  * @demo demo/index.html
+ * @element simple-drawer
  */
-class SimpleDrawer extends PolymerElement {
+class SimpleDrawer extends SimpleColors {
   /* REQUIRED FOR TOOLING DO NOT TOUCH */
 
   /**
@@ -45,20 +43,31 @@ class SimpleDrawer extends PolymerElement {
     return "simple-drawer";
   }
   /**
-   * life cycle, element is afixed to the DOM
+   * HTMLElement
    */
-  connectedCallback() {
-    super.connectedCallback();
+  constructor() {
+    super();
+    this.title = "";
+    this.align = "left";
+    this.opened = false;
+    this.closeLabel = "Close";
+    this.closeIcon = "icons:cancel";
+  }
+  /**
+   * LitElement life cycle - ready
+   */
+  firstUpdated(changedProperties) {
     window.addEventListener("simple-drawer-hide", this.close.bind(this));
     window.addEventListener("simple-drawer-show", this.showEvent.bind(this));
   }
   /**
-   * Ensure everything is visible in what's been expanded.
+   * LitElement life cycle - properties changed callback
    */
-  _resizeContent(e) {
-    // fake a resize event to make contents happy
-    async.microTask.run(() => {
-      window.dispatchEvent(new Event("resize"));
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "opened") {
+        this._openedChanged(this[propName], oldValue);
+      }
     });
   }
   /**
@@ -69,8 +78,8 @@ class SimpleDrawer extends PolymerElement {
     // swap out the contents
     if (this.opened) {
       // wipe the slot of our drawer
-      while (dom(this).firstChild !== null) {
-        dom(this).removeChild(dom(this).firstChild);
+      while (this.firstChild !== null) {
+        this.removeChild(this.firstChild);
       }
       setTimeout(() => {
         this.show(
@@ -103,10 +112,13 @@ class SimpleDrawer extends PolymerElement {
     size = "256px",
     clone = false
   ) {
-    this.set("invokedBy", invokedBy);
+    this.invokedBy = invokedBy;
     this.title = title;
     this.align = align;
-    this.updateStyles({ "--simple-drawer-width": size });
+    // @todo this is a bit of a hack specific to polymer elements in app- world
+    this.shadowRoot
+      .querySelector("#drawer")
+      .updateStyles({ "--app-drawer-width": size });
     let element;
     // append element areas into the appropriate slots
     // ensuring they are set if it wasn't previously
@@ -119,13 +131,14 @@ class SimpleDrawer extends PolymerElement {
           element = elements[slots[i]];
         }
         element.setAttribute("slot", slots[i]);
-        dom(this).appendChild(element);
+        this.appendChild(element);
       }
     }
     // minor delay to help the above happen prior to opening
     setTimeout(() => {
       this.opened = true;
-      this._resizeContent();
+      // fake a resize event to make contents happy
+      window.dispatchEvent(new Event("resize"));
     }, 100);
   }
   /**
@@ -135,8 +148,8 @@ class SimpleDrawer extends PolymerElement {
   animationEnded(e) {
     // wipe the slot of our drawer
     this.title = "";
-    while (dom(this).firstChild !== null) {
-      dom(this).removeChild(dom(this).firstChild);
+    while (this.firstChild !== null) {
+      this.removeChild(this.firstChild);
     }
     if (this.invokedBy) {
       async.microTask.run(() => {
@@ -150,7 +163,11 @@ class SimpleDrawer extends PolymerElement {
    * Close the drawer and do some clean up
    */
   close() {
-    this.$.drawer.close();
+    this.opened = false;
+  }
+  // event bubbling up from drawer
+  __openedChanged(e) {
+    this.opened = e.detail.value;
   }
   // Observer opened for changes
   _openedChanged(newValue, oldValue) {
@@ -181,9 +198,9 @@ class SimpleDrawer extends PolymerElement {
    * life cycle, element is removed from the DOM
    */
   disconnectedCallback() {
-    super.disconnectedCallback();
     window.removeEventListener("simple-drawer-hide", this.close.bind(this));
     window.removeEventListener("simple-drawer-show", this.showEvent.bind(this));
+    super.disconnectedCallback();
   }
 }
 window.customElements.define(SimpleDrawer.tag, SimpleDrawer);

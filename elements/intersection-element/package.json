@@ -1,0 +1,20 @@
+{
+  "name": "@lrnwebcomponents/intersection-element",
+  "version": "2.6.23",
+  "description": "VanillaJS Intersection element / capabilities to mix into other elements",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elmsln/lrnwebcomponents.git"
+  },
+  "type": "module",
+  "main": "lib/IntersectionElementSuper.js",
+  "module": "lib/IntersectionElementSuper.js",
+  "author": {
+    "name": "btopro"
+  },
+  "license": "Apache-2.0",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  }
+}

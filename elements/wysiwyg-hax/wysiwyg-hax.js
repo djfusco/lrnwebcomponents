@@ -1,31 +1,48 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import "@lrnwebcomponents/cms-hax/cms-hax.js";
-import { FlattenedNodesObserver } from "@polymer/polymer/lib/utils/flattened-nodes-observer.js";
-
 /**
  * `wysiwyg-hax`
  * `Integration of wysiwyg edit form for a page with HAX.`
+ * @demo demo/index.html
+ * @element wysiwyg-hax
  */
-class WysiwygHax extends PolymerElement {
-  static get template() {
-    return html`
-      <style>
+class WysiwygHax extends LitElement {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
         }
-      </style>
-      <textarea id\$="[[fieldId]]" name="[[fieldName]]" hidden="">
-[[bodyValue]]</textarea
+      `
+    ];
+  }
+  render() {
+    return html`
+      <textarea
+        class="${this.fieldClass}"
+        id="${this.fieldId}"
+        name="${this.fieldName}"
+        hidden=""
+      >
+      ${this.bodyValue}
+      </textarea
       >
       <cms-hax
-        open-default="[[openDefault]]"
         hide-message=""
-        body-offset-left="[[bodyOffsetLeft]]"
-        update-page-data="[[updatePageData]]"
-        end-point="[[endPoint]]"
-        app-store-connection="[[appStoreConnection]]"
-        hide-export-button="[[hideExportButton]]"
-        align="[[align]]"
+        redirect-location="${this.redirectLocation}"
+        update-page-data="${this.updatePageData}"
+        .end-point="${this.endPoint}"
+        app-store-connection="${this.appStoreConnection}"
+        offset-margin="${this.offsetMargin}"
+        .allowed-tags="${this.allowedTags}"
+        ?open-default="${this.openDefault}"
+        ?sync-body="${this.syncBody}"
+        ?hide-panel-ops="${this.hidePanelOps}"
+        ?hide-preferences-button="${this.hidePreferencesButton}"
+        element-align="${this.elementAlign}"
       >
       </cms-hax>
     `;
@@ -34,7 +51,36 @@ class WysiwygHax extends PolymerElement {
   static get tag() {
     return "wysiwyg-hax";
   }
-
+  constructor() {
+    super();
+    // import child nodes before things start deleting whats in there
+    let children = this.querySelector("template");
+    if (children) {
+      this.__importContent = children.innerHTML;
+    }
+    this.openDefault = false;
+    this.elementAlign = "right";
+    this.fieldId = "textarea-input-field";
+    this.fieldName = "data[content]";
+    this.endPoint = null;
+    this.allowedTags = [];
+    this.__imported = false;
+    this.redirectLocation = "";
+    this.updatePageData = "";
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "activeHaxBody") {
+        this._activeHaxBodyUpdated(this[propName]);
+      }
+      if (propName == "saveButtonSelector" && this[propName].tagName) {
+        this.saveButtonSelector.addEventListener(
+          "click",
+          this.__saveClicked.bind(this)
+        );
+      }
+    });
+  }
   static get properties() {
     return {
       /**
@@ -42,139 +88,173 @@ class WysiwygHax extends PolymerElement {
        */
       openDefault: {
         type: Boolean,
-        value: false
+        attribute: "open-default"
+      },
+      redirectLocation: {
+        type: String,
+        attribute: "redirect-location"
       },
       /**
-       * Hide the export button, not a common thing to show
-       * in this mode but it's possible for debugging
+       * Hide the panel operations (save and cancel),
        */
-      hideExportButton: {
+      hidePanelOps: {
         type: Boolean,
-        value: true
+        attribute: "hide-panel-ops"
+      },
+      /**
+       * Hide preferences button
+       */
+      hidePreferencesButton: {
+        type: Boolean,
+        attribute: "hide-preferences-button"
       },
       /**
        * Direction to align the hax edit panel
        */
-      align: {
+      elementAlign: {
         type: String,
-        value: "right"
+        attribute: "element-align"
+      },
+      offsetMargin: {
+        type: String,
+        attribute: "offset-margin"
       },
       /**
        * Data binding of a hidden text area with the value from the hax-body tag
        */
       bodyValue: {
-        type: String
+        type: String,
+        attribute: "body-value"
+      },
+      /**
+       * allowed Tags, usually as dictated by the input filtering
+       * layer of the backend system that HAX is riding on.
+       * While not fullproof, this at least will enforce front-end
+       * filtering to match what actually is going to be allowed
+       * to be saved in the first place.
+       */
+      allowedTags: {
+        type: Array,
+        attribute: "allowed-tags"
       },
       /**
        * Connection object for talking to an app store.
        */
       appStoreConnection: {
+        type: String,
+        attribute: "app-store-connection"
+      },
+      /**
+       * Object reference that will get clicked on
+       */
+      saveButtonSelector: {
         type: Object
+      },
+      /**
+       * class on the field
+       */
+      fieldClass: {
+        type: String,
+        attribute: "field-class"
       },
       /**
        * fieldId, id value on the input field.
        */
       fieldId: {
         type: String,
-        value: "textarea-input-field"
+        attribute: "field-id"
       },
       /**
        * fieldName, internal to the form in whatever system it's in.
        */
       fieldName: {
         type: String,
-        value: "data[content]"
+        attribute: "field-name"
       },
-      /**
-       * Offset from the left of the body field
-       */
-      bodyOffsetLeft: {
-        type: Number,
-        value: -22
+      syncBody: {
+        type: Boolean,
+        attribute: "sync-body",
+        reflect: true
       },
       /**
        * State of the panel
        */
       editMode: {
         type: Boolean,
-        reflectToAttribute: true
+        reflect: true,
+        attribute: "edit-mode"
       },
       /**
        * Location to save content to.
        */
       endPoint: {
-        type: String
+        type: String,
+        attribute: "end-point"
       },
       /**
        * Page data, body of text as a string.
        */
       updatePageData: {
-        type: String
+        type: String,
+        attribute: "update-page-data"
       },
       /**
        * Reference to activeBody.
        */
       activeHaxBody: {
-        type: Object,
-        observer: "_activeHaxBodyUpdated"
+        type: Object
       },
       __imported: {
-        type: Boolean,
-        value: false
+        type: Boolean
       }
     };
   }
-  /**
-   * highjack shadowDom
-   */
-  _attachDom(dom) {
-    this.appendChild(dom);
+  createRenderRoot() {
+    return this;
   }
-
   /**
    * Ensure we've imported our content on initial setup
    */
-  _activeHaxBodyUpdated(newValue, oldValue) {
+  _activeHaxBodyUpdated(newValue) {
     // ensure we import our content once we get an initial registration of active body
     if (newValue != null && !this.__imported) {
       this.__imported = true;
-      // see what's inside of this, in a template tag
-      let children = this.querySelector("template");
-      // convert this template content into the real thing
-      // this helps with correctly preserving everything on the way down
-      if (children != null) {
-        newValue.importContent(children.innerHTML);
-        // need to dot his because of juggling unfortunately
-        this.editMode = false;
-        window.HaxStore.write("editMode", this.editMode, this);
-        setTimeout(() => {
-          this.editMode = true;
-          window.HaxStore.write("editMode", this.editMode, this);
-        }, 200);
+      if (this.__importContent) {
+        newValue.importContent(this.__importContent);
       }
     }
   }
+  /**
+   * HTMLElement
+   */
   connectedCallback() {
     super.connectedCallback();
-    document.body.addEventListener(
-      "hax-save",
-      this._bodyContentUpdated.bind(this)
-    );
-    document.body.addEventListener(
+    window.addEventListener("hax-save", this._bodyContentUpdated.bind(this));
+    window.addEventListener(
       "hax-store-property-updated",
       this._haxStorePropertyUpdated.bind(this)
     );
   }
+  /**
+   * HTMLElement
+   */
   disconnectedCallback() {
-    document.body.removeEventListener(
-      "hax-save",
-      this._bodyContentUpdated.bind(this)
-    );
-    document.body.removeEventListener(
+    window.removeEventListener("hax-save", this._bodyContentUpdated.bind(this));
+    window.removeEventListener(
       "hax-store-property-updated",
       this._haxStorePropertyUpdated.bind(this)
     );
+    if (this.saveButtonSelector && this.saveButtonSelector.tagName) {
+      this.saveButtonSelector.removeEventListener(
+        "click",
+        this.__saveClicked.bind(this)
+      );
+    }
     super.disconnectedCallback();
+  }
+  __saveClicked(e) {
+    // will attempt to set this right before save goes out the door
+    this.bodyValue = window.HaxStore.instance.activeHaxBody.haxToContent();
   }
   /**
    * Store updated, sync.
@@ -186,9 +266,9 @@ class WysiwygHax extends PolymerElement {
       e.detail.property
     ) {
       if (typeof e.detail.value === "object") {
-        this.set(e.detail.property, null);
+        this[e.detail.property] = null;
       }
-      this.set(e.detail.property, e.detail.value);
+      this[e.detail.property] = e.detail.value;
     }
   }
 
@@ -197,6 +277,11 @@ class WysiwygHax extends PolymerElement {
    */
   _bodyContentUpdated(e) {
     this.bodyValue = window.HaxStore.instance.activeHaxBody.haxToContent();
+    setTimeout(() => {
+      if (this.saveButtonSelector) {
+        this.saveButtonSelector.click();
+      }
+    }, 100);
   }
 }
 window.customElements.define(WysiwygHax.tag, WysiwygHax);

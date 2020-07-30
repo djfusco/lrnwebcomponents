@@ -1,13 +1,12 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
+import { FlattenedNodesObserver } from "@polymer/polymer/lib/utils/flattened-nodes-observer.js";
 import { microTask } from "@polymer/polymer/lib/utils/async.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 import "@polymer/paper-spinner/paper-spinner.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import { wipeSlot } from "@lrnwebcomponents/hax-body/lib/haxutils.js";
+import { wipeSlot } from "@lrnwebcomponents/utils/utils.js";
 /**
  * `cms-entity`
+ * @element cms-entity
  * `Render and process a  / entity from a content management system.`
  */
 class CMSEntity extends PolymerElement {
@@ -158,15 +157,18 @@ class CMSEntity extends PolymerElement {
           newValue.editText;
       }
       // wipe our own slot here
-      wipeSlot(dom(this));
+      wipeSlot(this);
       // now inject the content we got
       microTask.run(() => {
         let frag = document.createElement("span");
         frag.innerHTML = newValue.content;
         let newNode = frag.cloneNode(true);
-        dom(this).appendChild(newNode);
+        this.appendChild(newNode);
         setTimeout(() => {
           this.loading = false;
+          if (window.WCAutoload) {
+            window.WCAutoload.process();
+          }
         }, 600);
       });
     }
@@ -191,7 +193,7 @@ class CMSEntity extends PolymerElement {
       if (this.entityEndPoint) {
         this.loading = true;
         microTask.run(() => {
-          this.$.entityrequest.generateRequest();
+          this.shadowRoot.querySelector("#entityrequest").generateRequest();
         });
       }
     }
@@ -206,7 +208,7 @@ class CMSEntity extends PolymerElement {
       this.entity !== null &&
       this.entity !== ""
     ) {
-      let slot = dom(this).getEffectiveChildNodes();
+      let slot = FlattenedNodesObserver.getFlattenedNodes(this);
       // only kick off request if there's nothing in it
       // if it has something in it that means we did some
       // remote rendering ahead of time
@@ -221,15 +223,11 @@ class CMSEntity extends PolymerElement {
         if (this.entityEndPoint) {
           this.loading = true;
           microTask.run(() => {
-            this.$.entityrequest.generateRequest();
+            this.shadowRoot.querySelector("#entityrequest").generateRequest();
           });
         }
       }
     }
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(CMSEntity.haxProperties, CMSEntity.tag, this);
-    });
   }
   static get haxProperties() {
     return {
@@ -249,7 +247,7 @@ class CMSEntity extends PolymerElement {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {

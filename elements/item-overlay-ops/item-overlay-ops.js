@@ -4,12 +4,12 @@
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
 import "@polymer/paper-icon-button/paper-icon-button.js";
 import "@polymer/paper-button/paper-button.js";
 import "@polymer/iron-icons/iron-icons.js";
 /**
  * `item-overlay-ops`
+ * @element item-overlay-ops
  * `Overlayed editing ops on whatever the current item slotted in is`
  *
  * @demo demo/index.html
@@ -323,8 +323,10 @@ class ItemOverlayOps extends PolymerElement {
   fixedHeightChanged(newValue, oldValue) {
     if (newValue) {
       if (!this.disableAutoHeight) {
-        this.$.container.style.height = this.fixedHeight + "px";
-        this.$.workingarea.style.height = this.fixedHeight - 80 + "px";
+        this.shadowRoot.querySelector("#container").style.height =
+          this.fixedHeight + "px";
+        this.shadowRoot.querySelector("#workingarea").style.height =
+          this.fixedHeight - 80 + "px";
       }
     }
   }
@@ -333,17 +335,22 @@ class ItemOverlayOps extends PolymerElement {
    */
   _windowResize(e) {
     let rect = this.getBoundingClientRect();
-    this.$.container.style.width = rect.width + "px";
+    this.shadowRoot.querySelector("#container").style.width = rect.width + "px";
     if (!this.disableAutoHeight) {
       if (!this.fixedHeight || typeof this.fixedHeight === typeof undefined) {
-        this.$.container.style.height = rect.height + "px";
-        this.$.workingarea.style.height = rect.height - 80 + "px";
+        this.shadowRoot.querySelector("#container").style.height =
+          rect.height + "px";
+        this.shadowRoot.querySelector("#workingarea").style.height =
+          rect.height - 80 + "px";
       } else {
-        this.$.container.style.height = this.fixedHeight + "px";
-        this.$.workingarea.style.height = this.fixedHeight - 80 + "px";
+        this.shadowRoot.querySelector("#container").style.height =
+          this.fixedHeight + "px";
+        this.shadowRoot.querySelector("#workingarea").style.height =
+          this.fixedHeight - 80 + "px";
       }
     } else {
-      this.$.workingarea.style.height = rect.height - 80 + "px";
+      this.shadowRoot.querySelector("#workingarea").style.height =
+        rect.height - 80 + "px";
     }
   }
 
@@ -351,8 +358,7 @@ class ItemOverlayOps extends PolymerElement {
    * Support tapping the buttons in the top
    */
   _opTap(e) {
-    let normalizedEvent = dom(e);
-    let local = normalizedEvent.localTarget;
+    let local = e.target;
     this.activeTitle = local.getAttribute("id");
     this.activeOp = local.getAttribute("id");
     this._resetActive();
@@ -422,8 +428,7 @@ class ItemOverlayOps extends PolymerElement {
    * fire event because an option was selected.
    */
   _optionSelected(e) {
-    let normalizedEvent = dom(e);
-    let local = normalizedEvent.localTarget;
+    let local = e.target;
     // fire that an option was selected and about what operation
     let ops = {
       element: this,
@@ -449,11 +454,11 @@ class ItemOverlayOps extends PolymerElement {
    * Reset the active selections
    */
   _resetActive() {
-    this.$.add.classList.remove("active");
-    this.$.edit.classList.remove("active");
-    this.$.move.classList.remove("active");
-    this.$.remove.classList.remove("active");
-    this.$.duplicate.classList.remove("active");
+    this.shadowRoot.querySelector("#add").classList.remove("active");
+    this.shadowRoot.querySelector("#edit").classList.remove("active");
+    this.shadowRoot.querySelector("#move").classList.remove("active");
+    this.shadowRoot.querySelector("#remove").classList.remove("active");
+    this.shadowRoot.querySelector("#duplicate").classList.remove("active");
   }
 }
 window.customElements.define(ItemOverlayOps.tag, ItemOverlayOps);

@@ -13,6 +13,9 @@ class LrnappBlockRecentProject extends PolymerElement {
   static get template() {
     return html`
       <style include="materializecss-styles paper-item-styles">
+        [hidden] {
+          display: none !important;
+        }
         :host {
           display: block;
         }
@@ -107,6 +110,7 @@ class LrnappBlockRecentProject extends PolymerElement {
                 <iron-list
                   items="[[_toArray(project.relationships.assignments)]]"
                   as="assignment"
+                  mutable-data
                 >
                   <template>
                     <div class="assignment-row" id="assignment">
@@ -118,7 +122,7 @@ class LrnappBlockRecentProject extends PolymerElement {
                         hover-class="amber lighten-5"
                         href\$="[[basePath]]lrnapp-studio-kanban"
                       >
-                        <span slot="button" class="button-contents">
+                        <span class="button-contents">
                           <div
                             class\$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]"
                           >
@@ -147,7 +151,7 @@ class LrnappBlockRecentProject extends PolymerElement {
           href\$="[[basePath]]lrnapp-studio-kanban"
           hover-class="amber lighten-5"
         >
-          <span slot="button" class="button-contents">
+          <span class="button-contents">
             <div class="status-indicator">
               <iron-icon icon="assignment"></iron-icon>
             </div>

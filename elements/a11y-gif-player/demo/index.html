@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <title>A11YGifPlayer: a11y-gif-player Demo</title>
-    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <script src="../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
+    <title>A11yGifPlayer: a11y-gif-player Demo</title>
+    
+    <script src="../../../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
     <script type="module">
       import '@polymer/iron-demo-helpers/demo-snippet.js';
       import '../a11y-gif-player.js';
@@ -19,9 +19,10 @@
         <template>
           <a11y-gif-player 
             style="width: 200px;"
-            alt="It's Always Sunny in Philadelphia Pepe Silvia Meme with GIFs" 
+            alt="It's Always Sunny in Philadelphia GIF Meme" 
             src="https://media0.giphy.com/media/zHaPZZvl6cVHi/giphy.gif"
-            src-without-animation="https://media0.giphy.com/media/zHaPZZvl6cVHi/480w_s.jpg">
+            src-without-animation="https://media0.giphy.com/media/zHaPZZvl6cVHi/480w_s.jpg"
+            longdesc="Pepe Silvia scene from It's Always Sunny in Philadelphia. Jesus, dude, you're still making GIFs. The GIF's don't stop.".>
           </a11y-gif-player>
           <p>Source: <a href="https://giphy.com">Giphy API</a></p>
         </template>
@@ -33,6 +34,15 @@
             alt="IT Crowd: Moss eating popcorn."
             src="https://media.giphy.com/media/TrDxCdtmdluP6/giphy.gif" 
             src-without-animation="https://media.giphy.com/media/TrDxCdtmdluP6/480w_s.jpg">
+          </a11y-gif-player>
+          <p>Source: <a href="https://giphy.com">Giphy API</a></p>
+        </template>
+      </demo-snippet>
+      <demo-snippet>
+        <template>
+          <a11y-gif-player alt="IT Crowd: Moss eating popcorn."
+            src="https://media.giphy.com/media/TrDxCdtmdluP6/giphy.gif"
+          >
           </a11y-gif-player>
           <p>Source: <a href="https://giphy.com">Giphy API</a></p>
         </template>

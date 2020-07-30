@@ -2,63 +2,90 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { HAXCMSThemeParts } from "../../core/utils/HAXCMSThemeParts";
 /**
  * `site-rss-button`
  * `A button that references RSS feeds in a standards based way`
  *
- * @customElement
- * @polymer
- * @demo demo/index.html
+
  */
-class SiteRSSButton extends PolymerElement {
+class SiteRSSButton extends HAXCMSThemeParts(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        :host {
+          display: inline-flex;
+          color: var(--site-rss-button-color, black);
+        }
+        a {
+          text-decoration: var(--site-rss-text-decoration);
+          outline: none;
+        }
+        paper-icon-button {
+          color: var(--site-rss-button-color, black);
+        }
+        simple-tooltip {
+          --simple-tooltip-background: var(
+            --haxcms-tooltip-background-color,
+            #000000
+          );
+          --simple-tooltip-opacity: 1;
+          --simple-tooltip-text-color: var(--haxcms-tooltip-color, #ffffff);
+          --simple-tooltip-delay-in: 0;
+          --simple-tooltip-border-radius: 0;
+        }
+      `
+    ];
+  }
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "site-rss-button";
   }
   constructor() {
     super();
-    import("@polymer/paper-button/paper-button.js");
+    this.type = "rss";
+    this.raised = false;
+    this.position = "bottom";
+    import("@polymer/paper-icon-button/paper-icon-button.js");
     import("@polymer/iron-icon/iron-icon.js");
     import("@polymer/iron-icons/communication-icons.js");
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
   }
   // render function
-  static get template() {
+  render() {
     return html`
-      <style>
-        :host {
-          display: block;
-          font-size: 16px;
-          color: var(--site-rss-color, #383f45);
-        }
-        paper-button {
-          text-transform: unset;
-          color: white;
-          background-color: var(--site-rss-bg-color, #383f45);
-          font-size: var(--site-rss-font-size, 13px);
-          margin: 0;
-          border-radius: var(--site-rss-border-radius, 3px);
-          @apply --site-rss-paper-button;
-        }
-        paper-button:hover,
-        paper-button:focus,
-        paper-button:active {
-          background-color: var(--site-rss-bg-active, #2d3237);
-        }
-      </style>
       <a
+        ?disabled="${this.disabled}"
         tabindex="-1"
-        href$="[[href]]"
+        href="${this.href}"
+        .id="btn${this.type}"
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="${this.label}"
+        .part="${this.editMode ? `edit-mode-active` : ``}"
       >
-        <paper-button raised="[[raised]]">
-          <iron-icon icon="[[icon]]"></iron-icon> [[label]]
-        </paper-button>
+        <paper-icon-button
+          icon="${this.icon}"
+          @click="${this.print}"
+          aria-labelledby="btn${this.type}"
+          ?disabled="${this.disabled}"
+          .part="${this.editMode ? `edit-mode-active` : ``}"
+        ></paper-icon-button>
       </a>
+      <simple-tooltip
+        .for="btn${this.type}"
+        position="${this.position}"
+        offset="14"
+      >
+        ${this.label}
+      </simple-tooltip>
     `;
   }
   /**
@@ -66,17 +93,37 @@ class SiteRSSButton extends PolymerElement {
    */
   static get properties() {
     return {
-      type: {
-        type: String,
-        value: "rss",
-        observer: "_generateLink"
-      },
-      raised: {
+      ...super.properties,
+      disabled: {
         type: Boolean,
-        value: false,
-        reflectToAttribute: true
+        reflect: true
+      },
+      label: {
+        type: String
+      },
+      href: {
+        type: String
+      },
+      icon: {
+        type: String
+      },
+      type: {
+        type: String
+      },
+      position: {
+        type: String
       }
     };
+  }
+  updated(changedProperties) {
+    if (super.updated) {
+      super.updated(changedProperties);
+    }
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "type") {
+        this._generateLink(this[propName], oldValue);
+      }
+    });
   }
   /**
    * Generate a link when we get a new type.

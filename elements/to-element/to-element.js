@@ -5,31 +5,36 @@
 
 /**
  * `to-element`
+ * @element to-element
  * `Replicate any DOM node passed in and turn it into a web component`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @demo demo/index.html
  */
 class ToElement extends HTMLElement {
   // render function
   get html() {
     return `
-<style></style>
+<style>
+
+        </style>
 <slot></slot>`;
   }
 
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       /**
        * object in question to clone and turn into a custom element
        */
       element: {
         name: "element",
-        type: "Object",
+        type: Object,
         value: {}
       },
       /**
@@ -37,7 +42,7 @@ class ToElement extends HTMLElement {
        */
       name: {
         name: "name",
-        type: "String",
+        type: String,
         value: "new-element"
       },
       /**
@@ -45,14 +50,14 @@ class ToElement extends HTMLElement {
        */
       sourceUrl: {
         name: "sourceUrl",
-        type: "String",
+        type: String,
         value: ""
       },
       /**
        * MIME type lookup for file extensions
        */
       fileTypes: {
-        type: "Object",
+        type: Object,
         value() {
           return {
             CSV: "text/csv",
@@ -312,7 +317,7 @@ import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
  *
  * @originalSite - This code is based on work originally found on
  *   - ${this.sourceUrl}
- * @customElement
+
  * @polymer
  */
 class ${this.dashToCamel(this.name)} extends PolymerElement {
@@ -329,7 +334,7 @@ class ${this.dashToCamel(this.name)} extends PolymerElement {
     return {
       "title": {
         "name": "title",
-        "type": "String",
+        "type": String,
         "value": "",
       }
     };

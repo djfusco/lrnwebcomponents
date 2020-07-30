@@ -4,10 +4,10 @@
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 /**
  * `flash-card`
+ * @element flash-card
  * @demo demo/index.html
  */
 class FlashCard extends SchemaBehaviors(PolymerElement) {
@@ -69,7 +69,9 @@ class FlashCard extends SchemaBehaviors(PolymerElement) {
   }
 
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Title
        */
@@ -77,51 +79,30 @@ class FlashCard extends SchemaBehaviors(PolymerElement) {
         type: String
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   constructor() {
     super();
     import("@polymer/paper-card/paper-card.js");
-  }
-  /**
-   * Attached to the DOM, now fire.
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(FlashCard.haxProperties, FlashCard.tag, this);
+    setTimeout(() => {
       this.addEventListener("mouseenter", this._flipup.bind(this));
       this.addEventListener("mouseleave", this._flipback.bind(this));
-    });
+    }, 0);
   }
-  disconnectedCallback() {
-    this.removeEventListener("mouseenter", this._flipup.bind(this));
-    this.removeEventListener("mouseleave", this._flipback.bind(this));
-    super.disconnectedCallback();
-  }
+
   static get haxProperties() {
     return {
       canScale: true,
       canPosition: true,
       canEditSource: false,
       gizmo: {
-        title: "Sample gizmo",
-        description: "The user will be able to see this for selection in a UI.",
+        title: "Flash card",
+        description: "Flip the card over to learn the term",
         icon: "av:play-circle-filled",
         color: "grey",
-        groups: ["Video", "Media"],
-        handles: [
-          {
-            type: "video",
-            url: "source"
-          }
-        ],
+        groups: ["Education", "Interactive"],
+        handles: [],
         meta: {
-          author: "Your organization on github"
+          author: "ELMS:LN"
         }
       },
       settings: {

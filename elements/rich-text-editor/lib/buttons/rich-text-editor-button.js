@@ -4,7 +4,7 @@
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import "@polymer/paper-button/paper-button.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
 import "@polymer/iron-a11y-keys/iron-a11y-keys.js";
 import "@polymer/iron-icons/iron-icons.js";
 import "./rich-text-editor-button-styles.js";
@@ -16,7 +16,7 @@ import "../singletons/rich-text-editor-selection.js";
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
  */
 class RichTextEditorButton extends PolymerElement {
@@ -42,7 +42,7 @@ class RichTextEditorButton extends PolymerElement {
         id="button"
         class="rtebutton"
         disabled$="[[disabled]]"
-        controls="[[controls]]"
+        controls$="[[controls]]"
         on-click="_buttonTap"
         tabindex="0"
         toggled$="[[toggled]]"
@@ -55,7 +55,7 @@ class RichTextEditorButton extends PolymerElement {
         </iron-icon>
         <span id="label" class$="[[labelStyle]]">[[__label]]</span>
       </paper-button>
-      <paper-tooltip id="tooltip" for="button">[[__label]]</paper-tooltip>
+      <simple-tooltip id="tooltip" for="button">[[__label]]</simple-tooltip>
     `;
   }
 
@@ -63,12 +63,20 @@ class RichTextEditorButton extends PolymerElement {
   static get properties() {
     return {
       /**
+       * The `id` of the `rich-text-editor` that the toolbar controls.
+       */
+      controls: {
+        name: "controls",
+        type: String,
+        observer: "_editorChanged"
+      },
+
+      /**
        * The command used for document.execCommand.
        */
       command: {
         name: "command",
-        type: String,
-        value: null
+        type: String
       },
 
       /**
@@ -119,12 +127,22 @@ class RichTextEditorButton extends PolymerElement {
       },
 
       /**
-       * The active selection, inherited from the toolbar
+       * The active selected range, inherited from the toolbar
        */
-      selection: {
-        name: "selection",
+      range: {
+        name: "range",
         type: Object,
         notify: true,
+        value: null
+      },
+
+      /**
+       * Optional space-sperated list of keyboard shortcuts for the editor
+       * to fire this button, see iron-a11y-keys for more info.
+       */
+      shortcutKeys: {
+        name: "shortcutKeys",
+        type: String,
         value: null
       },
 
@@ -138,12 +156,21 @@ class RichTextEditorButton extends PolymerElement {
       },
 
       /**
+       * The active selected range, inherited from the toolbar
+       */
+      target: {
+        name: "target",
+        type: Object,
+        value: null
+      },
+
+      /**
        * Is this button toggled?
        */
       toggled: {
         name: "toggled",
         type: Boolean,
-        computed: "_isToggled(selection)",
+        computed: "_isToggled(range)",
         notify: true
       },
 
@@ -153,7 +180,7 @@ class RichTextEditorButton extends PolymerElement {
       __label: {
         name: "__label",
         type: String,
-        computed: "_getLabel(selection,command,toggles)",
+        computed: "_getLabel(range,command,toggles)",
         notify: true
       },
 
@@ -250,7 +277,6 @@ class RichTextEditorButton extends PolymerElement {
 
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "rich-text-editor-button";
@@ -263,7 +289,7 @@ class RichTextEditorButton extends PolymerElement {
     super.ready();
     let root = this;
     root.addEventListener("mousedown", function(e) {
-      e.preventDefault();
+      console.log("mousedown", e);
     });
     root.addEventListener("keypress", function(e) {
       e.preventDefault();
@@ -275,7 +301,7 @@ class RichTextEditorButton extends PolymerElement {
    */
   connectedCallback() {
     super.connectedCallback();
-    this.__a11y = this.$.button;
+    this.__a11y = this.shadowRoot.querySelector("#button");
   }
 
   /**
@@ -290,7 +316,7 @@ class RichTextEditorButton extends PolymerElement {
    */
   doTextOperation() {
     let root = this,
-      selection = root.selection;
+      range = root.range;
     if (root.toggled && root.toggledCommand !== null) {
       document.execCommand(
         root.toggledCommand,
@@ -306,38 +332,56 @@ class RichTextEditorButton extends PolymerElement {
           detail: root
         })
       );
+      console.log(
+        "doTextOperation",
+        range,
+        root.command,
+        false,
+        root.commandVal || ""
+      );
       document.execCommand(root.command, false, root.commandVal || "");
-      root.selection = selection;
+      root.range = range;
     }
   }
+
   /**
-   * determine if the button is toggled
-   *
-   * @param {object} the text selection
-   * @returns {boolean} whether the button is toggled
-   *
+   * Handles button tap
    */
-  _isToggled(selection) {
-    let toggled =
-      this.command !== null && this.toggles
-        ? document.queryCommandState(this.command)
-        : false; /*,
-      label = this._regOrToggled(this.label, this.toggledLabel, toggled);
-    if (this.$.label !== undefined) this.$.label.innerHTML = label;
-    if (this.$.tooltip !== undefined) this.$.tooltip.innerHTML = label*/
-    return toggled;
+  _buttonTap(e) {
+    e.preventDefault();
+    console.log("_buttonTap", e);
+    this.doTextOperation();
+  }
+
+  /**
+   * Handles editor change
+   * @param {string} newVal the new editor's id
+   * @param {string} oldVal the old editor's id
+   * @returns {void}
+   */
+  _editorChanged(newVal, oldVal) {
+    let root = this;
+
+    root.dispatchEvent(
+      new CustomEvent(root.command + "-button-editor-change", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        detail: root
+      })
+    );
   }
 
   /**
    * determine if the button is toggled
    *
-   * @param {object} the text selection
+   * @param {object} the text selected range
    * @param {string} the default command
    * @param {boolean} whether the button toggles
    * @returns {string} the label based on whether or not the button is toggled
    *
    */
-  _getLabel(selection, command, toggles) {
+  _getLabel(range, command, toggles) {
     let toggled =
         this.command !== null && toggles
           ? document.queryCommandState(command)
@@ -345,13 +389,35 @@ class RichTextEditorButton extends PolymerElement {
       label = this._regOrToggled(this.label, this.toggledLabel, toggled);
     return label;
   }
+
   /**
-   * Handles button tap;
+   * determine if the button is toggled
+   *
+   * @param {object} the text selected range
+   * @returns {boolean} whether the button is toggled
+   *
    */
-  _buttonTap(e) {
-    e.preventDefault();
-    this.doTextOperation();
+  _isToggled(range) {
+    let toggled =
+      this.command !== null && this.toggles
+        ? document.queryCommandState(this.command)
+        : false; /*,
+      label = this._regOrToggled(this.label, this.toggledLabel, toggled);
+    if (this.shadowRoot.querySelector('#label') !== undefined) this.shadowRoot.querySelector('#label').innerHTML = label;
+    if (this.shadowRoot.querySelector('#tooltip') !== undefined) this.shadowRoot.querySelector('#tooltip').innerHTML = label*/
+    return toggled;
   }
+
+  /**
+   * Handles keys the same way a button is handled
+   * @param {event} e the  event
+   */
+  _keysPressed(e) {
+    console.log("_keysPressed", e);
+    e.preventDefault();
+    this._buttonTap(e);
+  }
+
   /**
    * updates a button value based on whether or not button is toggled
    *

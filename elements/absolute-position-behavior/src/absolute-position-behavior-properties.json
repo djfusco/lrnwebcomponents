@@ -5,15 +5,21 @@
    */
   "auto": {
     "type": "Boolean",
-    "value": false
+    "attribute": "auto"
   },
   /**
    * If true, no parts of the tooltip will ever be shown offscreen.
    */
   "fitToVisibleBounds": {
     "type": "Boolean",
-    "value": false,
-    "observer": "updatePosition"
+    "attribute": "fit-to-visible-bounds"
+  },
+  /**
+   * If true, no parts of the tooltip will ever be shown offscreen.
+   */
+  "hidden": {
+    "type": "Boolean",
+    "attribute": "hidden"
   },
   /**
    * The id of the element that the tooltip is anchored to. This element
@@ -22,8 +28,8 @@
    */
   "for": {
     "type": "String",
-    "observer": "updatePosition",
-    "reflectToAttribute": true
+    "attribute": "for",
+    "reflect": true
   },
   /**
    * The spacing between the top of the tooltip and the element it is
@@ -31,24 +37,29 @@
    */
   "offset": {
     "type": "Number",
-    "value": 0,
-    "observer": "updatePosition"
+    "attribute": "offset"
   },
   /**
    * Positions the tooltip to the top, right, bottom, left of its content.
    */
   "position": {
     "type": "String",
-    "value": "bottom",
-    "observer": "updatePosition",
-    "reflectToAttribute": true
+    "attribute": "position",
+    "reflect": true
+  },
+  /**
+   * Aligns at the start, or end fo target. Default is centered.
+   */
+  "positionAlign": {
+    "type": "String",
+    "attribute": "position-align",
+    "reflect": true
   },
   /**
    * The actual target element
    */
   "target": {
-    "type": "Object",
-    "observer": "updatePosition"
+    "type": "Object"
   },
   /**
    * The element's style

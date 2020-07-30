@@ -1,9 +1,8 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 /**
  * `team-member`
+ * @element team-member
  * `A simple presentation of a team member and basic info`
  * @demo demo/index.html
  */
@@ -14,10 +13,6 @@ class TeamMember extends SchemaBehaviors(PolymerElement) {
     import("@polymer/iron-image/iron-image.js");
     import("@polymer/paper-icon-button/paper-icon-button.js");
     import("@lrnwebcomponents/mdi-iconset-svg/lib/mdi-social-iconset-svg.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(TeamMember.haxProperties, TeamMember.tag, this);
-    });
   }
   static get template() {
     return html`
@@ -123,19 +118,14 @@ class TeamMember extends SchemaBehaviors(PolymerElement) {
       canPosition: true,
       canEditSource: false,
       gizmo: {
-        title: "Sample gizmo",
+        title: "Team Member",
         description: "The user will be able to see this for selection in a UI.",
         icon: "av:play-circle-filled",
         color: "grey",
-        groups: ["Video", "Media"],
-        handles: [
-          {
-            type: "video",
-            url: "source"
-          }
-        ],
+        groups: ["Content", "Presentation"],
+        handles: [],
         meta: {
-          author: "Your organization on github"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -162,7 +152,9 @@ class TeamMember extends SchemaBehaviors(PolymerElement) {
     };
   }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Image
        */
@@ -267,10 +259,6 @@ class TeamMember extends SchemaBehaviors(PolymerElement) {
         value: false
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
 }
 window.customElements.define(TeamMember.tag, TeamMember);

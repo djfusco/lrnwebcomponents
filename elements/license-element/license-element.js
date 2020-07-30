@@ -48,20 +48,21 @@ export class licenseList {
   }
 }
 
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 /**
  * `license-element`
  * `A simple way of applying a semantically accurate license to work.`
  * @demo demo/index.html
- * @microcopy - the mental model for this element
+ * @element license-element
  */
-class LicenseElement extends SchemaBehaviors(PolymerElement) {
-  static get template() {
-    return html`
-      <style>
+class LicenseElement extends SchemaBehaviors(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           font-size: 16px;
@@ -85,7 +86,6 @@ class LicenseElement extends SchemaBehaviors(PolymerElement) {
           font-style: italic;
           background-color: var(--license-background-color);
           color: var(--license-text-color);
-          @apply --license-body;
         }
 
         :host([display-method="footnote"]) {
@@ -97,7 +97,6 @@ class LicenseElement extends SchemaBehaviors(PolymerElement) {
         }
         .license-link {
           font-style: italic;
-          @apply --license-link;
         }
         .big-license-link img {
           margin-right: 8px;
@@ -109,50 +108,67 @@ class LicenseElement extends SchemaBehaviors(PolymerElement) {
         .work-title {
           font-weight: bold;
         }
-      </style>
+      `
+    ];
+  }
+  render() {
+    return html`
       <meta
         rel="cc:license"
-        href\$="[[licenseLink]]"
-        content\$="License: [[licenseName]]"
+        href="${this.licenseLink}"
+        content="License: ${this.licenseName}"
       />
       <div
         class="license-body"
-        xmlns:cc\$="[[licenseLink]]"
+        xmlns:cc="${this.licenseLink}"
         xmlns:dc="http://purl.org/dc/elements/1.1/"
       >
-        <a class="big-license-link" target="_blank" href="[[licenseLink]]"
-          ><img
-            alt="[[licenseName]] graphic"
-            src="[[licenseImage]]"
-            hidden\$="[[!licenseImage]]"
-        /></a>
+        ${this.licenseImage
+          ? html`
+              <a
+                class="big-license-link"
+                target="_blank"
+                href="${this.licenseLink}"
+                rel="noopener noreferrer"
+                ><img
+                  loading="lazy"
+                  alt="${this.licenseName} graphic"
+                  src="${this.licenseImage}"
+              /></a>
+            `
+          : ``}
         <span
           class="work-title"
           rel="dc:type"
           href="http://purl.org/dc/dcmitype/Text"
           property="dc:title"
-          >[[title]]</span
+          >${this.title}</span
         >
         by
         <a
           rel="cc:attributionURL"
           property="cc:attributionName"
-          href\$="[[source]]"
-          >[[creator]]</a
+          href="${this.source}"
+          >${this.creator}</a
         >
         is licensed under a
-        <a class="license-link" target="_blank" href="[[licenseLink]]"
-          >[[licenseName]]</a
-        >. <span rel="dc:source" href\$="[[source]]"></span>
-
-        <template is="dom-if" if="[[hasMore]]">
-          <span
-            >Permissions beyond the scope of this license are available
-            <a rel="cc:morePermissions" target="_blank" href="[[moreLink]]"
-              >[[moreLabel]]</a
-            >.</span
-          >
-        </template>
+        <a class="license-link" target="_blank" href="${this.licenseLink}"
+          >${this.licenseName}</a
+        >. <span rel="dc:source" href="${this.source}"></span>
+        ${this.hasMore
+          ? html`
+              <span
+                >Permissions beyond the scope of this license are available
+                <a
+                  rel="cc:morePermissions"
+                  target="_blank"
+                  href="${this.moreLink}"
+                  rel="noopener noreferrer"
+                  >${this.moreLabel}</a
+                >.</span
+              >
+            `
+          : ``}
       </div>
     `;
   }
@@ -161,7 +177,8 @@ class LicenseElement extends SchemaBehaviors(PolymerElement) {
     return "license-element";
   }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
       /**
        * Title of the work.
        */
@@ -184,57 +201,62 @@ class LicenseElement extends SchemaBehaviors(PolymerElement) {
        * License name, calculated or supplied by the end user if we don't have them.
        */
       licenseName: {
-        type: String
+        type: String,
+        attribute: "license-name"
+      },
+      licenseImage: {
+        type: String,
+        attribute: "license-image"
       },
       /**
        * License link for more details
        */
       licenseLink: {
-        type: String
+        type: String,
+        attribute: "license-link"
       },
       /**
        * License short hand. Options cc0,
        */
       license: {
-        type: String,
-        observer: "_licenseUpdated"
+        type: String
       },
       /**
        * More details label
        */
       moreLabel: {
         type: String,
-        value: "on the licensing details page"
+        attribute: "more-label"
       },
       /**
        * More details link
        */
       moreLink: {
-        type: String
+        type: String,
+        attribute: "more-link"
       },
       /**
        * See if we have more things to point to
        */
       hasMore: {
         type: Boolean,
-        computed: "_computeHasMore(moreLink)"
+        attribute: "has-more"
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   constructor() {
     super();
     this.licenseList = new licenseList();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        LicenseElement.haxProperties,
-        LicenseElement.tag,
-        this
-      );
+    this.moreLabel = "on the licensing details page";
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "license") {
+        this._licenseUpdated(this[propName]);
+      }
+      if (propName == "moreLink") {
+        this.hasMode = this._computeHasMore(this.moreLink);
+      }
     });
   }
   static get haxProperties() {
@@ -245,7 +267,7 @@ class LicenseElement extends SchemaBehaviors(PolymerElement) {
       gizmo: {
         title: "License",
         description: "Provide a license for you rwork",
-        icon: "icons:theaters",
+        icon: "icons:copyright",
         color: "grey",
         groups: ["Content", "Copyright"],
         handles: [
@@ -258,7 +280,7 @@ class LicenseElement extends SchemaBehaviors(PolymerElement) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -318,7 +340,19 @@ class LicenseElement extends SchemaBehaviors(PolymerElement) {
             inputMethod: "textfield"
           }
         ]
-      }
+      },
+      demoSchema: [
+        {
+          tag: "license-element",
+          properties: {
+            title: "Wonderland",
+            creator: "Mad Hatter",
+            source: "https://haxtheweb.org/",
+            license: "by"
+          },
+          content: ""
+        }
+      ]
     };
   }
   /**
@@ -334,7 +368,7 @@ class LicenseElement extends SchemaBehaviors(PolymerElement) {
   /**
    * License was updated, time to update license name and link.
    */
-  _licenseUpdated(newValue, oldValue) {
+  _licenseUpdated(newValue) {
     if (
       typeof newValue !== typeof undefined &&
       typeof this.licenseList[newValue] !== typeof undefined

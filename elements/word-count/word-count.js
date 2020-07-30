@@ -4,6 +4,7 @@ import { LitElement, html, css } from "lit-element/lit-element.js";
  * `Count the words on whatever this wraps`
  *
  * @demo demo/index.html
+ * @element word-count
  */
 class WordCount extends LitElement {
   static get styles() {
@@ -56,6 +57,9 @@ class WordCount extends LitElement {
   constructor() {
     super();
     this.wordsPrefix = "Word count:";
+  }
+  connectedCallback() {
+    super.connectedCallback();
     this.__observer = new MutationObserver(this._updateWords.bind(this));
     this.__observer.observe(this, {
       attributes: true,

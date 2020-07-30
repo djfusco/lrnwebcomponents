@@ -9,24 +9,23 @@ import {
   customElement,
   property
 } from "lit-element/lit-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 /**
  * `micro-copy-heading`
+ * @element micro-copy-heading
  * `small call to action / attention that acts as a heading too`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
- * @lit-html
+
  * @lit-element
  * @demo demo/index.html
  */
 class MicroCopyHeading extends LitElement {
-  // render function
-  render() {
-    return html`
-      <style>
+  //styles function
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           margin: 16px 0;
@@ -52,7 +51,12 @@ class MicroCopyHeading extends LitElement {
           letter-spacing: 0.09em;
           padding: 6px 16px;
         }
-      </style>
+      `
+    ];
+  }
+  // render function
+  render() {
+    return html`
       <h2>${this.heading}<span aria-hidden="true">${this.endcap}</span></h2>
     `;
   }
@@ -120,12 +124,14 @@ class MicroCopyHeading extends LitElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       /**
        * Heading / call to action to display
        */
       heading: {
         name: "heading",
-        type: "String",
+        type: String,
         value: "Telling our story"
       },
       /**
@@ -133,7 +139,7 @@ class MicroCopyHeading extends LitElement {
        */
       endcap: {
         name: "endcap",
-        type: "String",
+        type: String,
         value: "//"
       }
     };
@@ -143,7 +149,7 @@ class MicroCopyHeading extends LitElement {
    * Store the tag name to make it easier to obtain directly.
    * @notice function name must be here for tooling to operate correctly
    */
-  tag() {
+  static get tag() {
     return "micro-copy-heading";
   }
 
@@ -166,24 +172,6 @@ class MicroCopyHeading extends LitElement {
       }
     }
   }
-  /**
-   * life cycle, element is afixed to the DOM
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(
-      MicroCopyHeading.haxProperties,
-      MicroCopyHeading.tag,
-      this
-    );
-  }
-  // static get observedAttributes() {
-  //   return [];
-  // }
-  // disconnectedCallback() {}
-
-  // attributeChangedCallback(attr, oldValue, newValue) {}
 }
-customElements.define("micro-copy-heading", MicroCopyHeading);
+customElements.define(MicroCopyHeading.tag, MicroCopyHeading);
 export { MicroCopyHeading };

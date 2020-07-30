@@ -2,143 +2,80 @@
  * Copyright 2019 Penn State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
+import { html, css } from "lit-element/lit-element.js";
 import { SimplePicker } from "@lrnwebcomponents/simple-picker/simple-picker.js";
 import { IronMeta } from "@polymer/iron-meta/iron-meta.js";
 
 /**
  * `simple-icon-picker`
- * `Uses simple-picker to create an icon picker`
+ * @element simple-icon-picker
+ * Uses simple-picker to create an icon picker
  *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @polymer
- * @demo demo/index.html
+
+ * @demo ./demo/index.html
  */
 class SimpleIconPicker extends SimplePicker {
-  // render function
-  static get template() {
-    return html`
-      <style>
-        :host {
-          display: inline-flex;
-          --simple-picker-option-size: 24px;
-          --simple-picker-collapse: {
-            width: 360px;
-            height: 300px;
-            max-height: 300px;
-            overflow: scroll;
-          }
-          --simple-picker-row: {
-            justify-content: flex-start;
-          }
-          --simple-picker-option: {
-            flex: 0 0 auto;
-          }
-        }
-
-        :host([hidden]) {
-          display: none;
-        }
-      </style>
-      <simple-picker
-        aria-labelledby$="[[ariaLabelledby]]"
-        disabled$="[[disabled]]"
-        expanded$="[[expanded]]"
-        hide-option-labels
-        label$="[[label]]"
-        on-change="_handleChange"
-        on-collapse="_handleCollapse"
-        on-expand="_handleExpand"
-        on-option-focus="_handleOptionFocus"
-        options="[[options]]"
-        value$="{{value}}"
-      >
-      </simple-picker>
-    `;
+  //styles function
+  static get styles() {
+    return [...super.styles, css``];
   }
 
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       /**
        * Allow a null option to be selected?
        */
       allowNull: {
         name: "allowNull",
-        type: "Boolean",
-        value: false
+        type: Boolean
       },
-
       /**
-       * Icon picker should not have visible icon labels.
-       */
-      hideOptionLabels: {
-        name: "hideOptionLabels",
-        type: "Boolean",
-        value: true,
-        readOnly: true
-      },
-
-      /**
-    * An array of icons by name: ```
-[
-  "editor:format-paint",
-  "content-copy",
-  "av:volume-off"
-  
-]```
-  */
+        * An array of icons by name: ```
+    [
+      "editor:format-paint",
+      "content-copy",
+      "av:volume-off"
+      
+    ]```
+      */
       icons: {
         name: "icons",
-        type: "Array",
-        value: []
-      },
-
-      /**
-    * An array of options for the picker, eg.: ```
-[
-  {
-    "icon": "editor:format-paint",      //Optional. Used if the picker is used as an icon picker.
-    "alt": "Blue",                      //Required for accessibility. Alt text description of the choice.
-    "style": "background-color: blue;", //Optional. Used to set an option's style.
-    ...                                 //Optional. Any other properties that should be captured as part of the selected option's value
-  },...
-]```
-    */
-      options: {
-        name: "options",
-        type: "Array",
-        computed: "_getOptions(icons,__iconList,allowNull)"
+        type: Array
       },
 
       /**
        * The value of the option.
        */
       value: {
-        name: "label",
-        type: "String",
-        value: null,
-        reflectToAttribute: true,
-        notify: true
+        name: "value",
+        type: String,
+        reflect: true
       },
 
       /**
-    * An array of icons by name: ```
-[
-  "editor:format-paint",
-  "content-copy",
-  "av:volume-off"
-  
-]```
-  */
+       * the maximum number of options per row
+       */
+      optionsPerRow: {
+        name: "optionsPerRow",
+        type: Number
+      },
+
+      /**
+        * An array of icons by name: ```
+    [
+      "editor:format-paint",
+      "content-copy",
+      "av:volume-off"
+      
+    ]```
+      */
+
       __iconList: {
         name: "__iconList",
-        type: "Array",
-        "read-only": true
+        type: Array
       }
     };
   }
@@ -150,28 +87,66 @@ class SimpleIconPicker extends SimplePicker {
   static get tag() {
     return "simple-icon-picker";
   }
+  constructor() {
+    super();
+    this.hideOptionLabels = true;
+    this.allowNull = false;
+    this.icons = [];
+    this.value = null;
+    this.options = [];
+    this.optionsPerRow = 10;
+  }
   /**
-   * life cycle, element is afixed to the DOM
+   * LitElement life cycle - property changed callback
    */
-  ready() {
-    super.ready();
-    afterNextRender(this, function() {
-      const iconSets = new IronMeta({ type: "iconset" });
+  updated(changedProperties) {
+    if (super.updated) {
+      super.updated(changedProperties);
+    }
+    changedProperties.forEach((oldValue, propName) => {
       if (
-        this.icons.length === 0 &&
-        typeof iconSets !== typeof undefined &&
-        iconSets.list &&
-        iconSets.list.length
+        ["optionsPerRow", "icons", "allowNull", "__iconList"].includes(propName)
       ) {
-        var iconList = [];
-        iconSets.list.forEach(function(item) {
-          item.getIconNames().forEach(icon => {
-            iconList.push(icon);
-          });
-        });
-        this.__iconList = iconList;
+        this._getOptions(this[propName], oldValue);
+      }
+      if (propName == "value") {
+        /**
+         * fires when value changes
+         * @event value-changed
+         */
+        this.dispatchEvent(
+          new CustomEvent("value-changed", {
+            detail: {
+              value: this[propName]
+            }
+          })
+        );
       }
     });
+  }
+  /**
+   * LitElement life cycle - ready callback
+   */
+  firstUpdated(changedProperties) {
+    if (super.firstUpdated) {
+      super.firstUpdated(changedProperties);
+    }
+    const iconSets = new IronMeta({ type: "iconset" });
+    if (
+      this.icons.length === 0 &&
+      typeof iconSets !== typeof undefined &&
+      iconSets.list &&
+      iconSets.list.length
+    ) {
+      var iconList = [];
+      iconSets.list.forEach(function(item) {
+        item.getIconNames().forEach(icon => {
+          iconList.push(icon);
+        });
+      });
+      this.__iconList = iconList;
+      this._setSelectedOption();
+    }
   }
 
   /**
@@ -184,15 +159,20 @@ class SimpleIconPicker extends SimplePicker {
    * @param {boolean} allow a null value for the picker
    *
    */
-  _getOptions(icons = [], __iconList = [], allowNull = false) {
-    if (typeof icons === "string") icons = JSON.parse(icons);
-    if (icons.length === 0) icons = __iconList;
-    let options = allowNull === false ? [] : [[{ alt: "null", value: null }]],
-      h = allowNull === false ? 0 : 1,
-      cols =
-        Math.sqrt(icons.length + h) < 16
-          ? Math.ceil(Math.sqrt(icons.length + h))
-          : 15;
+  _getOptions() {
+    let icons =
+        typeof this.icons === "string" ? JSON.parse(this.icons) : this.icons,
+      collapse = this.shadowRoot.querySelector("#collapse"),
+      cols = this.optionsPerRow;
+    if (icons.length === 0 && this.__iconList && this.__iconList.length > 0)
+      icons = this.__iconList;
+    let options =
+        this.allowNull === false ? [] : [[{ alt: "null", value: null }]],
+      h = this.allowNull === false ? 0 : 1;
+    cols =
+      Math.sqrt(icons.length + h) <= this.optionsPerRow
+        ? Math.ceil(Math.sqrt(icons.length + h))
+        : this.optionsPerRow;
     for (let i = 0; i < icons.length; i++) {
       let j = h + i,
         row = Math.floor(j / cols),
@@ -205,43 +185,14 @@ class SimpleIconPicker extends SimplePicker {
         value: icons[i]
       };
     }
-    return options;
-  }
-
-  /**
-   * handles when the picker's value changes
-   */
-  _handleChange(e) {
-    this.value = e.detail.value;
-    this.dispatchEvent(
-      new CustomEvent("change", { bubbles: true, detail: this })
-    );
-  }
-
-  /**
-   * handles when the picker collapses
-   */
-  _handleCollapse(e) {
-    this.dispatchEvent(new CustomEvent("collapse", { detail: this }));
-  }
-
-  /**
-   * handles when the picker expands
-   */
-  _handleExpand(e) {
-    this.dispatchEvent(new CustomEvent("expand", { detail: this }));
-  }
-
-  /**
-   * handles when the picker's focus changes
-   */
-  _handleOptionFocus(e) {
-    this.dispatchEvent(new CustomEvent("option-focus", { detail: this }));
+    this.options = options;
   }
   /**
-   * life cycle, element is removed from the DOM
+   * Don't set the selection option until there are options rendered
    */
-  //disconnectedCallback() {}
+  _setSelectedOption() {
+    if (this.options.length > 1) super._setSelectedOption();
+  }
 }
 window.customElements.define(SimpleIconPicker.tag, SimpleIconPicker);
 export { SimpleIconPicker };

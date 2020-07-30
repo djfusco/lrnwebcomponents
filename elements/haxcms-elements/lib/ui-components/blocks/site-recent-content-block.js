@@ -1,6 +1,6 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
-import { autorun, toJS } from "mobx";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
 import "@polymer/polymer/lib/elements/dom-repeat.js";
 import "@lrnwebcomponents/haxcms-elements/lib/ui-components/query/site-query.js";
 
@@ -8,14 +8,13 @@ import "@lrnwebcomponents/haxcms-elements/lib/ui-components/query/site-query.js"
  * `site-recent-content-block`
  * `Block to display recent content`
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
 class SiteRecentContentBlock extends PolymerElement {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "site-recent-content-block";
@@ -103,7 +102,7 @@ class SiteRecentContentBlock extends PolymerElement {
                 ></iron-image>
               </div>
               <div class="item-heading">
-                <a href\$="[[item.location]]">[[item.title]]</a>
+                <a href\$="[[item.slug]]">[[item.title]]</a>
               </div>
             </div>
           </template>

@@ -4,22 +4,21 @@
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { MutableData } from "@polymer/polymer/lib/mixins/mutable-data.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { wipeSlot } from "@lrnwebcomponents/utils/utils.js";
 import "@polymer/paper-button/paper-button.js";
 import "@lrnwebcomponents/simple-toast/simple-toast.js";
 import "@polymer/iron-ajax/iron-ajax.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 import "@vaadin/vaadin-split-layout/vaadin-split-layout.js";
 import "@lrnwebcomponents/multiple-choice/multiple-choice.js";
 import "./lib/game-show-quiz-modal.js";
 /**
  * `game-show-quiz`
  * `Simple game show with questions and answers`
- * @demo demo/index.html
  * @microcopy - the mental model for this element
  * - game show - a display board in the style of Jeopardy
+ * @demo demo/index.html
+ * @element game-show-quiz
  */
 class GameShowQuiz extends MutableData(PolymerElement) {
   static get tag() {
@@ -27,6 +26,7 @@ class GameShowQuiz extends MutableData(PolymerElement) {
   }
   constructor() {
     super();
+    window.SimpleToast.requestAvailability();
     import("@polymer/iron-image/iron-image.js");
     import("@lrnwebcomponents/responsive-grid/lib/responsive-grid-row.js");
     import("@lrnwebcomponents/responsive-grid/lib/responsive-grid-col.js");
@@ -106,16 +106,12 @@ class GameShowQuiz extends MutableData(PolymerElement) {
           }
         }
         responsive-grid-row {
-          --responsive-grid-row-inner: {
-            margin-left: 0;
-            margin-right: 0;
-          }
+          --responsive-grid-row-inner-margin-left: 0;
+          --responsive-grid-row-inner-margin-right: 0;
         }
         responsive-grid-col {
-          --responsive-grid-col-inner: {
-            padding-left: 0;
-            padding-right: 0;
-          }
+          --responsive-grid-col-inner-padding-left: 0;
+          --responsive-grid-col-inner-padding-right: 0;
         }
         #contentcontainer {
           margin: 0 auto;
@@ -348,7 +344,7 @@ class GameShowQuiz extends MutableData(PolymerElement) {
         >
       </game-show-quiz-modal>
       <game-show-quiz-modal id="directions" title="[[directionsTitle]]">
-        <div slot="content"><slot name="directions"></slot></div>
+        <div slot="content"><slot></slot></div>
         <paper-button
           aria-label="Close directions dialog and return to game"
           slot="buttons"
@@ -365,7 +361,7 @@ class GameShowQuiz extends MutableData(PolymerElement) {
         <vaadin-split-layout slot="content" style="height:80vh;">
           <div id="col1" style="width:70%;min-width: 30%;">
             <iron-image
-              style="min-width:100px; width:100%; min-height:50vh; height:75vh; background-color: lightgray;"
+              style="min-width:100px; width:100%; min-height:50vh; height:75vh;"
               sizing="contain"
               preload=""
               src\$="[[activeQuestion.image]]"
@@ -416,15 +412,44 @@ class GameShowQuiz extends MutableData(PolymerElement) {
         handle-as="json"
         last-response="{{gameBoardData}}"
       ></iron-ajax>
+      <iron-ajax
+        auto
+        id="gamedirections"
+        url="[[gameDirectionsData]]"
+        handle-as="text"
+        last-response="{{gameDirections}}"
+      ></iron-ajax>
+      <iron-ajax id="gamebackend" hand-as="json"></iron-ajax>
     `;
   }
-
+  /**
+   * Support loading directions from a URL / end point
+   */
+  _gameDirectionsChanged(newValue) {
+    if (newValue) {
+      wipeSlot(this);
+      let div = document.createElement("div");
+      div.style = "padding: 16px;";
+      div.innerHTML = newValue;
+      this.appendChild(div.cloneNode(true));
+    }
+  }
   static get properties() {
     return {
       /**
        * Title
        */
       title: {
+        type: String
+      },
+      gameDirectionsData: {
+        type: String
+      },
+      gameDirections: {
+        type: String,
+        observer: "_gameDirectionsChanged"
+      },
+      token: {
         type: String
       },
       attemptsData: {
@@ -535,6 +560,9 @@ class GameShowQuiz extends MutableData(PolymerElement) {
       gameData: {
         type: String
       },
+      gameScoreBoardBackend: {
+        type: String
+      },
       /**
        * Active item that is in the modal.
        */
@@ -564,12 +592,9 @@ class GameShowQuiz extends MutableData(PolymerElement) {
     // logically
     if (
       typeof this.__activeTap !== typeof undefined &&
-      dom(this.__activeTap).parentNode.nextElementSibling.firstElementChild !=
-        null
+      this.__activeTap.parentNode.nextElementSibling.firstElementChild != null
     ) {
-      dom(
-        this.__activeTap
-      ).parentNode.nextElementSibling.firstElementChild.focus();
+      this.__activeTap.parentNode.nextElementSibling.firstElementChild.focus();
       delete this.__activeTap;
     }
   }
@@ -696,6 +721,7 @@ class GameShowQuiz extends MutableData(PolymerElement) {
       const evt = new CustomEvent("simple-toast-show", {
         bubbles: true,
         cancelable: true,
+        composed: true,
         detail: {
           text: "Correct!",
           duration: 4000
@@ -722,6 +748,7 @@ class GameShowQuiz extends MutableData(PolymerElement) {
       const evt = new CustomEvent("simple-toast-show", {
         bubbles: true,
         cancelable: true,
+        composed: true,
         detail: {
           text: ":( You got it wrong",
           duration: 4000
@@ -782,7 +809,7 @@ class GameShowQuiz extends MutableData(PolymerElement) {
     this.set("attemptsData", {});
     this.set("attemptsData", attemptsData);
     // append child via polymer so we can style it correctly in shadow dom
-    dom(this.__activeTap).appendChild(icon);
+    this.__activeTap.appendChild(icon);
     // check for 2 points remaining
     if (this.remainingAttempts === 2) {
       this.shadowRoot
@@ -827,16 +854,38 @@ class GameShowQuiz extends MutableData(PolymerElement) {
       ) {
         // open score report in a modal now
         this.shadowRoot.querySelector("#dialog").toggle();
+        this.shadowRoot.querySelector("#scoreboard").title =
+          "Your final score for the game";
         this.scoreBoardToggle({});
         const evt = new CustomEvent("simple-toast-show", {
           bubbles: true,
           cancelable: true,
+          composed: true,
           detail: {
             text: "Game over!",
             duration: 5000
           }
         });
         this.dispatchEvent(evt);
+        // fire in case anyone else cares
+        this.dispatchEvent(
+          new CustomEvent("game-show-quiz-game-over", {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            detail: {
+              game: this.title,
+              score: this.points.total.earned
+            }
+          })
+        );
+        // ship to backend if we have one
+        if (this.gameScoreBoardBackend) {
+          this.shadowRoot.querySelector("#gamebackend").url = `${
+            this.gameScoreBoardBackend
+          }/${this.title}/${this.points.total.earned}?token=${this.token}`;
+          this.shadowRoot.querySelector("#gamebackend").generateRequest();
+        }
       }
     }
   }
@@ -844,8 +893,7 @@ class GameShowQuiz extends MutableData(PolymerElement) {
    * Notice that something was tapped, resolve what it was.
    */
   _gameBoardTap(e) {
-    var normalizedEvent = dom(e);
-    var local = normalizedEvent.localTarget;
+    var local = e.target;
     if (local.getAttribute("data-question-uuid") != null) {
       this.__submitDisabled = true;
       this.__activeTap = local;
@@ -1001,15 +1049,10 @@ class GameShowQuiz extends MutableData(PolymerElement) {
         description: "Tweak the game show options",
         icon: "av:play-circle-filled",
         color: "grey",
-        groups: ["Video", "Media"],
-        handles: [
-          {
-            type: "video",
-            url: "source"
-          }
-        ],
+        groups: ["Education", "Interactive"],
+        handles: [],
         meta: {
-          author: "Your organization on github"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -1017,7 +1060,7 @@ class GameShowQuiz extends MutableData(PolymerElement) {
           {
             property: "title",
             title: "Title",
-            description: "The title of the element",
+            description: "The title of the game",
             inputMethod: "textfield",
             icon: "editor:title"
           }
@@ -1026,12 +1069,28 @@ class GameShowQuiz extends MutableData(PolymerElement) {
           {
             property: "title",
             title: "Title",
-            description: "The title of the element",
+            description: "The title of the game",
             inputMethod: "textfield",
             icon: "editor:title"
+          },
+          {
+            property: "gameData",
+            title: "Source of the game data data",
+            description: "The title of the game",
+            inputMethod: "textfield",
+            icon: "icons:link"
           }
         ],
         advanced: []
+      },
+      saveOptions: {
+        unsetAttributes: [
+          "attempts-data",
+          "points",
+          "game-board",
+          "question-title",
+          "remaining-attempts"
+        ]
       }
     };
   }
@@ -1040,10 +1099,22 @@ class GameShowQuiz extends MutableData(PolymerElement) {
    */
   connectedCallback() {
     super.connectedCallback();
-    window.SimpleToast.requestAvailability();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(GameShowQuiz.haxProperties, GameShowQuiz.tag, this);
+    setTimeout(() => {
+      // punch a basic hole for elms:ln to make life easier for IDs
+      if (
+        window.Drupal &&
+        window.Drupal.settings &&
+        window.Drupal.settings.elmslnCore &&
+        window.Drupal.settings.elmslnCore.uname
+      ) {
+        this.gameScoreBoardBackend =
+          window.Drupal.settings.basePath +
+          "apps/game-show-scoreboard/save-score";
+        this.token = btoa(window.Drupal.settings.elmslnCore.uname);
+        this.gameDirectionsData =
+          window.Drupal.settings.basePath +
+          "apps/game-show-scoreboard/load-directions";
+      }
       this.shadowRoot
         .querySelector("#dismiss")
         .addEventListener("click", this.resetFocus.bind(this));
@@ -1059,7 +1130,7 @@ class GameShowQuiz extends MutableData(PolymerElement) {
       this.shadowRoot
         .querySelector("#question")
         .addEventListener("click", this.registerTap.bind(this));
-    });
+    }, 0);
   }
   /**
    * detached life cycke

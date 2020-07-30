@@ -2,9 +2,9 @@
   "name": "@lrnwebcomponents/lrndesign-timeline",
   "wcfactory": {
     "className": "LrndesignTimeline",
-    "customElementClass": "PolymerElement",
+    "customElementClass": "LitElement",
     "elementName": "lrndesign-timeline",
-    "generator-wcfactory-version": "0.6.2",
+    "generator-wcfactory-version": "0.7.1",
     "useHAX": true,
     "useSass": false,
     "files": {
@@ -14,48 +14,55 @@
       "js": "src/lrndesign-timeline.js",
       "properties": "src/lrndesign-timeline-properties.json",
       "hax": "src/lrndesign-timeline-hax.json"
-    }
+    },
+    "sharedStyles": [
+      "...super.styles"
+    ],
+    "sharedProperties": [
+      "...super.properties"
+    ]
   },
-  "version": "2.1.0",
+  "version": "2.6.24",
   "description": "an element that displays events on a timeline",
   "repository": {
     "type": "git",
     "url": "https://github.com/elmsln/lrnwebcomponents.git"
   },
   "main": "lrndesign-timeline.js",
-  "module": "lrndesign-timeline.es6.js",
+  "module": "lrndesign-timeline.js",
   "umd": "lrndesign-timeline.umd.js",
-  "amd": "lrndesign-timeline.amd.js",
   "scripts": {
     "test": "../../node_modules/.bin/wct --configFile ../../wct.conf.json node_modules/@lrnwebcomponents/lrndesign-timeline/test/",
     "start": "yarn run dev",
-    "build": "../../node_modules/.bin/gulp && ../../node_modules/.bin/rollup -c && ../../node_modules/.bin/prettier --ignore-path ../../.prettierignore --write '**/*.{js,json}'",
-    "dev": "open ./src && concurrently --kill-others 'yarn run watch' 'yarn run serve'",
-    "watch": "../../node_modules/.bin/gulp dev",
+    "build": "../../node_modules/.bin/gulp --gulpfile=gulpfile.cjs && ../../node_modules/.bin/rollup -c && ../../node_modules/.bin/prettier --ignore-path ../../.prettierignore --write '**/*.{js,json}'",
+    "dev": "concurrently --kill-others \"yarn run watch\" \"yarn run serve\"",
+    "watch": "../../node_modules/.bin/gulp dev --gulpfile=gulpfile.cjs",
     "serve": "polymer serve --npm --module-resolution=node --open",
-    "lighthouse": "../../node_modules/.bin/gulp lighthouse"
+    "lighthouse": "../../node_modules/.bin/gulp lighthouse --gulpfile=gulpfile.cjs"
   },
   "author": {
     "name": "nikkimk"
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@lrnwebcomponents/hax-body-behaviors": "^2.1.0",
-    "@lrnwebcomponents/schema-behaviors": "^2.1.0",
-    "@lrnwebcomponents/simple-colors": "^2.1.0",
-    "@polymer/iron-icons": "^3.0.1",
-    "@polymer/polymer": "^3.2.0"
+    "@lrnwebcomponents/responsive-utility": "^2.6.24",
+    "@lrnwebcomponents/schema-behaviors": "^2.6.24",
+    "@lrnwebcomponents/simple-colors": "^2.6.24",
+    "lit-element": "^2.3.1"
   },
   "devDependencies": {
+    "@lrnwebcomponents/deduping-fix": "2.0.5",
     "@polymer/iron-component-page": "github:PolymerElements/iron-component-page",
-    "@polymer/iron-demo-helpers": "^3.1.0",
-    "@webcomponents/webcomponentsjs": "2.2.10",
+    "@polymer/iron-demo-helpers": "3.1.0",
+    "@webcomponents/webcomponentsjs": "2.2.7",
     "concurrently": "4.1.0",
     "gulp-babel": "8.0.0",
-    "gulp-sourcemaps": "2.6.4",
+    "gulp-sourcemaps": "2.6.5",
     "lodash": "4.17.11",
-    "polymer-cli": "1.9.9",
-    "wct-browser-legacy": "1.0.2"
+    "polymer-build": "3.1.2",
+    "polymer-cli": "1.9.7",
+    "wct-browser-legacy": "1.0.2",
+    "web-animations-js": "2.3.1"
   },
   "private": false,
   "publishConfig": {

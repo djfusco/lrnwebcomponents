@@ -2,38 +2,26 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { MutableData } from "@polymer/polymer/lib/mixins/mutable-data.js";
+import { LitElement } from "lit-element/lit-element.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
-import { autorun, toJS } from "mobx";
+import { objectValFromStringPos } from "@lrnwebcomponents/utils/utils.js";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
 /**
  * `site-query`
  * `Query the JSON Outline Schema manifest and return a resulting array`
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
 // helper to use strings for index in Objects
 Object.byString = function(o, s) {
-  s = s.replace(/\[(\w+)\]/g, ".$1"); // convert indexes to properties
-  s = s.replace(/^\./, ""); // strip a leading dot
-  var a = s.split(".");
-  for (var i = 0, n = a.length; i < n; ++i) {
-    var k = a[i];
-    if (k in o) {
-      o = o[k];
-    } else {
-      return;
-    }
-  }
-  return o;
+  return objectValFromStringPos(o, s);
 };
 
-class SiteQuery extends MutableData(PolymerElement) {
+class SiteQuery extends LitElement {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "site-query";
@@ -53,76 +41,117 @@ class SiteQuery extends MutableData(PolymerElement) {
        * activeId
        */
       activeId: {
-        type: String
+        type: String,
+        attribute: "active-id"
       },
       /**
        * result to help illustrate this only lives here
        */
       result: {
-        type: Array,
-        notify: true
-      },
-      __result: {
-        type: Array,
-        computed:
-          "_computeResult(entity, conditions, sort, routerManifest, activeId, limit, startIndex, random, forceRebuild)",
-        observer: "_noticeResultChange"
+        type: Array
       },
       /**
        * Conditions that can be used to slice the data differently in the manifest
        */
       conditions: {
-        type: Object,
-        notify: true,
-        value: {}
+        type: Object
       },
       /**
        * Establish the order items should be displayed in
        */
       sort: {
-        type: Object,
-        notify: true,
-        value: {
-          order: "ASC"
-        }
+        type: Object
       },
       /**
        * Boolean flag to force a repaint of what's in the item
        */
       forceRebuild: {
         type: Boolean,
-        notify: true,
-        value: false
+        attribute: "force-rebuild"
       },
       /**
        * Limit the number of results returned
        */
       limit: {
-        type: Number,
-        value: 0
+        type: Number
       },
       /**
        * Where to start returning results from
        */
       startIndex: {
         type: Number,
-        value: 0
+        attribute: "start-index"
       },
       /**
        * Randomize results
        */
       random: {
-        type: Boolean,
-        value: false
+        type: Boolean
       },
       /**
        * Entity to focus on
        */
       entity: {
-        type: String,
-        value: "node"
+        type: String
       }
     };
+  }
+  constructor() {
+    super();
+    this.entity = "node";
+    this.conditions = {};
+    this.random = false;
+    this.sort = {
+      order: "ASC"
+    };
+    this.forceRebuild = false;
+    this.limit = 0;
+    this.startIndex = 0;
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      let notifiedProps = ["result", "conditions", "sort", "forceRebuild"];
+      if (notifiedProps.includes(propName)) {
+        // notify
+        let eventName = `${propName
+          .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, "$1-$2")
+          .toLowerCase()}-changed`;
+        this.dispatchEvent(
+          new CustomEvent(eventName, {
+            detail: {
+              value: this[propName]
+            }
+          })
+        );
+      }
+      if (
+        [
+          "entity",
+          "conditions",
+          "sort",
+          "routerManifest",
+          "activeId",
+          "limit",
+          "startIndex",
+          "random",
+          "forceRebuild"
+        ].includes(propName)
+      ) {
+        this.result = [
+          ...this._computeResult(
+            this.entity,
+            this.conditions,
+            this.sort,
+            this.routerManifest,
+            this.activeId,
+            this.limit,
+            this.startIndex,
+            this.random,
+            this.forceRebuild
+          )
+        ];
+      }
+    });
   }
   /**
    * Compute what we should present as a slice of the real deal
@@ -140,7 +169,7 @@ class SiteQuery extends MutableData(PolymerElement) {
   ) {
     if (routerManifest && routerManifest.items) {
       // ensure no data references, clone object
-      var items = Object.assign([], toJS(routerManifest.items));
+      var items = [...toJS(routerManifest.items)];
       // ohhh.... boy.... let's completely alter how this thing works
       if (entity !== "node") {
         var newItems = [];
@@ -199,24 +228,70 @@ class SiteQuery extends MutableData(PolymerElement) {
       if (conditions && items) {
         // apply conditions, this will automatically filter our items
         for (var i in conditions) {
+          // test for object vs direct form of condition
+          if (conditions[i] === null) {
+            conditions[i] = {
+              value: [conditions[i]],
+              operator: "="
+            };
+          } else if (typeof conditions[i] !== "object") {
+            conditions[i] = {
+              value: conditions[i],
+              operator: "="
+            };
+          }
+          // normalize special case evaluations
+          var evaluate = conditions[i].value;
+          if (conditions[i].value === "$activeId") {
+            evaluate = activeId;
+          } else if (conditions[i].value === "$firstId") {
+            evaluate = items[0].id;
+          }
           // apply the conditions in order
           items = items.filter(item => {
-            // specialized condition for active id
-            if (conditions[i] === "$activeId") {
-              if (Object.byString(item, i) !== activeId) {
+            switch (conditions[i].operator) {
+              case ">":
+                if (Object.byString(item, i) > evaluate) {
+                  return true;
+                }
                 return false;
-              }
-              return true;
-            } else if (conditions[i] === "$firstId") {
-              if (Object.byString(item, i) !== items[0].id) {
+                break;
+              case "<":
+                if (Object.byString(item, i) < evaluate) {
+                  return true;
+                }
                 return false;
-              }
-              return true;
-            } else {
-              if (Object.byString(item, i) !== conditions[i]) {
+                break;
+              case "!=":
+                if (
+                  typeof evaluate === "object" &&
+                  !evaluate.includes(Object.byString(item, i))
+                ) {
+                  return true;
+                } else if (
+                  typeof evaluate === "string" &&
+                  Object.byString(item, i) !== evaluate
+                ) {
+                  return true;
+                }
                 return false;
-              }
-              return true;
+                break;
+              // most common
+              case "=":
+              default:
+                if (
+                  typeof evaluate === "object" &&
+                  !evaluate.includes(Object.byString(item, i))
+                ) {
+                  return false;
+                } else if (
+                  typeof evaluate === "string" &&
+                  Object.byString(item, i) !== evaluate
+                ) {
+                  return false;
+                }
+                return true;
+                break;
             }
           });
         }
@@ -285,13 +360,6 @@ class SiteQuery extends MutableData(PolymerElement) {
     return [];
   }
   /**
-   * Try and get the value to skip dirty checks and do a full data rebind
-   */
-  _noticeResultChange(newValue) {
-    this.set("result", newValue);
-    this.notifyPath("result");
-  }
-  /**
    * Connected life cycle
    */
   connectedCallback() {
@@ -307,9 +375,9 @@ class SiteQuery extends MutableData(PolymerElement) {
    * Disconnected life cycle
    */
   disconnectedCallback() {
-    super.disconnectedCallback();
     this.__disposer();
     this.__disposer2();
+    super.disconnectedCallback();
   }
 }
 window.customElements.define(SiteQuery.tag, SiteQuery);

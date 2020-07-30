@@ -2,147 +2,109 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { A11yMediaBehaviors } from "./lib/a11y-media-behaviors.js";
-import { pathFromUrl } from "@polymer/polymer/lib/utils/resolve-url.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/responsive-utility/responsive-utility.js";
+import "@lrnwebcomponents/anchor-behaviors/anchor-behaviors.js";
 import "@lrnwebcomponents/es-global-bridge/es-global-bridge.js";
 import "./lib/a11y-media-state-manager.js";
-import "./lib/a11y-media-controls.js";
-import "./lib/a11y-media-html5.js";
-import "./lib/a11y-media-transcript.js";
-import "./lib/a11y-media-transcript-controls.js";
+import "./lib/a11y-media-button.js";
+import "./lib/a11y-media-transcript-cue.js";
 import "./lib/a11y-media-youtube.js";
+
 /**
  * `a11y-media-player`
- * An accessible video player
- *
- * @microcopy - the mental model for this element
- * ```
-<a11y-media-player
-  accent-color$="[[accentColor]]"              // Optional accent color for controls,
-                                               // using the following materialize colors:
-                                               // red, pink, purple, deep-purple, indigo, blue,
-                                               // light blue, cyan, teal, green, light green, lime,
-                                              // yellow, amber, orange, deep-orange, and brown.
-                                              // Default is null.
-  audio-only$="[[audioOnly]]"                 // Is media audio only?
-  autoplay$="[[autoplay]]"                    // Is player set to autoplay (not recommended for a11y)?
-  cc$="[[cc]]"                                // Are closed captions toggled?
-  custom-microcopy$="[[customMicrocopy]]"  // Optional customization or text and icons
-  dark$="[[dark]]"  // Is the color scheme dark? Default is light.
-  dark-transcript$="[[darkTranscript]]"  // Use dark theme on transcript? Default is false, even when player is dark.
-  disable-fullscreen$="[[disableFullscreen]]" // Is full screen mode disabled?
-  disable-interactive$="[[disableInteractive]]" // Disable interactive cues?
-  fullscreen$="[[fullscreen]]"  // Is full screen mode toggled on?
-  height$="[[height]]"  // The height of player
-  hide-timestamps$="[[hideTimestamps]]"  // Hide cue timestamps?
-  lang$="[[lang]]"  // The language of the media
-  loop$="[[loop]]"  // Is video on a loop?
-  muted$="[[muted]]"  // Is video muted?
-  media-title$="[[mediaTitle]]"  // The title of the media
-  playback-rate$="[[playbackRate]]"  // The speed that video plays, default is 1 (for 100%)
-  sticky-corner$="[[stickyCorner]]"  // When user scrolls a playing video off-screen,
-  which corner will it stick to? Values are:
-  top-right (default), top-left, bottom-left, bottom-right,
-  and none (to turn sticky off)
-  thumbnail-src$="[[thumbnailSrc]]"  // Optional thumbanil/cover image url
-  volume$="[[volume]]">  // The initial volume of the video
+ * an accessible video player
+ * 
+### Styling
+`<a11y-media-player>` provides the following basic custom properties
+for styling:
 
-  <!--video sources and tracks-->
-  <source src="/path/to/video.mp4" type="video/mp4">
-  <source src="/path/to/video.webm" type="video/webm">
-  <track label="English" kind="subtitles" srclang="en" src="path/to/subtitles/en.vtt" default>
-  <track label="Deutsch" kind="subtitles" srclang="de" src="path/to/subtitles/de.vtt">
-  <track label="Español" kind="subtitles" srclang="es" src="path/to/subtitles/es.vtt">
+#### Basic Styling
 
-</a11y-media-player>```
+Custom property | Description | Default
+----------------|-------------|----------
+`--a11y-media-color` | default text color | `--simple-colors-default-theme-grey-11`
+`--a11y-media-bg-color` | default background color | `--simple-colors-default-theme-grey-2`
+`--a11y-media-border-color` | default border color | `--simple-colors-default-theme-grey-3`
+`--a11y-media-hover-color` | text color when hovering | `--simple-colors-default-theme-grey-12`
+`--a11y-media-hover-bg-color` | background color when hovering | `--simple-colors-default-theme-grey-2`
+`--a11y-media-accent-color` | accent color | `--simple-colors-default-theme-accent-9`
+`--a11y-media-faded-accent-color` | accent color when faded | `--simple-colors-default-theme-accent-8`
+`--a11y-media-disabled-color` | color for disabled items | `--simple-colors-default-theme-grey-5`
+`--a11y-media-transcript-color` | default text color of transcript | `--simple-colors-default-theme-grey-7`
+`--a11y-media-transcript-bg-color` | default background color of transcript | `--simple-colors-default-theme-grey-1`
+`--a11y-media-transcript-accent-color` | default accent color of transcript | `--simple-colors-default-theme-accent-8`
+`--a11y-media-transcript-faded-accent-color` | accent color of transcript, faded | `--simple-colors-default-theme-accent-10`
+`--a11y-media-transcript-cue-color` | text color of transcript cue | `--simple-colors-fixed-theme-grey-12`
+`--a11y-media-transcript-cue-bg-color` | background color of transcript cue  | `--simple-colors-fixed-theme-grey-1`
+`--a11y-media-transcript-active-cue-color` | text color of active transcript cue  | `--simple-colors-fixed-theme-grey-12`
+`--a11y-media-transcript-active-cue-bg-color` | background color of active transcript cue  | `--simple-colors-fixed-theme-accent-1`
+`--a11y-media-transcript-focused-cue-color` | text color of focused transcript cue  | `--simple-colors-fixed-theme-grey-12`
+`--a11y-media-transcript-focused-cue-bg-color` | background color of focused transcript cue  | `--simple-colors-fixed-theme-grey-2`
+`--a11y-media-transcript-match-color` | text color of matched term in transcript search  | `--simple-colors-fixed-theme-grey-1`
+`--a11y-media-transcript-match-bg-color` | background color of matched term in transcript search | `--simple-colors-fixed-theme-accent-10`
+`--a11y-media-transcript-match-border-color` | border color of matched term in transcript search | `--simple-colors-fixed-theme-accent-12`
+
+#### Controls
+Custom property | Description | Default 
+----------------|-------------|----------
+`--a11y-media-scrollbar-width` | default width of scrollbars | `5px`
+`--a11y-media-controls-font-family` | font-family of controls | `--paper-font-subhead_-_font-family`
+
+#### Buttons
+Custom property | Description | Default
+----------------|-------------|----------
+`--a11y-media-button-color` | button text color | `--a11y-media-color`
+`--a11y-media-button-bg-color` | button background color | `--a11y-media-bg-color`
+`--a11y-media-button-hover-color` | button text color when hovering | `--a11y-media-accent-color`
+`--a11y-media-button-hover-bg-color` | button background color when hovering | `--a11y-media-hover-bg-color`
+`--a11y-media-button-disabled-color` | button text color when disabled | `--a11y-media-disabled-color`
+`--a11y-media-button-toggle-color` | button text color when toggled | `--a11y-media-faded-accent-color`
+
+#### Sliders
+Custom property | Description | Default
+----------------|-------------|----------
+`--paper-slider-active-color` | slider color when active | `--a11y-media-accent-color`
+`--paper-slider-secondary-color` | slider color for buffering | `--a11y-media-faded-accent-color`
+`--paper-slider-pin-color` | slider pin color | `--a11y-media-bg-color`
+`--paper-slider-pin-start-color` | slider pin color in start position | `--a11y-media-bg-color`
+`--paper-slider-pin-end-color` | slider pin color in end position | `--a11y-media-bg-color`
+`--paper-slider-knob-color` | slider knob color | `--a11y-media-accent-color`
+`--paper-slider-knob-start-color` | slider knob color in start position | `--a11y-media-accent-color`
+`--paper-slider-knob-end-color` | slider knob color in end position | `--a11y-media-bg-accent-color`
+`--paper-slider-knob-border-color` | slider knob border color | `--a11y-media-accent-color`
+`--paper-slider-knob-start-border-color` | slider knob border color in start position | `--a11y-media-bg-color`
+`--paper-slider-knob-end-border-color` | slider knob border color in end position | `--a11y-media-bg-color`
+
+#### Settings Menu
+Custom property | Description | Default
+----------------|-------------|----------
+`--a11y-media-settings-menu-color` | settings menu text color | `--a11y-media-color`
+`--a11y-media-settings-menu-bg-color` | settings menu background color | `--a11y-media-bg-color`
+`--a11y-media-settings-menu-hover-color` | settings menu text color when hovering | `--a11y-media-hover-color`
+`--a11y-media-settings-menu-hover-bg-color` | settings menu background color when hovering | `--a11y-media-hover-bg-color`
+
+#### Link Sharing Toast
+Custom property | Description | Default
+----------------|-------------|----------
+`--paper-toast-color` | toast text color | `--a11y-media-color`
+`--paper-toast-background-color` | toast background color | `--a11y-media-bg-color`
  *
- * Intermediate customization of player:
- * ```
---a11y-media-text-color: text color, default is --simple-colors-default-theme-grey-11
---a11y-media-bg-color: background color, default is --simple-colors-default-theme-grey-2
---a11y-media-hover-color: text color on hover, default is --simple-colors-default-theme-grey-12
---a11y-media-hover-bg-color: background color, default is --simple-colors-default-theme-grey-2
---a11y-media-accent-color: an accent color, default is --simple-colors-default-theme-accent-9
---a11y-media-faded-accent-color: a subtler version of accent color, default is --simple-colors-default-theme-accent-8
---a11y-media-outline-color: border-color of group, default is --a11y-media-bg-color```
- *
- * Intermediate customization of transcript:
- * ```
- --a11y-media-transcript-color: transcript color, default is --simple-colors-default-theme-grey-12
---a11y-media-transcript-bg-color: transcript background color, default is --simple-colors-default-theme-grey-1
---a11y-media-transcript-active-cue-color: transcript active cue color, default is --simple-colors-default-theme-grey-12
---a11y-media-transcript-active-cue-bg-color: transcript active cue background color, default is --simple-colors-default-theme-grey-1
---a11y-media-transcript-focused-cue-color: transcript focused cue color, default is --simple-colors-default-theme-grey-12
---a11y-media-transcript-focused-cue-br-color: transcript focused cue background color, default is --simple-colors-default-theme-accent-1
---a11y-media-transcript-match-color: transcript match color, default is --simple-colors-default-theme-accent-1
---a11y-media-transcript-match-bg-color: transcript match background color, default is --simple-colors-default-theme-grey-12```
- *
- * Advanced styles for settings menu:
- * ```
---a11y-media-settings-menu-color: settings menu text color, default is --a11y-media-text-color
---a11y-media-settings-menu-bg-color: settings menu background color, default is --a11y-media-bg-color
---a11y-media-settings-menu-hover-color: settings menu text color on hover, default is --a11y-media-hover-color
---a11y-media-settings-menu-hover-bg-color: settings menu background color on hover, default is --a11y-media-hover-bg-color```
- *
- * Advanced styles for buttons:
- * ```
---a11y-media-button-color: button text color, default is --a11y-media-text-color
---a11y-media-button-bg-color: button background color, default is --a11y-media-bg-color
---a11y-media-button-hover-color: button text color when focused/hovered, default is --a11y-media-hover-color
---a11y-media-button-hover-bg-color: button background color when focused/hovered, default is --a11y-media-bg-color
---a11y-media-button-toggle-color: button text color when tggled on, default is --a11y-media-faded-accent-color```
- *
- * Advanced styles for toggles:
- * ```
---paper-toggle-button-unchecked-bar-color: color of toggle button when off, default is --a11y-media-color
---paper-toggle-button-unchecked-button-color: color of toggle button when off, default is --a11y-media-color
---paper-toggle-button-checked-bar-color: color of toggle button when on, default is --a11y-media-accent-color
---paper-toggle-button-checked-button-color: color of toggle button when on, default is --a11y-media-accent-color```
- *
- * Advanced styles for sliders:
- * ```
---a11y-media-slider-primary-color: primary slider color, default is --a11y-media-accent-color
---a11y-media-slider-secondary-color: slider buffer color, default is --a11y-media-faded-accent-color
---a11y-media-slider-pin-color: color of the pin that shows slider value, default is --a11y-media-faded-bg-color
---a11y-media-slider-pin-start-color: color of the pin at start default is --a11y-media-faded-bg-color
---a11y-media-slider-pin-end-color: color of the pin at end, default is --a11y-media-faded-bg-color
---a11y-media-slider-knob-color: slider knob color, default is --a11y-media-accent-color
---a11y-media-slider-knob-start-color: slider knob color at start, default is --a11y-media-accent-color
---a11y-media-slider-knob-end-color: slider knob color at end, default is --a11y-media-accent-color
---a11y-media-slider-knob-border-color: slider knob bordercolor, default is --a11y-media-accent-color
---a11y-media-slider-knob-start-border-color: slider knob border color at start, default is --a11y-media-accent-color
---a11y-media-slider-knob-end-border-color: slider knob border color at end, default is --a11y-media-accent-color```
- *
- * @extends A11yMediaBehaviors
- * @polymer
- * @customElement
- * @demo demo/index.html video demo
- * @demo demo/audio.html audio demo
- * @demo demo/youtube.html YouTube demo
- *
+ * @element a11y-media-player
+ * @extends SimpleColors
+ * @demo ./demo/index.html video demo
+ * @demo ./demo/audio.html audio demo
+ * @demo ./demo/youtube.html YouTube demo
  */
-class A11yMediaPlayer extends A11yMediaBehaviors {
+class A11yMediaPlayer extends SimpleColors {
   /* REQUIRED FOR TOOLING DO NOT TOUCH */
 
-  constructor() {
-    super();
-    import("@polymer/paper-slider/paper-slider.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/iron-icons/av-icons.js");
-    import("@lrnwebcomponents/a11y-media-player/lib/a11y-media-play-button.js");
-    const basePath = pathFromUrl(decodeURIComponent(import.meta.url));
-    const location = `${basePath}lib/screenfull/dist/screenfull.js`;
-    window.ESGlobalBridge.requestAvailability();
-    window.ESGlobalBridge.instance.load("screenfullLib", location);
-    window.addEventListener(
-      "es-bridge-screenfullLib-loaded",
-      this._onScreenfullLoaded.bind(this)
-    );
-    this.__playerAttached = true;
-    window.A11yMediaStateManager.requestAvailability();
+  // simple path from a url modifier
+  pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf("/") + 1);
   }
+
   /**
    * Store the tag name to make it easier to obtain directly.
    * @notice function name must be here for tooling to operate correctly
@@ -151,72 +113,982 @@ class A11yMediaPlayer extends A11yMediaBehaviors {
     return "a11y-media-player";
   }
 
-  //get player-specific behaviors
-  static get behaviors() {
-    return [A11yMediaBehaviors];
+  constructor() {
+    super();
+    this.audioOnly = false;
+    this.autoplay = false;
+    this.allowConcurrent = false;
+    this.cc = false;
+    this.darkTranscript = false;
+    this.disableFullscreen = false;
+    this.disableInteractive = false;
+    this.disablePrintButton = false;
+    this.disableSearch = false;
+    this.disableScroll = false;
+    this.disableSeek = false;
+    this.fullscreen = false;
+    this.hideElapsedTime = false;
+    this.hideTimestamps = false;
+    this.hideTranscript = false;
+    this.id = null;
+    this.lang = "en";
+    this.linkable = false;
+    this.localization = {};
+    this.loop = false;
+    this.mediaTitle = "";
+    this.mediaLang = "en";
+    this.muted = false;
+    this.preload = "metadata";
+    this.playbackRate = 1;
+    this.search = null;
+    this.standAlone = false;
+    this.responsiveSize = "sm";
+    this.captionsTrack = null;
+    this.transcriptTrack = null;
+    this.sources = [];
+    this.stackedLayout = false;
+    this.sticky = false;
+    this.stickyCorner = "top-right";
+    this.tracks = [];
+    this.volume = 70;
+    this.width = null;
+    this.youtubeId = null;
+    this.__cues = [];
+    this.__currentTime = 0;
+    this.__captionsOption = -1;
+    this.__loadedTracks = null;
+    this.__playing = false;
+    this.__screenfullLoaded = false;
+    this.__settingsOpen = false;
+    this.__transcriptOption = -1;
+    this.querySelectorAll("video,audio").forEach(html5 => {
+      html5.addEventListener("loadedmetadata", e => {
+        this.__preloadedDuration = html5.duration;
+      });
+    });
+    import("@lrnwebcomponents/simple-search/simple-search.js");
+    import("@polymer/paper-slider/paper-slider.js");
+    import("@polymer/iron-icons/iron-icons.js");
+    import("@polymer/iron-icons/av-icons.js");
+    import("@polymer/paper-toast/paper-toast.js");
+    import("@lrnwebcomponents/simple-fields/lib/simple-fields-field.js");
+    import("@polymer/paper-toggle-button/paper-toggle-button.js");
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
+    import("@lrnwebcomponents/a11y-media-player/lib/a11y-media-play-button.js");
+    import("@lrnwebcomponents/absolute-position-behavior/absolute-position-behavior.js");
+    if (typeof screenfull === "object") {
+      this._onScreenfullLoaded();
+    } else {
+      const basePath = this.pathFromUrl(decodeURIComponent(import.meta.url));
+      const location = `${basePath}lib/screenfull/dist/screenfull.js`;
+      window.ESGlobalBridge.requestAvailability();
+      window.ESGlobalBridge.instance.load("screenfullLib", location);
+      window.addEventListener(
+        "es-bridge-screenfullLib-loaded",
+        this._onScreenfullLoaded
+      );
+    }
+  }
+
+  /** -------------------------- CALACULATED PROPERTIES ----------------- */
+
+  /**
+   * gets anchors from page and uses their timecodes
+   * @readonly
+   * @returns {number} media width divided by height
+   */
+  get anchor() {
+    let anchor = window.AnchorBehaviors;
+    return {
+      target: anchor ? anchor.getTarget(this) : false,
+      params: anchor ? anchor.params : {}
+    };
   }
 
   /**
-   * life cycle, element is afixed to the DOM
+   * the aspect ratio of the media, or if unknown, `16/9`
+   * @readonly
+   * @returns {number} media width divided by height
    */
+  get aspect() {
+    let aspect =
+      this.media && this.media.aspectRatio ? this.media.aspectRatio : 16 / 9;
+    this.width !== null ? this.width : "100%";
+    this.style.maxWidth = this.width;
+    return aspect;
+  }
+
+  /**
+   * returns true if an attribute is set to a value
+   * @readonly
+   * @returns {boolean} Should height of audio/thumbnail area be set to 0?
+   */
+  get audioNoThumb() {
+    return (
+      this.audioOnly &&
+      (this.thumbnailSrc === null || this.thumbnailSrc === undefined)
+    );
+  }
+
+  /**
+   * returns buffered media
+   * @readonly
+   * @returns {number} seconds of buffered media
+   */
+  get buffered() {
+    return this.media && this.media.buffered && this.media.buffered > 0
+      ? this.media.buffered
+      : 0;
+  }
+
+  /**
+   * gets caption cues that should be visible for custom captions
+   * @readonly
+   * @returns {array} array of cues
+   */
+  get captionCues() {
+    let cues =
+      !this.captionsTrack || !this.captionsTrack.cues
+        ? []
+        : this.isYoutube
+        ? Object.keys(this.captionsTrack.cues).map(key => {
+            let cue = this.captionsTrack.cues[key];
+            if (
+              cue.startTime <= this.currentTime &&
+              cue.endTime >= this.currentTime
+            )
+              return cue;
+            return {};
+          })
+        : this.captionsTrack.activeCues;
+    return cues;
+  }
+
+  /**
+   * gets options for captions picker
+   *
+   * @readonly
+   * @memberof A11yMediaPlayer
+   */
+  get captionsPicker() {
+    let options = {};
+    options[-1] = this._getLocal(this.localization, "captions", "off");
+    Object.keys(this.loadedTracks.textTracks || {}).forEach(key => {
+      options[key] =
+        this.loadedTracks.textTracks[key].label ||
+        this.loadedTracks.textTracks[key].language;
+    });
+    return options;
+  }
+
+  /**
+   * `key` of selected textTrack based on `captionsTrack` and `cc` values
+   */
+  get captionsTrackKey() {
+    return !this.cc ? -1 : this._getTrackId(this.captionsTrack);
+  }
+
+  /**
+   * returns cues array
+   */
+  get cues() {
+    return this.__cues;
+  }
+
+  /**
+   * returns media duration
+   * @readonly
+   * @returns {number} media duration in seconds
+   */
+  get duration() {
+    let duration =
+      this.media && this.media.duration && this.media.duration > 0
+        ? this.media.duration
+        : this.__preloadedDuration
+        ? this.__preloadedDuration
+        : 0;
+    return duration;
+  }
+
+  /**
+   * determines if player is in flex-layout mode
+   * @returns {boolean} Is the video in flex layout mode?
+   */
+  get flexLayout() {
+    return (
+      this.hasCaptions &&
+      !this.standAlone &&
+      !this.hideTranscript &&
+      !this.audioNoThumb &&
+      !this.stackedLayout
+    );
+  }
+
+  /**
+   * determines if parent is wide enough for full flex-layout mode
+   * @returns {boolean}
+   */
+  get fullFlex() {
+    return (
+      this.flexLayout &&
+      this.responsiveSize !== "xs" &&
+      this.responsiveSize !== "sm"
+    );
+  }
+
+  /**
+   * whether or not the fullscreen mode is be disabled
+   * @returns {boolean}
+   */
+  get fullscreenButton() {
+    let mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+    return (
+      typeof screenfull === "object" &&
+      !mobile &&
+      !this.disableFullscreen &&
+      !this.audioNoThumb
+    );
+  }
+
+  /**
+   * whether the media has any tracks
+   *
+   * @readonly
+   * @returns {boolean}
+   */
+  get hasCaptions() {
+    return this.cues.length > 1;
+  }
+
+  /**
+   * whether media is YouTube
+   * @readonly
+   * @returns {boolean}
+   */
+  get isYoutube() {
+    return this.youtubeId ? true : false;
+  }
+
+  /**
+   * HTML `audio` or `video` tag where textTracks, if any, can be found
+   * @readonly
+   * @returns {object} HTML tag
+   */
+  get loadedTracks() {
+    return this.__loadedTracks;
+  }
+
+  /**
+   * object that contains default localization
+   *
+   * @readonly
+   * @returns {object} default localization object
+   */
+  get localizationDefaults() {
+    return {
+      audio: {
+        label: "Audio",
+        notSupported: "HTML5 video is not supported."
+      },
+      autoScroll: {
+        label: "Scroll Transcript",
+        icon: "swap-vert"
+      },
+      captions: {
+        label: "Closed Captions",
+        icon: "av:closed-caption",
+        off: "Off"
+      },
+      download: {
+        label: "Download Transcript",
+        icon: "file-download"
+      },
+      forward: {
+        label: "Forward",
+        icon: "av:fast-forward"
+      },
+      fullscreen: {
+        label: "Fullscreen",
+        icon: "fullscreen"
+      },
+      copyLink: {
+        label: "Copy Media Link",
+        icon: "link"
+      },
+      closeLink: {
+        label: "Close",
+        icon: "close"
+      },
+      loading: {
+        label: "Loading..."
+      },
+      loop: {
+        label: "Loop Playback"
+      },
+      mute: {
+        label: "Mute",
+        icon: "av:volume-up"
+      },
+      nextResult: {
+        label: "Next",
+        icon: "arrow-forward"
+      },
+      pause: {
+        label: "Pause",
+        icon: "av:pause"
+      },
+      play: {
+        label: "Play",
+        icon: "av:play-arrow"
+      },
+      prevResult: {
+        label: "Previous",
+        icon: "arrow-back"
+      },
+      print: {
+        label: "Print Transcript",
+        icon: "print"
+      },
+      restart: {
+        label: "Restart",
+        icon: "av:replay"
+      },
+      rewind: {
+        label: "Backward",
+        icon: "av:fast-rewind"
+      },
+      search: {
+        label: "Search the transcript.",
+        icon: "search"
+      },
+      seekSlider: {
+        label: "Seek Slider"
+      },
+      settings: {
+        label: "Settings",
+        icon: "settings"
+      },
+      speed: {
+        label: "Speed %"
+      },
+      transcript: {
+        label: "Transcript",
+        icon: "description",
+        loading: "Loading the transcript(s)...",
+        off: "Off",
+        skip: "Skip to the transcript."
+      },
+      unmute: {
+        label: "Unmute",
+        icon: "av:volume-off"
+      },
+      video: {
+        label: "Video",
+        notSupported: "HTML5 video is not supported."
+      },
+      volume: {
+        label: "Volume"
+      },
+      youTubeLoading: {
+        label: "Loading...",
+        startLoading: "Press play."
+      },
+      youTubeTranscript: {
+        label: "Transcript will load once media plays."
+      }
+    };
+  }
+
+  /**
+   * media used for playback
+   * @readonly
+   */
+  get media() {
+    return this.isYoutube ? this.youtube : this.loadedTracks;
+  }
+
+  /**
+   * gets media caption
+   * @readonly
+   * @returns {string} the media caption
+   */
+  get mediaCaption() {
+    let audioLabel = this._getLocal(this.localization, "audio", "label"),
+      hasMediaTitle =
+        this.mediaTitle !== undefined &&
+        this.mediaTitle !== null &&
+        this.mediaTitle !== "";
+    if (this.audioOnly && hasMediaTitle) {
+      return this.mediaTitle + " (" + audioLabel + ")";
+    } else if (this.audioOnly) {
+      return audioLabel;
+    } else if (hasMediaTitle) {
+      return this.mediaTitle;
+    } else {
+      return undefined;
+    }
+  }
+
+  /**
+   * gets media media time if set
+   * @readonly
+   * @returns {number} end time in seconds
+   */
+  get mediaEnd() {
+    return this.mediaSeekable && this.media.seekable.end(0)
+      ? this.media.seekable.end(0)
+      : false;
+  }
+
+  /**
+   * `style` for `#player-and-controls`
+   * @readonly
+   * @returns {string} value for style attribute
+   */
+  get mediaMaxWidth() {
+    let maxWidth =
+      this.fullscreen || this.audioNoThumb
+        ? `unset`
+        : `calc(${this.aspect * 100}vh - ${this.aspect * 80}px)`;
+    return `max-width:${maxWidth};`;
+  }
+
+  /**
+   * whether media has a seekable time range
+   * @readonly
+   * @returns {boolean}
+   */
+  get mediaSeekable() {
+    return this.media && this.media.seekable
+      ? this.media.seekable.length > 0
+      : false;
+  }
+
+  /**
+   * gets media start time
+   * @readonly
+   * @returns {number} start time in seconds
+   */
+  get mediaStart() {
+    return this.mediaSeekable && this.media.seekable.start(0)
+      ? this.media.seekable.start(0)
+      : 0;
+  }
+
+  /**
+   * whether media is currently playing
+   * @readonly
+   * @returns {boolean}
+   */
+  get playing() {
+    return this.__playing;
+  }
+
+  /**
+   * `style` for `#player`
+   * @readonly
+   * @returns {string} value for style attribute
+   */
+  get playerStyle() {
+    let height = this.audioNoThumb ? "60px" : "unset",
+      paddingTop =
+        this.fullscreen || this.audioNoThumb || this.height
+          ? `unset`
+          : `${100 / this.aspect}%`,
+      thumbnail =
+        this.poster && (this.isYoutube || this.audioOnly)
+          ? `background-image:url(${this.poster});`
+          : ``;
+    return `height:${height};padding-top:${paddingTop};${thumbnail}`;
+  }
+
+  /**
+   * `poster`  image for video
+   * @readonly
+   * @returns {string} url for poster image
+   */
+  get poster() {
+    let thumbnail = this.thumbnailSrc
+      ? this.thumbnailSrc
+      : this.media && !this.media.poster
+      ? this.media.poster
+      : false;
+    return !this.thumbnailSrc && this.youtubeId
+      ? `https://img.youtube.com/vi/${this.youtubeId.replace(
+          /[\?&].*/,
+          ""
+        )}/hqdefault.jpg`
+      : thumbnail;
+  }
+
+  /**
+   * gets print caption
+   * @readonly
+   * @returns {string} the media caption when the page is printed
+   */
+  get printCaption() {
+    let audioLabel = this._getLocal(this.localization, "audio", "label"),
+      videoLabel = this._getLocal(this.localization, "video", "label"),
+      hasMediaTitle =
+        this.mediaTitle !== undefined &&
+        this.mediaTitle !== null &&
+        this.mediaTitle !== "";
+    if (this.audioOnly && hasMediaTitle) {
+      return this.mediaTitle + " (" + audioLabel + ")";
+    } else if (this.audioOnly) {
+      return audioLabel;
+    } else if (hasMediaTitle) {
+      return this.mediaTitle + " (" + videoLabel + ")";
+    } else {
+      return videoLabel;
+    }
+  }
+
+  /**
+   * returns the current playback progress or slider position
+   * @readonly
+   * @returns {number} media duration in seconds
+   */
+  get currentTime() {
+    let slider = this.shadowRoot
+      ? this.shadowRoot.querySelector("#slider")
+      : false;
+    let currentTime =
+      slider && !slider.disabled && slider.dragging
+        ? this.shadowRoot.querySelector("#slider").immediateValue
+        : this.__currentTime;
+    return currentTime;
+  }
+
+  /**
+   * gets the link for sharing the video at a specific timecode
+   * @readonly
+   * @returns {string} url for sharing the video
+   */
+  get shareLink() {
+    let url = window.location.href.split(/[#?]/)[0],
+      id = this.id ? `?id=${this.id}` : ``,
+      currentTime =
+        id !== "" && this.currentTime && this.currentTime !== 0
+          ? `&t=${this.currentTime}`
+          : ``;
+    return `${url}${id}${currentTime}`;
+  }
+
+  /**
+   * Show custom CC (for audio and YouTube)?
+   * @returns {boolean} Should the player show custom CC?
+   */
+  get showCustomCaptions() {
+    return (this.isYoutube || this.audioOnly) && this.hasCaptions && this.cc;
+  }
+
+  /**
+   * gets playback status text
+   *
+   * @readonly
+   * @returns {string} status, as either a localized loading message or progress/duration
+   */
+  get status() {
+    return this.duration > 0
+      ? html`
+          ${this._getHHMMSS(this.currentTime, this.duration)}/${this._getHHMMSS(
+            this.duration
+          )}
+        `
+      : !this.isYoutube
+      ? this._getLocal(this.localization, "loading", "label")
+      : this.__playing
+      ? this._getLocal(this.localization, "youTubeLoading", "label")
+      : this._getLocal(this.localization, "youTubeLoading", "startLoading");
+  }
+
+  /**
+   * Show custom CC (for audio and YouTube)?
+   * @returns {boolean} Should the player show custom CC?
+   */
+  get stickyMode() {
+    return this.sticky && this.stickyCorner !== "none";
+  }
+
+  /**
+   * gets initial timecode parameter
+   * @readonly
+   * @returns {array} array of cues
+   */
+  get t() {
+    let t = this._getSeconds(
+      this.anchor.params.t || this.anchor.params.start || `0s`
+    );
+    if (this.anchor && this.anchor.target === this) return t;
+    if (this.videoData) return this.videoData.t || this.videoData.start;
+  }
+
+  /**
+   * gets transcript cues that should be visible
+   * @readonly
+   * @returns {array} array of cues
+   */
+  get transcriptCues() {
+    let cues = !this.cues ? [] : this.cues.slice();
+    return cues.filter(cue => cue.track === this.transcriptTrack);
+  }
+
+  /**
+   * gets options for transcript picker
+   *
+   * @readonly
+   * @memberof A11yMediaPlayer
+   */
+  get transcriptPicker() {
+    let options = {};
+    options[-1] = this._getLocal(this.localization, "transcript", "off");
+    Object.keys(this.loadedTracks.textTracks || {}).forEach(key => {
+      options[key] =
+        this.loadedTracks.textTracks[key].label ||
+        this.loadedTracks.textTracks[key].language;
+    });
+    return options;
+  }
+
+  /**
+   * `key` of selected textTrack based on `transcriptTrack` and `hide-transcript` values
+   */
+  get transcriptTrackKey() {
+    return this.hideTranscript ? -1 : this._getTrackId(this.transcriptTrack);
+  }
+
+  get videoData() {
+    if (this.youtubeId) {
+      let videoData = this.youtubeId.split(/[\?\&]/),
+        params = {};
+      params.videoId = videoData[0];
+      videoData.forEach((param, index) => {
+        if (index > 0) {
+          let data = param.split(/=/);
+          params[data[0]] = this._getSeconds(data[1]);
+        }
+      });
+      return params;
+    }
+  }
+  get videoId() {
+    if (this.videoData) return this.videoData.videoId;
+  }
+
+  /**
+   * youtube embed element
+   * @readonly
+   * @returns {object} a11y-media-youtube element
+   */
+  get youtube() {
+    return this.shadowRoot.querySelector("a11y-media-youtube") !== null
+      ? this.shadowRoot.querySelector("a11y-media-youtube")
+      : false;
+  }
+
   connectedCallback() {
     super.connectedCallback();
-    this._addResponsiveUtility();
-    window.dispatchEvent(new CustomEvent("a11y-player", { detail: this }));
-    if (this.isYoutube) {
-      this._youTubeRequest();
+    this.__loadedTracks = this.getloadedTracks();
+    this._handleMediaLoaded();
+    this.__loadedTracks.addEventListener("loadedmetadata", e =>
+      this._handleMediaLoaded(e)
+    );
+    this.__loadedTracks.addEventListener("timeupdate", e =>
+      this._handleTimeUpdate(e)
+    );
+    this.__playerReady = true;
+  }
+
+  /**
+   * life cycle, element is removed from the DOM
+   */
+  disconnectedCallback() {
+    window.removeEventListener(
+      "es-bridge-screenfullLib-loaded",
+      this._onScreenfullLoaded
+    );
+    super.disconnectedCallback();
+  }
+
+  _setAttribute(attr, val) {
+    if (!val) {
+      this.removeAttribute(attr);
+    } else {
+      this.setAttribute(attr, val);
     }
   }
 
   /**
-   * sets initial values and loads video or youtube iframe
+   * @param {map} changedProperties the properties that have changed
    */
-  ready() {
-    super.ready();
-    let root = this,
-      aspect = 16 / 9,
-      tracks = new Array(),
-      tdata = new Array(),
-      selected = 0;
-    if (typeof screenfull === "object") root._onScreenfullLoaded.bind(root);
-    if (root.id === null) root.id = "a11y-media-player" + Date.now();
-    root.__playerReady = true;
-    root.target = root.shadowRoot.querySelector("#transcript");
-    root.__status = root._getLocal("loading", "label");
-    root.__slider = root.$.slider;
-    root.__slider.min = 0;
-    root.__volume = root.muted ? 0 : Math.max(this.volume, 10);
-    root.__resumePlaying = false;
-    root.__duration = 0;
-    root.$.controls.setStatus(root.__status);
-    root.width = root.width !== null ? root.width : "100%";
-    root.style.maxWidth = root.width !== null ? root.width : "100%";
-    root._setPlayerHeight(aspect);
-    if (root.isYoutube) {
-      root._youTubeRequest();
-      document.addEventListener("timeupdate", e => {
-        if (e.detail === root.media) root._handleTimeUpdate(e);
-      });
-    } else {
-      root.media = root.$.html5;
-      root.media.media.addEventListener("timeupdate", e => {
-        root._handleTimeUpdate(e);
-      });
-      root._addSourcesAndTracks();
-    }
-    root.$.transcript.setMedia(root.$.innerplayer);
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      let change = params => params.includes(propName),
+        mediaChange = param =>
+          change(["__loadedTracks", "youtubeId", "media", param]),
+        flexChange = change([
+          "standAlone",
+          "hideTranscript",
+          "audioNoThumb",
+          "stackedLayout",
+          "__cues"
+        ]),
+        media = this.media ? this.media : this.__loadedTracks;
+
+      if (propName === "id" && this.id === null)
+        this.id = "a11y-media-player" + Date.now();
+
+      if (change(["media", "muted"])) this._handleMuteChanged();
+      if (change(["media", "volume"])) this.setVolume(this.volume);
+      if (change(["media", "autoplay"]) && this.autoplay) this.play();
+
+      /* updates captions */
+      if (propName === "__captionsOption") this._captionsOptionChanged();
+      if (change(["cc", "captionsTrack"])) this._captionsChanged();
+
+      /* updates layout */
+      if (flexChange) this._setAttribute("flex-layout", this.flexLayout);
+      if (flexChange || propName === "responsiveSize")
+        this._setAttribute("full-flex", this.fullFlex);
+      if (change(["sticky", "sticky-corner", "__playing"]))
+        this._setAttribute("sticky-mode", this.stickyMode && this.__playing);
+      if (change(["height"])) {
+        this.style.setProperty(
+          "--a11y-media-player-height",
+          this.height ? this.height : "unset"
+        );
+        this.style.setProperty(
+          "--a11y-media-transcript-max-height",
+          this.height ? "146px" : "unset"
+        );
+      }
+
+      /* updates media */
+      if (this.media !== null) {
+        if (mediaChange("cc"))
+          this._setAttribute("cc", this.cc, this.__loadedTracks);
+        if (mediaChange("isYoutube") && this.__loadedTracks)
+          this.__loadedTracks.hidden === this.isYoutube;
+        if (mediaChange("mediaLang"))
+          this._setAttribute("lang", this.mediaLang, media);
+        if (mediaChange("loop")) this._setAttribute("loop", this.loop, media);
+        if (mediaChange("playbackRate"))
+          this._setAttribute("playbackRate", this.playbackRate, media);
+        if (mediaChange("isYoutube"))
+          this._setAttribute(
+            "poster",
+            !this.isYoutube ? this.thumbnailSrc : false,
+            this.__loadedTracks
+          );
+        if (
+          change(["isYoutube", "poster", "media", "audioOnly"]) &&
+          this.poster &&
+          !this.isYoutube &&
+          !this.audioOnly &&
+          !this.media.poster
+        )
+          this.media.poster = this.poster;
+      }
+
+      this.dispatchEvent(
+        new CustomEvent(
+          `${propName
+            .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, "$1-$2")
+            .toLowerCase()}-changed`,
+          { detail: { value: this[propName] } }
+        )
+      );
+    });
+  }
+
+  /**
+   * updates track mode & `__captionsOption` when `captionsTrack` or `cc` changes
+   */
+  _captionsChanged() {
+    let ccNum = -1;
+    Object.keys(this.loadedTracks.textTracks).forEach(key => {
+      let showing =
+        this.cc && this.loadedTracks.textTracks[key] === this.captionsTrack;
+      this.loadedTracks.textTracks[key].mode = showing ? "showing" : "hidden";
+      if (showing) ccNum = key;
+    });
+    this.__captionsOption = ccNum;
+  }
+
+  /**
+   * updates track mode & `captionsTrack` when `__captionsOption` changes
+   */
+  _captionsOptionChanged() {
+    this.cc = this.__captionsOption > -1;
+    Object.keys(this.loadedTracks.textTracks).forEach(key => {
+      let showing = parseInt(key) == parseInt(this.__captionsOption);
+      this.loadedTracks.textTracks[key].mode = showing ? "showing" : "hidden";
+      if (showing) this.captionsTrack = this.loadedTracks.textTracks[key];
+    });
+  }
+
+  /**
+   * handles mute change
+   */
+  _handleMuteChanged() {
+    this.media.muted = this.muted;
+    /**
+     * Fires when closed caption is toggled
+     * @event mute-changed
+     */
+    window.dispatchEvent(
+      new CustomEvent("mute-changed", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * gets download data for the active transcript
+   * @param {string} the title of the media
+   */
+  download() {
+    let a = document.createElement("a"),
+      title =
+        this.mediaTitle && this.mediaTitle.trim() != ""
+          ? `${this.mediaTitle} (${this._getLocal(
+              this.localization,
+              "transcript",
+              "label"
+            )})`
+          : this._getLocal(this.localization, "transcript", "label"),
+      filename = title.replace(/[^\w\d]/g, ""),
+      cues = this.transcriptTrack.cues,
+      data = Object.keys(cues)
+        .map(
+          key =>
+            `${this._getHHMMSS(cues[key].startTime)} - ${this._getHHMMSS(
+              cues[key].endTime
+            )}: \t${cues[key].text.replace(/[\n\r\s*]/g, " ")}\n`
+        )
+        .join("");
+    a.setAttribute(
+      "href",
+      "data:text/plain;charset=UTF-8," + encodeURIComponent(title + "\n" + data)
+    );
+    a.setAttribute("download", filename + ".txt");
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    /**
+     * Fires when transcript is downloaded
+     * @event transcript-downloaded
+     */
+    this.dispatchEvent(
+      new CustomEvent("transcript-downloaded", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * prints the active transcript
+   * @param {string} the title of the media
+   */
+  print() {
+    let cues = this.transcriptTrack.cues,
+      title =
+        this.mediaTitle && this.mediaTitle.trim() != ""
+          ? `${this.mediaTitle} (${this._getLocal(
+              this.localization,
+              "transcript",
+              "label"
+            )})`
+          : this._getLocal(this.localization, "transcript", "label"),
+      print = window.open(
+        "",
+        "",
+        "left=0,top=0,width=552,height=477,toolbar=0,scrollbars=0,status =0"
+      );
+    print.document.body.innerHTML = `
+    <h1>${title}</h1>
+    ${Object.keys(cues)
+      .map(
+        key =>
+          `<div style="display: table-row;">
+        ${
+          this.hideTimestamps
+            ? ``
+            : `
+            <span style="display: table-cell;
+              font-size: 80%;
+              padding: 0 16px;
+              white-space: nowrap;
+              font-family: monospace;">
+              ${this._getHHMMSS(cues[key].startTime)} - 
+              ${this._getHHMMSS(cues[key].endTime)}:
+            </span>`
+        }
+        <span style="display: table-cell; line-height: 200%;">
+          ${cues[key].text}
+        </span>
+      </div>`
+      )
+      .join("")}
+    `;
+    print.document.close();
+    print.focus();
+    print.print();
+    print.close();
+
+    /**
+     * Fires when transcript is printed
+     * @event transcript-printed
+     */
+    this.dispatchEvent(
+      new CustomEvent("transcript-printed", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
   }
 
   /**
    * plays the media
    */
   play() {
-    let root = this,
-      stopped = !(root.__playing === true);
-    root.__playing = true;
-    root.media.play();
+    this.__playing = true;
+    if (this.media && this.media.play) this.media.play();
+    /**
+     * Fires when media plays
+     * @event play
+     */
     window.dispatchEvent(
-      new CustomEvent("a11y-player-playing", { detail: root })
+      new CustomEvent("play", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+    /**
+     * DEPRECATED: Fires when media plays
+     * @event a11y-player-playing
+     */
+    window.dispatchEvent(
+      new CustomEvent("a11y-player-playing", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
     );
   }
 
@@ -224,9 +1096,20 @@ class A11yMediaPlayer extends A11yMediaBehaviors {
    * pauses the media
    */
   pause() {
-    let root = this;
-    root.__playing = false;
-    root.media.pause();
+    this.__playing = false;
+    if (this.media && this.media.pause) this.media.pause();
+    /**
+     * Fires when media pauses
+     * @event pause
+     */
+    window.dispatchEvent(
+      new CustomEvent("pause", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
   }
 
   /**
@@ -235,6 +1118,18 @@ class A11yMediaPlayer extends A11yMediaBehaviors {
   stop() {
     this.pause();
     this.seek(0);
+    /**
+     * Fires when media stops
+     * @event stop
+     */
+    window.dispatchEvent(
+      new CustomEvent("stop", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
   }
 
   /**
@@ -243,406 +1138,484 @@ class A11yMediaPlayer extends A11yMediaBehaviors {
   restart() {
     this.seek(0);
     this.play();
+    /**
+     * Fires when media retarts
+     * @event restart
+     */
+    window.dispatchEvent(
+      new CustomEvent("restart", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
   }
 
   /**
    * seeks media backward at a set increment
-   *
    * @param {float} the elepsed time, in seconds
    */
   rewind(amt) {
-    amt = amt !== undefined ? amt : this.media.duration / 20;
-    this.__resumePlaying = this.__playing;
-    this.seek(this.media.getCurrentTime() - amt, 0);
-    if (this.__resumePlaying) this.play();
-    this.__resumePlaying = false;
+    amt = amt !== undefined ? amt : this.duration / 20;
+    this.seek(this.currentTime - amt, 0);
+    /**
+     * Fires when media moves backward
+     * @event backward
+     */
+    window.dispatchEvent(
+      new CustomEvent("backward", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
   }
 
   /**
    * seeks media forward at a set increment
-   *
    * @param {float} the elepsed time, in seconds
    */
   forward(amt) {
-    amt = amt !== undefined ? amt : this.media.duration / 20;
-    this.__resumePlaying = this.__playing;
-    this.seek(this.media.getCurrentTime() + amt);
-    if (this.__resumePlaying) this.play();
-    this.__resumePlaying = false;
+    amt = amt !== undefined ? amt : this.duration / 20;
+    this.seek(this.currentTime + amt);
+    /**
+     * Fires when media moves forward
+     * @event forward
+     */
+    window.dispatchEvent(
+      new CustomEvent("forward", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
   }
 
   /**
    * seeks to a specific time
-   *
    * @param {float} the time, in seconds, to seek
    */
-  seek(time) {
-    let seekable =
-      this.media !== undefined && this.media !== null
-        ? this.media.seekable
-        : [];
-    if (
-      seekable.length > 0 &&
-      time >= seekable.start(0) &&
-      time <= seekable.end(0)
-    ) {
-      this.media.seek(time);
-    }
-  }
-
-  /**
-   * selects a specific track by index
-   *
-   * @param {integer} the index of the track
-   */
-  selectTrack(index) {
-    this.__selectedTrack = index;
-    this.$.html5.selectTrack(index);
-  }
-
-  /**
-   * set volume of media
-   *
-   * @param {integer} the volume level from 0-100
-   */
-  setVolume(value) {
-    this.volume = value !== null ? value : 70;
-    this.media.setVolume(this.volume);
-    this.muted = this.volume === 0;
-  }
-
-  /**
-   * set speed/playback rate of media
-   *
-   * @param {float} the playback rate, where 1 = 100%
-   */
-  setPlaybackRate(value) {
-    value = value !== null ? value : 1;
-    this.media.setPlaybackRate(value);
-  }
-
-  /**
-   * toggles captions
-   *
-   * @param {boolean} Toggle CC on? `true` is on, `false` is off, and `null` toggles based on current state.
-   */
-  toggleCC(mode) {
-    this.cc = mode === undefined ? !this.cc : mode;
-    this.$.html5.setCC(this.cc);
-  }
-
-  /**
-   * toggles looping
-   *
-   * @param {boolean} Toggle looping on? `true` is on, `false` is off, and `null` toggles based on current state.
-   */
-  toggleLoop(mode) {
-    if (this.isYoutube) {
-    } else {
-      this.loop = mode === undefined ? !this.loop : mode;
-      this.media.setLoop(this.loop);
-    }
-  }
-
-  /**
-   * toggles mute
-   *
-   * @param {boolean} Toggle mute on? `true` is on, `false` is off, and `null` toggles based on current state.
-   */
-  toggleMute(mode) {
-    this.muted = mode === undefined ? !this.muted : mode;
-    this.__volume = this.muted ? 0 : Math.max(this.volume, 10);
-    this.media.setMute(this.muted);
-  }
-
-  /**
-   * toggles sticky attribute
-   *
-   * @param {boolean} Toggle sticky mode on? `true` is on, `false` is off, and `null` toggles based on current state.
-   */
-  toggleSticky(mode) {
-    mode = mode === undefined ? !this.sticky : mode;
-    this.sticky = mode;
-    this.dispatchEvent(new CustomEvent("player-sticky", { detail: this }));
-  }
-
-  /**
-   * toggles transcript
-   *
-   * @param {boolean} Toggle transcript on? `true` is on, `false` is off, and `null` toggles based on current state.
-   */
-  toggleTranscript(mode) {
-    mode = mode === undefined ? this.hideTranscript : mode;
-    this.hideTranscript = !mode;
-    if (this.$.transcript !== undefined && this.$.transcript !== null) {
-      this.dispatchEvent(
-        new CustomEvent("transcript-toggle", { detail: this })
+  seek(time = 0) {
+    if (this.mediaSeekable) {
+      this.media.seek(Math.max(0, Math.min(time, this.duration)));
+      this._handleTimeUpdate();
+      /**
+       * Fires when media seeks
+       * @event seek
+       */
+      window.dispatchEvent(
+        new CustomEvent("seek", {
+          bubbles: true,
+          composed: true,
+          cancelable: false,
+          detail: this
+        })
       );
     }
   }
 
   /**
-   * dynamically adds source and track data
-   * from the sources and tracks properties
-   * (needed for media-player)
+   * selects `captionsTrack` by key and adjusts `cc` accordingly
    */
-  _appendToPlayer(data, type) {
-    if (data !== undefined && data !== null && data !== []) {
-      let root = this,
-        arr = Array.isArray(data) ? data : JSON.parse(data);
-      for (let i = 0; i < arr.length; i++) {
-        let el = document.createElement(type);
-        for (let key in arr[i]) {
-          el.setAttribute(key, arr[i][key]);
-        }
-        root.$.html5.media.appendChild(el);
+  selectCaptionByKey(id) {
+    id = parseInt(id);
+    if (id > -1) this.captionsTrack = this.loadedTracks.textTracks[id];
+    this.cc = id > -1;
+  }
+
+  /**
+   * selects `transcriptTrack` by key and adjusts `hideTranscript` accordingly
+   */
+  selectTranscriptByKey(id) {
+    id = parseInt(id);
+    if (id > -1) this.transcriptTrack = this.loadedTracks.textTracks[id];
+    this.hideTranscript = id < 0;
+  }
+
+  /**
+   * media tag where sources and tracks can be found
+   * @readonly
+   */
+  getloadedTracks() {
+    let media = this.querySelector("audio,video"),
+      crossorigin = media ? media.getAttribute("crossorigin") : undefined,
+      primary = null,
+      sourceVideo =
+        this.source && !this.source && this.source.match(/webm|ogv|mov|mp4$/),
+      sourcesVideo =
+        (this.sources || []).filter(source =>
+          `${source.type || ""}${source.kind || ""}`.match(/video|mp4|webm|ogv/)
+        ).length > 0,
+      hasVideo = this.isYoutube || sourceVideo || sourcesVideo;
+
+    if (media) {
+      if (!crossorigin) media.setAttribute("crossorigin", this.crossorigin);
+      media.removeAttribute("autoplay");
+      media.setAttribute("preload", "metadata");
+    }
+
+    if (!this.youtubeId) {
+      let iframeSrc =
+          this.querySelector("iframe") && this.querySelector("iframe")
+            ? this.querySelector("iframe").src
+            : false,
+        yt = iframeSrc
+          ? iframeSrc.match(/youtube(-\w*)*.com/) ||
+            iframeSrc.src.match(/youtu.be/)
+          : false;
+      if (yt && iframeSrc) {
+        this.youtubeId = iframeSrc.replace(/.*\//g, "");
+        hasVideo = true;
+        this.querySelector("iframe").remove();
       }
     }
-  }
 
-  /**
-   * sets the height of the player
-   * @param {Number} the aspect ratio of the media or its poster thumbnail
-   */
-  _setPlayerHeight(aspect) {
-    let root = this;
-    if (root.audioOnly && root.thumbnailSrc === null && root.height === null) {
-      root.$.player.style.height = "60px";
-    } else if (root.height === null) {
-      root.$.player.style.paddingTop = 100 / aspect + "%";
-      root.$.innerplayer.style.maxWidth =
-        "calc(" + aspect * 100 + "vh - " + aspect * 80 + "px)";
+    if (!media) {
+      primary = document.createElement(
+        this.querySelectorAll('source[type*="audio"]').length > 0 || !hasVideo
+          ? "audio"
+          : "video"
+      );
+      if (!crossorigin) primary.setAttribute("crossorigin", this.crossorigin);
+      primary.setAttribute("preload", "metadata");
+      this.querySelectorAll("source,track").forEach(node => {
+        if (node.parentNode === this) primary.appendChild(node);
+      });
+      this.appendChild(primary);
     } else {
-      root.$.outerplayer.style.height = root.height;
+      primary = media;
     }
-  }
+    this.audioOnly = primary.tagName === "AUDIO";
+    primary.style.width = "100%";
+    primary.style.maxWidth = "100%";
 
-  /**
-   * gets media caption
-   *
-   * @param {boolean} Is the player set to audio-only?
-   * @param {string} the text that indicates this player is audio-only
-   * @param {string} the title of the media
-   * @returns {string} the media caption
-   */
-  _getMediaCaption(audioOnly, localization, mediaTitle) {
-    let audioLabel = this._getLocal("audio", "label"),
-      hasMediaTitle =
-        mediaTitle !== undefined && mediaTitle !== null && mediaTitle !== "";
-    if (audioOnly && hasMediaTitle) {
-      return mediaTitle + " (" + audioLabel + ")";
-    } else if (audioOnly) {
-      return audioLabel;
-    } else if (hasMediaTitle) {
-      return mediaTitle;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * set play/pause button
-   *
-   * @param {boolean} Is the media muted?
-   * @param {string} label if button mutes media
-   * @param {string} icon if button mutes media
-   * @param {string} label if button unmutes media
-   * @param {string} icon if button unmutes media
-   * @returns {object} an object containing the current state of the play/pause button, eg., `{"label": "mute", "icon": "av:volume-off"}`
-   */
-  _getMuteUnmute(muted) {
-    return muted
-      ? {
-          label: this._getLocal("unmute", "label"),
-          icon: this._getLocal("unmute", "icon"),
-          action: "unmute"
-        }
-      : {
-          label: this._getLocal("mute", "label"),
-          icon: this._getLocal("mute", "icon"),
-          action: "mute"
-        };
-  }
-
-  /**
-   * gets print caption
-   *
-   * @param {boolean} Is the player set to audio-only?
-   * @param {string} the text that indicates this player is audio-only
-   * @param {string} the text that indicates this player is for video
-   * @param {string} the title of the media
-   * @returns {string} the media caption when the page is printed
-   */
-  _getPrintCaption(audioOnly, localization, mediaTitle) {
-    let audioLabel = this._getLocal("audio", "label"),
-      videoLabel = this._getLocal("video", "label"),
-      hasMediaTitle =
-        mediaTitle !== undefined && mediaTitle !== null && mediaTitle !== "";
-    if (audioOnly && hasMediaTitle) {
-      return mediaTitle + " (" + audioLabel + ")";
-    } else if (audioOnly) {
-      return audioLabel;
-    } else if (hasMediaTitle) {
-      return mediaTitle + " (" + videoLabel + ")";
-    } else {
-      return videoLabel;
-    }
-  }
-
-  /**
-   * get thumbanail css based on whether or not the video is playing
-   *
-   * @param {string} the url for the thumbnail image
-   * @returns {string} the string for the style attribute
-   */
-  _getThumbnailCSS(thumbnailSrc, isYoutube, audioOnly) {
-    return thumbnailSrc != null && (isYoutube || audioOnly)
-      ? "background-image: url(" + thumbnailSrc + "); background-size: cover;"
-      : null;
-  }
-
-  /**
-   * loads a track's cue metadata
-   */
-  _addSourcesAndTracks() {
-    let root = this,
-      counter = 0;
-    root.querySelectorAll("source,track").forEach(node => {
-      root.$.html5.media.appendChild(node);
+    /* handle deprecated tracks */
+    (this.tracks || []).forEach(track => {
+      let node = document.createElement("track");
+      Object.keys(track).forEach(key => node.setAttribute(key, track[key]));
+      primary.appendChild(node);
     });
-    root._appendToPlayer(root.tracks, "track");
-    root._appendToPlayer(root.sources, "source");
-    root.$.html5.media.textTracks.onaddtrack = e => {
-      root.hasCaptions = true;
-      root.hasTranscript = !root.standAlone;
-      root._getTrackData(e.track, counter++);
-    };
+
+    /* handle deprecated sources */
+    (this.sources || []).forEach(source => {
+      let node = document.createElement("source");
+      Object.keys(source).forEach(key => node.setAttribute(key, source[key]));
+      primary.appendChild(node);
+    });
+    /* provides a seek function for primary media */
+    primary.seek = time => (primary.currentTime = time);
+    this._addSourcesAndTracks(primary, primary);
+    return primary;
   }
 
   /**
-   * returns true if an attribute is set to a value
-   *
-   * @param {boolean} Is the media audio only?
-   * @param {string} optional: the source URL of the thumbnail image
-   * @returns {boolean} Should height of video/thumbnail area be set to 0?
+   * selects a specific transcript track
+   * @param {track} track text track
    */
-  _getAudioNoThumb(audioOnly, thumbnailSrc) {
-    return audioOnly && (thumbnailSrc === null || thumbnailSrc === undefined);
+  _getTrack(track) {
+    if (!track) {
+      let defaultTracks = this.loadedTracks.textTracks.filter(
+        track => track.default === true
+      );
+      return defaultTracks
+        ? defaultTracks[0].track
+        : this.loadedTracks.textTracks[0].track;
+    }
+    return track;
   }
 
   /**
-   * returns whether or not the fullscreen mode should be disabled
-   *
-   * @param {boolean} Is fullscreen mode set to disabled?
-   * @returns {boolean} Should fullscreen disabled?
+   * selects a specific track as transcript
+   * @param {track} track text track
    */
-  _getFullscreenButton(disableFullscreen, audioNoThumb, screenfullLoaded) {
-    if (
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      ) ||
-      disableFullscreen ||
-      audioNoThumb ||
-      !screenfullLoaded
-    ) {
-      return false;
-    } else {
-      return true;
+  selectTranscript(track) {
+    this.transcriptTrack = this._getTrack(track);
+  }
+
+  /**
+   * set speed/playback rate of media
+   * @param {float} the playback rate, where 1 = 100%
+   */
+  setPlaybackRate(value) {
+    value = value !== null ? value : 1;
+    this.media.playbackRate = value !== null ? value : 1;
+    /**
+     * Fires when video playback rate changes
+     * @event playback-rate-changed
+     */
+    window.dispatchEvent(
+      new CustomEvent("playback-rate-changed", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * set volume of media
+   * @param {integer} the volume level from 0-100
+   */
+  setVolume(value = 70) {
+    this.volume = Math.max(0, Math.min(value, 100));
+    this.media.volume = value / 100;
+    /**
+     * Fires when video volume changes
+     * @event volume-changed
+     */
+    window.dispatchEvent(
+      new CustomEvent("volume-changed", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * toggles captions
+   * @param {boolean} Toggle CC on? `true` is on, `false` is off, and `null` toggles based on current state.
+   */
+  toggleCC(mode) {
+    this.cc = typeof mode === typeof undefined ? !this.cc : mode;
+
+    /**
+     * Fires when closed caption is toggled
+     * @event cc-toggle
+     */
+    window.dispatchEvent(
+      new CustomEvent("cc-toggle", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * toggles fullscreen
+   * @param {boolean} Toggle fullscreen on? `true` is on, `false` is off, and `null` toggles based on current state.
+   */
+  toggleFullscreen(mode) {
+    if (this.fullscreenButton) {
+      let fullscreen = mode === undefined ? !this.fullscreen : mode;
+      if (screenfull) {
+        if (fullscreen) {
+          screenfull.request(this.shadowRoot.querySelector("#player-section"));
+          this.fullscreen = true;
+        } else {
+          screenfull.exit(this.shadowRoot.querySelector("#player-section"));
+          this.fullscreen = false;
+        }
+      }
+
+      /**
+       * Fires when fullscreen is toggled
+       * @event fullscreen-toggle
+       */
+      window.dispatchEvent(
+        new CustomEvent("fullscreen-toggle", {
+          bubbles: true,
+          composed: true,
+          cancelable: false,
+          detail: this
+        })
+      );
     }
   }
 
   /**
-   * set play/pause button
-   *
-   * @param {boolean} Is the media playing?
-   * @param {string} label if button pauses media
-   * @param {string} icon if button pauses media
-   * @param {string} label if button plays media
-   * @param {string} icon if button plays media
-   * @returns {object} an object containing the current state of the play/pause button, eg., `{"label": "Pause", "icon": "av:pause"}`
+   * toggles looping
+   * @param {boolean} Toggle looping on? `true` is on, `false` is off, and `null` toggles based on current state.
    */
-  _getPlayPause(__playing) {
-    return __playing !== false
-      ? {
-          label: this._getLocal("pause", "label"),
-          icon: this._getLocal("pause", "icon"),
-          action: "pause"
-        }
-      : {
-          label: this._getLocal("play", "label"),
-          icon: this._getLocal("play", "icon"),
-          action: "play"
-        };
+  toggleLoop(mode) {
+    this.loop = mode === undefined ? !this.loop : mode;
+    this.media.loop = mode === true;
+
+    /**
+     * Fires when looping is toggled
+     * @event loop-toggle
+     */
+    window.dispatchEvent(
+      new CustomEvent("loop-toggle", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * toggles play
+   * @param {boolean} Toggle play/pause? `true` is on, `false` is off, and `null` toggles based on current state.
+   */
+  togglePlay() {
+    if (this.__playing) {
+      this.pause();
+    } else {
+      this.play();
+    }
+    /**
+     * Fires when play/pause is toggled
+     * @event play-toggle
+     */
+    window.dispatchEvent(
+      new CustomEvent("play-toggle", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * toggles mute
+   * @param {boolean} Toggle mute on? `true` is on, `false` is off, and `null` toggles based on current state.
+   */
+  toggleMute(mode) {
+    this.muted = typeof mode === typeof undefined ? !this.muted : mode;
+    /**
+     * Fires when mute is toggled
+     * @event muted-toggle
+     */
+    window.dispatchEvent(
+      new CustomEvent("muted-toggle", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+  }
+  toggleSettings(mode) {
+    mode = mode === undefined ? !this.__settingsOpen : mode;
+    this.__settingsOpen = mode;
+    /**
+     * Fires when video's settings menu is toggled
+     * @event settings-toggled
+     */
+    this.dispatchEvent(
+      new CustomEvent("settings-toggled", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * toggles sticky attribute
+   * @param {boolean} Toggle sticky mode on? `true` is on, `false` is off, and `null` toggles based on current state.
+   */
+  toggleSticky(mode) {
+    mode = mode === undefined ? !this.sticky : mode;
+    this.sticky = mode;
+    /**
+     * Fires when video's sticky behavior is toggled
+     * @event player-sticky
+     */
+    this.dispatchEvent(
+      new CustomEvent("player-sticky", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
+  }
+
+  /**
+   * toggles transcript
+   * @param {boolean} Toggle transcript on? `true` is on, `false` is off, and `null` toggles based on current state.
+   */
+  toggleTranscript(mode) {
+    mode = mode === undefined ? this.hideTranscript : mode;
+    this.hideTranscript = !mode;
+    /**
+     * Fires when transcript toggles
+     * @event transcript-toggle
+     */
+    this.dispatchEvent(
+      new CustomEvent("transcript-toggle", {
+        bubbles: true,
+        composed: true,
+        cancelable: false,
+        detail: this
+      })
+    );
   }
 
   /**
    * loads a track's cue metadata
+   * @param {object} HTML audio or video object
    */
-  _getTrackData(track, id) {
-    let root = this,
-      selected = track.default === true || root.__selectedTrack === undefined,
-      loadCueData;
-    if (selected) root.selectTrack(id);
-    track.mode = selected && this.cc === true ? "showing" : "hidden";
-    loadCueData = setInterval(() => {
-      if (
-        track.cues !== undefined &&
-        track.cues !== null &&
-        track.cues.length > 0
-      ) {
-        clearInterval(loadCueData);
-        let cues = Object.keys(track.cues).map(key => {
-          return {
-            order: track.cues[key].id !== "" ? track.cues[key].id : key,
-            seek: track.cues[key].startTime,
-            seekEnd: track.cues[key].endTime,
-            start: root._getHHMMSS(
-              track.cues[key].startTime,
-              root.media.duration
-            ),
-            end: root._getHHMMSS(track.cues[key].endTime, root.media.duration),
-            text: track.cues[key].text
-          };
-        });
+  _addSourcesAndTracks(media) {
+    media.style.width = "100%";
+    media.style.maxWidth = "100%";
+    Object.keys(media.textTracks).forEach(track =>
+      this._onAddTrack(media.textTracks[track])
+    );
+    media.textTracks.onremovetrack = e => this._onRemoveTrack(e.track);
+    media.textTracks.onaddtrack = e => this._onAddTrack(e.track);
 
-        if (root.__tracks === undefined) root.__tracks = [];
-        root.push("__tracks", {
-          value: id,
-          language: track.language,
-          text:
-            track.label !== undefined
-              ? track.label
-              : track.language !== undefined
-              ? track.language
-              : "Track " + id,
-          cues: cues
-        });
-        root.$.controls.setTracks(root.__tracks);
-        root.$.transcript.setTracks(root.__tracks);
-        root.push("__tracks");
-        track.oncuechange = e => {
-          root.$.transcript.setActiveCues(
-            Object.keys(e.currentTarget.activeCues).map(key => {
-              return e.currentTarget.activeCues[key].id;
-            })
+    let d = media.querySelector("track[default]")
+        ? media.querySelector("track[default]")
+        : media.querySelector("track"),
+      defaultTrack =
+        Object.keys(media.textTracks).find(key => {
+          return (
+            d.label === media.textTracks[key].label &&
+            d.kind === media.textTracks[key].kind &&
+            d.srclang === media.textTracks[key].scrlang
           );
-        };
-      }
-    }, 1);
+        }) || 0;
+    this.captionsTrack = media.textTracks[defaultTrack];
+    this.transcriptTrack = this.captionsTrack;
+    this._handleTimeUpdate();
+  }
+
+  /**
+   * handles closing the share link toast
+   */
+  _handleCloseLink() {
+    if (
+      this.shadowRoot.querySelector("#link") &&
+      this.shadowRoot.querySelector("#link").close
+    )
+      this.shadowRoot.querySelector("#link").close();
+  }
+
+  /**
+   * handles copying the share link
+   */
+  _handleCopyLink() {
+    let el = document.createElement("textarea");
+    this.pause();
+    el.value = this.shareLink;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
+    this.shadowRoot.querySelector("#link").open();
   }
 
   /**
    * handles the seek function when a transcript cue is activated
+   *
+   * @param {event} e seek event
    */
-  _handleTranscriptSeek(e) {
-    let root = this;
-    if (
-      !root.standAlone &&
-      root.$.transcript !== undefined &&
-      root.$.transcript !== null
-    ) {
-      root.__resumePlaying = root.__playing;
-      root.seek(e.detail);
+  _handleCueSeek(cue) {
+    if (!this.standAlone) {
+      this.seek(cue.startTime);
     }
   }
 
@@ -650,314 +1623,303 @@ class A11yMediaPlayer extends A11yMediaBehaviors {
    * handles media metadata when media is loaded
    */
   _handleMediaLoaded(e) {
-    let root = this,
-      aspect = root.media.aspectRatio;
-    root._setPlayerHeight(aspect);
-    root.$.playbutton.removeAttribute("disabled");
-
-    // gets and converts video duration
-    root._setElapsedTime();
-    root._getTrackData(root.$.html5.media);
-  }
-
-  /**
-   * determines if there
-   *
-   * @param {string} the url for the thumbnail image
-   * @returns {string} the string for the style attribute
-   */
-  _hidePlayButton(thumbnailSrc, isYoutube, __elapsed) {
-    return (
-      (isYoutube && thumbnailSrc === null) ||
-      !(__elapsed === undefined || __elapsed === 0)
-    );
-  }
-
-  /**
-   * handles transcript printing
-   */
-  _handlePrinting(e) {
-    let root = this;
-    root.dispatchEvent(
-      new CustomEvent("printing-transcript", { detail: root })
-    );
-    root.$.transcript.print(root.mediaTitle);
+    this._handleTimeUpdate();
+    if (!this.youtubeId && this.anchor.target === this) {
+      this.seek(
+        this._getSeconds(
+          this.anchor.params.t || this.anchor.params.start || `0s`
+        )
+      );
+    }
   }
 
   /**
    * sets search the simple-search element
+   * @param {event} e searchbar event
    */
   _handleSearchAdded(e) {
     this.search = e.detail;
   }
 
   /**
-   * handles duration slider dragging with a mouse
+   * handles speed slider change thhat sets playback rate
+   * @param {event} e slider event
    */
-  _handleSliderStart(e) {
-    this.__resumePlaying = !this.paused;
-    this.pause();
-    this.__seeking = true;
+  _handleSpeedChanged(e) {
+    var target = null;
+    if (e.path && e.path[0]) {
+      target = e.path[0];
+    } else if (e.originalTarget) {
+      target = e.originalTarget;
+    } else {
+      target = e.target;
+    }
+    this.setPlaybackRate(target.value);
   }
 
   /**
    * handles duration slider dragging with a mouse
+   * @param {event} e slider start event
    */
-  _handleSliderStop(e) {
-    this.seek(this.$.slider.immediateValue);
-    this.__seeking = false;
-    if (this.__resumePlaying) {
-      this.play();
-      this.__resumePlaying = null;
+  _handleSliderDragging(e) {
+    let slider = this.shadowRoot
+      ? this.shadowRoot.querySelector("#slider")
+      : false;
+    if (slider && !slider.disabled && slider.dragging) {
+      if (this.__playing && slider.dragging) {
+        let startDrag = setInterval(() => {
+          if (!slider.dragging) {
+            this.play();
+            clearInterval(startDrag);
+          }
+        });
+        this.pause();
+      }
     }
+  }
+
+  /**
+   * handles duration slider dragging with a mouse
+   * @param {event} e slider start event
+   */
+  _handleSliderChanged(e) {
+    let slider = this.shadowRoot
+      ? this.shadowRoot.querySelector("#slider")
+      : false;
+    this.seek(slider.immediateValue);
   }
 
   /**
    * handles time updates
    */
-  _handleTimeUpdate(e) {
-    let root = this;
-    //if play exceeds clip length, stop
-    if (root.isYoutube && root.media.duration !== root.media.getDuration()) {
-      root.__duration = root.media.duration = root.media.getDuration();
-      root.disableSeek = false;
-      root._addSourcesAndTracks();
-      if (
-        root.media.seekable &&
-        root.media.seekable.length > 0 &&
-        root.media.seekable.start(0) !== 0
-      ) {
-        root.$.slider.min = root.media.seekable.start(0);
+  _handleTimeUpdate() {
+    /* update current time with media's current time property */
+    this.__currentTime =
+      this.media && this.media.currentTime && this.media.currentTime > 0
+        ? this.media.currentTime
+        : 0;
+  }
+
+  /**
+   * gets `key` of given track
+   *
+   * @param {object} track textTrack
+   * @returns {number} key
+   */
+  _getTrackId(track) {
+    return this.loadedTracks
+      ? Object.keys(this.loadedTracks.textTracks).find(
+          key => this.loadedTracks.textTracks[key] === track
+        ) || -1
+      : -1;
+  }
+
+  /**
+   * handles volume slider change
+   * @param {event} e volume change event
+   */
+  _handleVolumeChanged(e) {
+    var target = null;
+    if (e.path && e.path[0]) {
+      target = e.path[0];
+    } else if (e.originalTarget) {
+      target = e.originalTarget;
+    } else {
+      target = e.target;
+    }
+    this.volume = target.value;
+  }
+
+  /**
+   * adds a track's cues to cues array
+   * @param {object} textTrack
+   */
+  _onAddTrack(track) {
+    if (this.captionsTrack === null) this.captionsTrack = track;
+    if (track) track.mode = "hidden";
+    let loadCueData = setInterval(() => {
+      if (track.cues && track.cues.length > 0) {
+        clearInterval(loadCueData);
+        let cues = Object.keys(track.cues).map(key => track.cues[key]);
+        this._onRemoveTrack(track); //prevents duplicate tracks
+        this.__cues = this.cues.concat(cues).sort((a, b) => {
+          let start = a.startTime - b.startTime,
+            end = a.endTime - b.endTime;
+          return start !== 0 ? start : end !== 0 ? end : a.track - b.track;
+        });
       }
+    });
+  }
+
+  /**
+   * removes a track's cues from cues array
+   * @param {object} textTrack
+   */
+  _onRemoveTrack(track) {
+    if (this.loadedTracks && this.loadedTracks.textTracks)
+      Object.keys(this.loadedTracks.textTracks).filter(
+        textTrack => this.loadedTracks.textTracks[textTrack] !== track
+      );
+    this.__cues = this.cues ? this.cues.filter(cue => cue.track !== track) : [];
+  }
+
+  /**
+   * sets the element's __screenfullLoaded variable to true once screenfull is loaded
+   * and adds an event listener for screenfull
+   * @param {event} e screenfull load
+   */
+  _onScreenfullLoaded() {
+    this.__screenfullLoaded = true;
+
+    // handles fullscreen
+    if (screenfull) {
+      screenfull.on("change", e => {
+        if (screenfull.enabled) this.fullscreen = screenfull.isFullscreen;
+      });
     }
-    if (
-      root.media.seekable !== undefined &&
-      root.media.seekable.length > 0 &&
-      root.media.seekable.end(0) <= root.media.getCurrentTime()
-    ) {
-      root.stop();
-      root.__playing = false;
+  }
+  firstUpdated() {
+    this.style.setProperty(
+      "--a11y-media-transcript-max-height",
+      this.height ? "146px" : "unset"
+    );
+    setTimeout(() => {
+      window.ResponsiveUtility.requestAvailability();
+
+      /**
+       * Fires player needs the size of parent container to add responsive styling
+       * @event responsive-element
+       */
+      window.dispatchEvent(
+        new CustomEvent("responsive-element", {
+          detail: {
+            element: this,
+            attribute: "responsive-size",
+            relativeToParent: true,
+            sm: 400,
+            md: 700,
+            lg: 1000,
+            xl: 1500
+          }
+        })
+      );
+
+      window.A11yMediaStateManager.requestAvailability();
+
+      /**
+       * Fires when a new player is ready for a11y-media-state-manager
+       * @event a11y-player
+       */
+      window.dispatchEvent(
+        new CustomEvent("a11y-player", {
+          bubbles: true,
+          composed: true,
+          cancelable: false,
+          detail: this
+        })
+      );
+    }, 1000);
+  }
+  /**
+   * on a cue.onenter event scrolls the first active cue to position
+   * @param {event} e onenter event
+   */
+  _setActiveCue(e) {
+    let cue = e.detail.element,
+      transcript = cue.parentNode,
+      offset =
+        transcript !== null && transcript !== undefined
+          ? transcript.offsetTop
+          : 0;
+    if (!this.disableScroll) {
+      //javascript scrolling from:  https://stackoverflow.com/questions/8917921/cross-browser-javascript-not-jquery-scroll-to-top-animation#answer-8918062
+      let scrollingTo = (element, to, duration) => {
+        if (duration <= 0) return;
+        var difference = to - element.scrollTop;
+        var perTick = (difference / duration) * 10;
+
+        setTimeout(() => {
+          element.scrollTop = element.scrollTop + perTick;
+          if (element.scrollTop === to) return;
+          scrollingTo(element, to, duration - 10);
+        }, 10);
+      };
+      scrollingTo(cue.parentNode.parentNode, cue.offsetTop - offset, 250);
     }
-    //prevent slider and cue updates until finished seeking
-    root._updateCustomTracks();
-    root._setElapsedTime();
   }
 
   /**
    * handles transcript scroll toggle
+   * @param {event} e scroll event
    */
-  _handleTranscriptScrollToggle(e) {
+  _transcriptScroll(e) {
     this.disableScroll = !this.disableScroll;
   }
 
   /**
-   * Determines if video and transcript are in a flex layout
+   * converts time in millesconds to HH:MM:SS
    *
-   * @param {boolean} Is the player in stand-alone mode?
-   * @param {boolean} Is the transcript hidden?
-   * @param {boolean} Does the media no video or thumbnail image?
-   * @param {boolean} Is the layout stacked?
-   * @returns {boolean} Is the video in flex layout mode?
-   */
-  _isFlexLayout(standAlone, hideTranscript, audioNoThumb, stackedLayout) {
-    return !standAlone && !hideTranscript && !audioNoThumb && !stackedLayout;
-  }
-
-  /**
-   * determine which button was clicked and act accordingly
-   */
-  _onControlsChanged(e) {
-    let root = this,
-      action = e.detail.action !== undefined ? e.detail.action : e.detail.id;
-    if (action === "backward" || action === "rewind") {
-      root.rewind();
-    } else if (action === "captions") {
-      root.toggleCC();
-    } else if (action === "transcript" || action === "transcript-toggle") {
-      root.toggleTranscript();
-    } else if (e.detail.id === "tracks") {
-      if (e.detail.value === "") {
-        root.toggleCC(false);
-      } else {
-        root.toggleCC(true);
-        root.selectTrack(e.detail.value);
-      }
-    } else if (action === "forward") {
-      root.forward();
-    } else if (action === "fullscreen" && root.fullscreenButton) {
-      root.toggleTranscript(root.fullscreen);
-      screenfull.toggle(root.$.outerplayer);
-    } else if (action === "loop") {
-      root.toggleLoop();
-    } else if (action === "mute" || action === "unmute") {
-      root.toggleMute();
-    } else if (action === "pause") {
-      root.pause();
-    } else if (action === "play") {
-      root.play();
-    } else if (action === "restart") {
-      root.seek(0);
-      root.play();
-    } else if (action === "speed") {
-      root.setPlaybackRate(e.detail.value);
-    } else if (action === "volume") {
-      root.setVolume(e.detail.value);
-    }
-  }
-
-  /**
-   * sets the element's screenfullLoaded variable to true once screenfull is loaded
-   * and adds an event listener for screenfull
-   */
-  _onScreenfullLoaded() {
-    let root = this;
-    root.screenfullLoaded = true;
-
-    // handles fullscreen
-    if (screenfull) {
-      screenfull.on("change", () => {
-        if (screenfull.enabled) root.fullscreen = screenfull.isFullscreen;
-      });
-    }
-  }
-
-  /**
-   * sets duration, taking into consideration start and stop times
+   * @param {float} the progress, in seconds
+   * @param {float} the duration, in seconds
+   * @returns {string} a human-readable string of progress/duration in HH:MM:SS
    *
-   * @param {integer} seek time in seconds, optional
-   * @returns {string} status
    */
-  _setElapsedTime() {
-    let elapsed =
-        this.__seeking === true
-          ? this.$.slider.immediateValue
-          : this.media.getCurrentTime() > 0
-          ? this.media.getCurrentTime()
-          : 0,
-      duration = this.media.duration > 0 ? this.media.duration : 0;
-    this.__elapsed = elapsed;
-    this.__duration = duration;
-    if (this.media.seekable !== undefined && this.media.seekable.length > 0) {
-      if (this.media.seekable.start(0) !== undefined)
-        elapsed -= this.media.seekable.start(0);
-      if (this.media.seekable.end(0) !== undefined)
-        duration =
-          this.media.seekable.end(0) -
-          (this.media.seekable.start(0) !== undefined
-            ? this.media.seekable.start(0)
-            : 0);
-    }
-    this.__status =
-      this._getHHMMSS(elapsed, duration) + "/" + this._getHHMMSS(duration);
-    this.$.controls.setStatus(this.__status);
-  }
-
-  /**
-   * Show custom CC (for audio and YouTube)?
-   *
-   * @param {boolean} Is the media from YouTube?
-   * @param {boolean} Is the media audio only?
-   * @param {boolean} Does the media have CC tracks?
-   * @param {boolean} Are the CC turned on?
-   * @returns {boolean} Should the player show custom CC?
-   */
-  _showCustomCaptions(isYoutube, audioOnly, hasCaptions, cc) {
-    return (isYoutube || audioOnly) && hasCaptions && cc;
-  }
-
-  /**
-   * determines if there
-   *
-   * @param {string} the url for the thumbnail image
-   * @returns {string} the string for the style attribute
-   */
-  _useYoutubeIframe(thumbnailSrc, isYoutube, __elapsed) {
+  _getHHMMSS(val, max) {
+    val = parseFloat(val);
+    max = max === undefined ? val : parseFloat(max);
+    let a = val => {
+        return val < 10 ? `0${val}` : val;
+      },
+      b = (val, i, none) => {
+        return max >= i ? a(Math.floor(val / i)) + ":" : none;
+      },
+      c = val => {
+        return val < 100 ? val + "0" : val;
+      };
     return (
-      isYoutube &&
-      (thumbnailSrc === null || __elapsed === undefined || __elapsed === 0)
+      b(val, 3600, "") + b(val % 3600, 60, "00:") + a(Math.round(val % 60))
     );
+  }
+  /**
+   * returns time in seconds of a string, such as 00:00:00.0, 0h0m0.0s, or 0hh0mm0.0ss
+   * @param {string} time
+   * @returns {float} seconds
+   */
+  _getSeconds(time = 0) {
+    let units = time
+        .replace(/[hm]{1,2}&?/g, ":0")
+        .replace(/[s]{1,2}$/g, "")
+        .split(/:/),
+      hh = units.length > 2 ? parseInt(units[units.length - 3]) : 0,
+      mm = units.length > 1 ? parseInt(units[units.length - 2]) : 0,
+      ss = units.length > 0 ? parseFloat(units[units.length - 1]) : 0;
+    return hh * 3600 + mm * 60 + ss;
   }
 
   /**
-   * gets YouTube iframe
+   * gets the localization by compaing the localization set to the defaults
+   *
+   * @param {object} the localization object
+   * @param {string} the key to search for
+   * @param {string} the subkey to search for
+   * @returns {string} the default value for [key][subkey], unless localization[key][subkey] exists
    */
-  _youTubeRequest() {
-    window.A11yMediaYoutube.requestAvailability();
-    let root = this,
-      ytUtil = window.A11yMediaYoutube.instance;
-    root.disableSeek = true;
-    if (root.__playerAttached && root.__playerReady) {
-      let ytInit = () => {
-          // once metadata is ready on video set it on the media player
-          // initialize the YouTube player
-          root.media = ytUtil.initYoutubePlayer({
-            width: "100%",
-            height: "100%",
-            videoId: root.youtubeId
-          });
-          root.__status = root._getLocal("youTubeLoading", "label");
-          root.$.controls.setStatus(root.__status);
-          // move the YouTube iframe to the media player's YouTube container
-          root.$.youtube.appendChild(root.media.a);
-          root.__ytAppended = true;
-          root._updateCustomTracks();
-        },
-        checkApi = e => {
-          if (ytUtil.apiReady) {
-            document.removeEventListener("youtube-api-ready", checkApi);
-            if (!root.__ytAppended) {
-              ytInit();
-            }
-          }
-        };
-      if (ytUtil.apiReady) {
-        if (!root.__ytAppended) {
-          ytInit();
-        }
-      } else {
-        document.addEventListener("youtube-api-ready", checkApi);
-      }
+  _getLocal(localization, key, subkey) {
+    let local = "";
+    if (
+      localization !== undefined &&
+      localization[key] !== undefined &&
+      localization[key][subkey] !== undefined
+    ) {
+      local = localization[key][subkey];
+    } else if (
+      this.localizationDefaults !== undefined &&
+      this.localizationDefaults[key] !== undefined &&
+      this.localizationDefaults[key][subkey] !== undefined
+    ) {
+      local = this.localizationDefaults[key][subkey];
     }
-  }
-
-  /**
-   * updates custom tracks for youTube
-   */
-  _updateCustomTracks() {
-    if ((this.isYoutube || this.audioOnly) && this.__tracks) {
-      let root = this,
-        track = root.__tracks[this.$.transcript.selectedTranscript],
-        active = [],
-        caption = "";
-      if (
-        track !== undefined &&
-        track !== null &&
-        track.cues !== undefined &&
-        track.cues !== null
-      ) {
-        for (let i = 0; i < track.cues.length; i++) {
-          if (
-            track.cues[i].seek < root.__elapsed &&
-            track.cues[i].seekEnd > root.__elapsed
-          ) {
-            active.push(track.cues[i].order);
-            caption = caption === "" ? track.cues[i].text : caption;
-          }
-        }
-        root.$.customcctxt.innerText = caption;
-        root.$.transcript.setActiveCues(active);
-      }
-    }
-  }
-  /**
-   * life cycle, element is removed from the DOM
-   */
-  disconnectedCallback() {
-    window.removeEventListener(
-      "es-bridge-screenfullLib-loaded",
-      this._onScreenfullLoaded.bind(this)
-    );
-    super.disconnectedCallback();
+    return local;
   }
 }
 window.customElements.define(A11yMediaPlayer.tag, A11yMediaPlayer);

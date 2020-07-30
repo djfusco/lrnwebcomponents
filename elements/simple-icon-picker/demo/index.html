@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <title>SimpleIconPicker: simple-icon-picker Demo</title>
-    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <script src="../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
-    <script src="../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
+    
+    <script src="../../../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
+    <script src="../../../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
     <script type="module">
       import '@polymer/iron-demo-helpers/demo-pages-shared-styles.js';
       import '@polymer/iron-demo-helpers/demo-snippet.js';
@@ -20,28 +20,45 @@
       <h3>Basic simple-icon-picker demo</h3>
       <demo-snippet>
         <template>
-          <simple-icon-picker label="Icon"></simple-icon-picker>
+          <simple-icon-picker id="iconpicker" label="Icon"></simple-icon-picker>
+          <script>
+            document.getElementById('iconpicker').icons = [
+              "icons:check",
+              "icons:clear",
+              "icons:search",
+              "icons:arrow-back",
+              "icons:arrow-downward",
+              "icons:arrow-forward",
+              "icons:arrow-upward"
+            ];
+          </script>
         </template>
       </demo-snippet>
 
       <h3>Custom simple-icon-picker demo</h3>
       <demo-snippet>
         <template>
-          <script>
-            document.getElementById('iconpicker').icons = [
-              "check",
-              "clear",
-              "search",
-              "arrow-back",
-              "arrow-downward",
-              "arrow-forward",
-              "arrow-upward"
-            ];
-          </script>
           <div id="icondemo">
             <label id="iconpicker-label">Pick an Icon: </label> 
-            <simple-icon-picker id="iconpicker" allow-null aria-labelledby="iconpicker-label" value="search"></simple-icon-picker>
+            <simple-icon-picker 
+              id="iconpicker2" 
+              allow-null 
+              aria-labelledby="iconpicker-label" 
+              block-label 
+              value="icons:search">
+            </simple-icon-picker>
           </div>
+          <script>
+            document.getElementById('iconpicker2').icons = [
+              "icons:check",
+              "icons:clear",
+              "icons:search",
+              "icons:arrow-back",
+              "icons:arrow-downward",
+              "icons:arrow-forward",
+              "icons:arrow-upward"
+            ];
+          </script>
         </template>
       </demo-snippet>
     </div>

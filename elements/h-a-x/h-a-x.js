@@ -1,45 +1,99 @@
 /**
- * Copyright 2018 The Pennsylvania State University
+ * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
 import "@lrnwebcomponents/hax-body/lib/hax-store.js";
 /**
  * `h-a-x`
+ * @element h-a-x
  * `Single tag to transform authoring`
  *
  * @microcopy - language worth noting:
  *  - HAX - Headless Authoring eXperience
  *  - Body - the editable area that can be worked on and gets saved as a string / blob
  *
- * @customElement
+
  * @demo demo/index.html
  */
 class HAX extends HTMLElement {
   // render function
   get html() {
     return `
-<style>:host {
-  display: block;
-}
+    <style>
+    :host {
+      display: block;
+      font-size: var(--haxcms-base-styles-body-font-size);
+      font-family: var(--haxcms-base-styles-body-font-family);
+      line-height: var(--haxcms-base-styles-body-line-height);
+      letter-spacing: var(--haxcms-base-styles-body-letter-spacing);
+    }
 
-:host([hidden]) {
-  display: none;
-}
-</style>
-<hax-body>
-    <slot></slot>
-</hax-body>`;
-  }
+    :host([hidden]) {
+      display: none;
+    }
 
-  // properties available to the custom element for data binding
-  static get properties() {
-    return {
-      appStore: {
-        name: "appStore",
-        type: "String",
-        value: ""
-      }
-    };
+    hax-body {
+      font-size: var(--haxcms-base-styles-body-font-size);
+      font-family: var(--haxcms-base-styles-body-font-family);
+      line-height: var(--haxcms-base-styles-body-line-height);
+      letter-spacing: var(--haxcms-base-styles-body-letter-spacing);
+    }
+
+    h1 {
+      font-size: var(--hax-base-styles-h1-font-size);
+      line-height: var(--hax-base-styles-h1-line-height);
+    }
+
+    h2 {
+      font-size: var(--hax-base-styles-h2-font-size);
+    }
+
+    h3 {
+      font-size: var(--hax-base-styles-h3-font-size);
+    }
+
+    h4 {
+      font-size: var(--hax-base-styles-h4-font-size);
+    }
+
+    h5 {
+      font-size: var(--hax-base-styles-h5-font-size);  
+    }
+
+    h6 {
+      font-size: var(--hax-base-styles-h6-font-size);
+    }
+
+    p {
+      min-height: var(--hax-base-styles-p-min-height);
+      font-size: var(--hax-base-styles-p-font-size);
+      line-height: var(--hax-base-styles-p-line-height);
+      letter-spacing: var(--hax-base-styles-p-letter-spacing);
+    }
+
+    a,
+    a:-webkit-any-link {
+      font-size: var(--hax-base-styles-a-font-size,var(--hax-base-styles-p-font-size));
+    }
+
+    ol,
+    ul
+    ol li,
+    ul li {
+      line-height: var(--hax-base-styles-list-line-height,var(--hax-base-styles-p-line-height));
+      font-size: var(--hax-base-styles-list-font-size,var(--hax-base-styles-p-font-size));
+    }
+
+    ul ul,
+    ul ol,
+    ol ul,
+    ol ol {
+      padding-bottom: unset;
+    }
+    </style>
+    <hax-body>
+        <slot></slot>
+    </hax-body>`;
   }
 
   /**
@@ -50,29 +104,13 @@ class HAX extends HTMLElement {
     return "h-a-x";
   }
   /**
-   * life cycle
+   * HTMLElement
    */
   constructor(delayRender = false) {
     super();
-
+    this.__rendered = false;
     // set tag for later use
     this.tag = HAX.tag;
-    // map our imported properties json to real props on the element
-    // @notice static getter of properties is built via tooling
-    // to edit modify src/HAX-properties.json
-    let obj = HAX.properties;
-    for (let p in obj) {
-      if (obj.hasOwnProperty(p)) {
-        if (this.hasAttribute(p)) {
-          this[p] = this.getAttribute(p);
-        } else {
-          this.setAttribute(p, obj[p].value);
-          this[p] = obj[p].value;
-        }
-      }
-    }
-    // optional queue for future use
-    this._queue = [];
     this.template = document.createElement("template");
 
     this.attachShadow({ mode: "open" });
@@ -86,28 +124,7 @@ class HAX extends HTMLElement {
       this.appStoreReady.bind(this)
     );
     // dynamically import definitions for all needed tags
-    import("@lrnwebcomponents/hax-body/hax-body.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-panel.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-autoloader.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-app.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-manager.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-app-picker.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-toolbar.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-preferences-dialog.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-stax-picker.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-blox-picker.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/iron-icons/editor-icons.js");
-    import("@polymer/iron-icons/device-icons.js");
-    import("@polymer/iron-icons/hardware-icons.js");
-    import("@polymer/iron-icons/communication-icons.js");
-    import("@lrnwebcomponents/lrn-icons/lrn-icons.js");
-    import("@polymer/iron-icons/social-icons.js");
-    import("@polymer/iron-icons/av-icons.js");
-    import("@polymer/iron-icons/places-icons.js");
-    import("@polymer/iron-icons/maps-icons.js");
-    import("@polymer/iron-image/iron-image.js");
-    import("@lrnwebcomponents/hax-body/lib/hax-export-dialog.js");
+    import("./lib/h-a-x-dependencies.js");
   }
   /**
    * life cycle, element is afixed to the DOM
@@ -122,28 +139,30 @@ class HAX extends HTMLElement {
     }
   }
 
-  _copyAttribute(name, to) {
-    const recipients = this.shadowRoot.querySelectorAll(to);
-    const value = this.getAttribute(name);
-    const fname = value == null ? "removeAttribute" : "setAttribute";
-    for (const node of recipients) {
-      node[fname](name, value);
-    }
-  }
-
-  _setProperty({ name, value }) {
-    this[name] = value;
-  }
-
   /**
    * Store is ready, now we can pass along the app store definition
    * which HAX will react to an load the data it finds.
    */
   storeReady(e) {
     if (e.detail) {
-      window.HaxStore.instance.appStore = JSON.parse(
-        this.getAttribute("app-store")
-      );
+      setTimeout(() => {
+        try {
+          let appStore = {
+            ...JSON.parse(this.getAttribute("app-store"))
+          };
+          if (typeof appStore === "object") {
+            window.HaxStore.instance.appStore = appStore;
+          }
+        } catch (e) {
+          console.log(e);
+        }
+        if (this.hidePanelOps === "hide-panel-ops") {
+          this.hidePanelOps = true;
+        }
+        window.HaxStore.instance.haxTray.hidePanelOps = this.hidePanelOps;
+        window.HaxStore.instance.haxTray.offsetMargin = this.offsetMargin;
+        window.HaxStore.instance.haxTray.elementAlign = this.elementAlign;
+      }, 0);
     }
   }
   /**
@@ -167,12 +186,10 @@ class HAX extends HTMLElement {
     }
   }
   render() {
-    if (!this.__rendered) {
-      this.__rendered = true;
-      this.shadowRoot.innerHTML = null;
-      this.template.innerHTML = this.html;
-      this.shadowRoot.appendChild(this.template.content.cloneNode(true));
-    }
+    this.__rendered = true;
+    this.shadowRoot.innerHTML = null;
+    this.template.innerHTML = this.html;
+    this.shadowRoot.appendChild(this.template.content.cloneNode(true));
   }
   /**
    * Apply tags to the screen to establish HAX
@@ -181,15 +198,14 @@ class HAX extends HTMLElement {
     // store needs to come before anyone else, use it's availability request mechanism
     window.HaxStore.requestAvailability();
     // now everyone else
-    let panel = document.createElement("hax-panel");
-    panel.hidePanelOps = this.hidePanelOps;
-    document.body.appendChild(panel);
-    document.body.appendChild(document.createElement("hax-manager"));
+    let tray = document.createElement("hax-tray");
+    tray.hidePanelOps = this.hidePanelOps;
+    tray.elementAlign = this.elementAlign;
+    document.body.appendChild(tray);
     document.body.appendChild(document.createElement("hax-app-picker"));
-    document.body.appendChild(document.createElement("hax-stax-picker"));
-    document.body.appendChild(document.createElement("hax-blox-picker"));
     document.body.appendChild(document.createElement("hax-preferences-dialog"));
     document.body.appendChild(document.createElement("hax-export-dialog"));
+    document.body.appendChild(document.createElement("hax-map"));
     document.body.appendChild(document.createElement("hax-autoloader"));
     return true;
   }
@@ -204,7 +220,27 @@ class HAX extends HTMLElement {
     }
   }
   static get observedAttributes() {
-    return ["app-store", "hide-panel-ops"];
+    return ["element-align", "offset-margin", "app-store", "hide-panel-ops"];
+  }
+  get elementAlign() {
+    return this.getAttribute("element-align");
+  }
+  set elementAlign(newValue) {
+    if (this.__rendered) {
+      this.setAttribute("element-align", newValue);
+      // bind to the hax store global on change
+      window.HaxStore.instance.haxTray.elementAlign = newValue;
+    }
+  }
+  get offsetMargin() {
+    return this.getAttribute("offset-margin");
+  }
+  set offsetMargin(newValue) {
+    this.setAttribute("offset-margin", newValue);
+    if (this.__rendered) {
+      // bind to the hax store global on change
+      window.HaxStore.instance.haxTray.offsetMargin = newValue;
+    }
   }
   get hidePanelOps() {
     return this.getAttribute("hide-panel-ops");
@@ -212,18 +248,23 @@ class HAX extends HTMLElement {
   set hidePanelOps(newValue) {
     if (newValue) {
       this.setAttribute("hide-panel-ops", "hide-panel-ops");
+      if (this.__rendered) {
+        // bind to the hax store global on change
+        window.HaxStore.instance.haxTray.hidePanelOps = newValue;
+      }
     }
   }
   get appStore() {
     return this.getAttribute("app-store");
   }
   set appStore(newValue) {
+    console.log(newValue);
+    this.setAttribute("app-store", newValue);
     if (this.__rendered) {
-      this.setAttribute("app-store", newValue);
       // bind to the hax store global on change
-      window.HaxStore.instance.appStore = JSON.parse(
-        this.getAttribute("app-store")
-      );
+      window.HaxStore.instance.appStore = {
+        ...JSON.parse(this.getAttribute("app-store"))
+      };
     }
   }
   attributeChangedCallback(attr, oldValue, newValue) {}

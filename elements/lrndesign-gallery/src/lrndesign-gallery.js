@@ -1,51 +1,26 @@
 /**
- * Copyright 2018 The Pennsylvania State University
+ * Copyright 2020 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element";
 import { LrndesignGalleryBehaviors } from "./lib/lrndesign-gallery-behaviors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
-import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/responsive-utility/responsive-utility.js";
 import "./lib/lrndesign-gallery-carousel.js";
 import "./lib/lrndesign-gallery-grid.js";
+import "./lib/lrndesign-gallery-masonry.js";
 
-export { LrndesignGallery };
 /**
  * `lrndesign-gallery`
- * `An element that renders a collection of gallery items into a carousel or a single media item into a layout.`
+ * displays images as a carousel or grid with the ability to zoom
  *
- * @microcopy - language worth noting:```
- <lrndesign-gallery 
-  accent-color="grey"               //optional, the accent color from simple-colors; default is grey
-  dark                              //optional, if true, gallery will use the simple-colors dark theme; default is false (fixed-theme)
-  id="mygallery1"                   //optional, a unique id for the gallery; if true, you can use the id in anchors to access gallery items on page load
-  sources="[]"                      //required, array of image sources
-  sizing="contain"                  //optional, "cover" for cropping (default) or "contain" for letterboxing
-  title="My Gallery">               //optional, the title of the gallery
-  Optional description of the gallery.
-</lrndesign-gallery>```
- * where `sources` array is:```
-[{
-  "alt": "IMAGE ALT TEXT",                          //required
-  "details": "TEXT ABOUT IMAGE HERE",               //optional 
-  "heading": "IMAGE HEADING HERE",                  //required, the image heading when in zoom mode
-  "id": "123"                                       //required, unique id  
-  "sizing": "contain",                              //optional, "cover" for cropping (default) or "contain" for letterboxing, default is parent's sizing
-  "large": "PATH/TO/LARGE/IMAGE/HERE.JPG",          //optional, larger image for zoom instead of src 
-  "src": "PATH/TO/FULL/IMAGE/HERE.JPG",             //required
-  "thumbnail": "PATH/TO/THUMBAIL/IMAGE/HERE.JPG",   //required
-  "tooltip": "IMAGE TOOLTIP HERE",                  //required, the tooltip for the image thumbnail
-  "title": "IMAGE TITLE HERE",                      //optional, the image title when viewed
-  "type": "image",                                  //required, "image", "video", "audio", etc.
-}]```
- *
- * @customElement
- * @polymer
- * @demo demo/index.html carousel demo
- * @demo demo/grid.html grid demo
+ * @element lrndesign-gallery
+ * @lit-html
+ * @lit-element
+ * @demo demo/index.html
  */
 class LrndesignGallery extends LrndesignGalleryBehaviors {
+  /* REQUIRED FOR TOOLING DO NOT TOUCH */
+
   /**
    * Store the tag name to make it easier to obtain directly.
    * @notice function name must be here for tooling to operate correctly
@@ -54,215 +29,214 @@ class LrndesignGallery extends LrndesignGalleryBehaviors {
     return "lrndesign-gallery";
   }
 
-  static get behaviors() {
-    return [LrndesignGalleryBehaviors];
+  // life cycle
+  constructor() {
+    super();
+    this.sources = [];
+    this.sizing = "cover";
   }
-
-  // render function
-  static get template() {
-    return html`
-      <style>
-        :host {
-          display: block;
-        }
-        :host([hidden]) {
-          display: none;
-        }
-      </style>
-      <div id="gallery">
-        <template is="dom-if" if="[[!grid]]" restamp>
-          <lrndesign-gallery-carousel
-            accent-color$="[[accentColor]]"
-            aspect-ratio$="[[aspectRatio]]"
-            title$="[[title]]"
-            dark$="[[dark]]"
-            gallery-id$="[[id]]"
-            responsive-size$="[[responsiveSize]]"
-            sizing$="[[sizing]]"
-            sources="[[sources]]"
-            title$="[[title]]"
-          >
-            <slot></slot>
-          </lrndesign-gallery-carousel>
-        </template>
-        <template is="dom-if" if="[[grid]]">
-          <lrndesign-gallery-grid
-            accent-color$="[[accentColor]]"
-            aspect-ratio$="[[aspectRatio]]"
-            dark$="[[dark]]"
-            gallery-id$="[[id]]"
-            responsive-size$="[[responsiveSize]]"
-            sizing$="[[sizing]]"
-            sources="[[sources]]"
-            title$="[[title]]"
-          >
-            <slot></slot>
-          </lrndesign-gallery-grid>
-        </template>
-      </div>
-    `;
-  }
-
-  // haxProperty definition
-  static get haxProperties() {
-    return {
-      canScale: false,
-      canPosition: false,
-      canEditSource: true,
-      gizmo: {
-        title: "Image Gallery",
-        description: "An image gallery displayed as a carousel or a grid",
-        icon: "image:collections",
-        color: "cyan",
-        groups: ["Content", "Instructional", "Media", "Image"],
-        handles: [
-          {
-            type: "image",
-            source: "image"
-          }
-        ],
-        meta: {
-          author: "LRNWebComponents"
-        }
-      },
-      settings: {
-        quick: [],
-        configure: [
-          {
-            property: "title",
-            title: "Gallery Title",
-            description: "A title for the gallery.",
-            inputMethod: "textfield",
-            icon: "editor:title"
-          },
-          {
-            property: "accentColor",
-            title: "Accent Color",
-            description: "An optional accent color.",
-            inputMethod: "colorpicker",
-            icon: "editor:format-color-fill"
-          },
-          {
-            property: "dark",
-            title: "Dark Theme",
-            description: "Enable Dark Theme",
-            inputMethod: "boolean",
-            icon: "icons:invert-colors"
-          },
-          {
-            property: "grid",
-            title: "Grid View",
-            description: "Display as grid?",
-            inputMethod: "boolean",
-            icon: "icons:view-module"
-          },
-          {
-            slot: "description",
-            title: "Gallery Description",
-            description: "An optional description for the gallery.",
-            inputMethod: "textfield"
-          },
-          {
-            property: "sources",
-            title: "Gallery Images",
-            description: "The images for the gallery.",
-            inputMethod: "array",
-            properties: [
-              {
-                property: "title",
-                title: "Image Title",
-                description: "The heading for the image.",
-                inputMethod: "textfield"
-              },
-              {
-                property: "details",
-                title: "Image Details",
-                description: "The body text with details for the image.",
-                inputMethod: "textfield"
-              },
-              {
-                property: "src",
-                title: "Image Source",
-                description: "The path of the image.",
-                inputMethod: "haxupload"
-              },
-              {
-                property: "thumbnail",
-                title: "Image Thumbnail Source",
-                description:
-                  "The path of an optional thumbnail version of the image.",
-                inputMethod: "haxupload"
-              },
-              {
-                property: "large",
-                title: "Image Full Size Source",
-                description:
-                  "The path of an optional large version of the image for zooming.",
-                inputMethod: "haxupload"
-              }
-            ]
-          }
-        ],
-        advanced: [
-          {
-            property: "aspectRatio",
-            title: "Aspect Ratio",
-            description:
-              "Custom aspect ratio, default is calculated based on the first image's aspect ratio",
-            inputMethod: "textfield"
-          },
-          {
-            property: "sizing",
-            title: "Fit to Aspect Ratio",
-            description: "Fit images to aspect ratio",
-            inputMethod: "select",
-            options: {
-              cover: "crop",
-              contain: "letterbox"
-            }
-          }
-        ]
-      }
-    };
-    this.setHaxProperties(props);
-  }
-
-  // properties available to the custom element for data binding
-  static get properties() {
-    return {};
-  }
-
   /**
    * life cycle, element is afixed to the DOM
    */
   connectedCallback() {
-    let root = this;
     super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(
-      LrndesignGallery.haxProperties,
-      LrndesignGallery.tag,
-      this
-    );
-    root.__gallery = root.$.gallery;
-    root.anchorData = root._getAnchorData();
     window.ResponsiveUtility.requestAvailability();
+    this.updateGallery();
+    this.observer.observe(this, {
+      attributes: false,
+      childList: true,
+      subtree: false
+    });
+  }
+  disconnectedCallback() {
+    if (this.observer && this.observer.disconnect) this.observer.disconnect();
+    if (super.disconnectedCallback) super.disconnectedCallback();
+  }
+  firstUpdated() {
+    super.firstUpdated();
     window.dispatchEvent(
       new CustomEvent("responsive-element", {
         detail: {
-          element: root,
+          element: this,
           attribute: "responsive-size",
-          relativeToParent: true
+          sm: 300,
+          md: 600,
+          lg: 1000,
+          xl: 1500
         }
       })
     );
+    this.anchorData = this._getAnchorData();
+    if (this.anchorData.gallery === this.id) {
+      this.goToItem(this.anchorData.id);
+    } else {
+      this.goToItem();
+    }
   }
 
   /**
-   * life cycle, element is ready
+   * handle updates
    */
-  ready() {
-    super.ready();
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName === "id" && !this.id)
+        this.id = `gallery-${this._generateUUID()}`;
+    });
+  }
+  /**
+   * gets aspect ratio of images
+   *
+   * @readonly
+   * @memberof LrndesignGallery
+   */
+  get aspect() {
+    let items = (this.items || []).filter(item => item.src && item.src != ""),
+      src = items && items[0] ? items[0].src : false;
+    if (src) {
+      let img = new Image();
+      img.src = src;
+      return img.naturalWidth > 0 && img.naturalHeight > 0
+        ? img.naturalWidth / img.naturalHeight
+        : 1.33333333;
+    } else {
+      return 1.33333333;
+    }
+  }
+  /**
+   * gets aspect ratio of an image and
+   * determine if aspect ratio is extra wide
+   *
+   * @readonly
+   * @memberof LrndesignGallery
+   */
+  get extra() {
+    let ew = this.aspect > 2;
+    return ew;
+  }
+
+  /**
+   * gets items array
+   *
+   * @readonly
+   * @memberof LrndesignGalleryBehaviors
+   */
+  get items() {
+    let sources = this.sources || [],
+      items = typeof sources === "string" ? JSON.parse(sources) : sources,
+      total = items.length,
+      itemData = (items || []).map((item, i) => {
+        return {
+          alt: item.alt,
+          details: item.details,
+          index: i,
+          id: item.id || `gallery-${this.id}-item-${i}`,
+          src: item.src,
+          large: item.large && item.large !== "" ? item.large : item.src,
+          thumbnail:
+            item.thumbnail && item.thumbnail != "" ? item.thumbnail : item.src,
+          xofy: `${i + 1} of ${total}`,
+          next: i + 1 < total ? i + 1 : -1,
+          prev: i - 1 > -1 ? i - 1 : -1,
+          sizing: item.sizing && item.sizing != "" ? item.sizing : this.sizing,
+          gravity: item.gravity || "center",
+          title: item.title,
+          tooltip: `${item.title || `Image ${i}`} (Zoom In)`,
+          heading: `${item.title || `Image ${i}`} (Full-Sized)`
+        };
+      });
+    return itemData;
+  }
+
+  /**
+   * mutation observer for tabs
+   * @readonly
+   * @returns {object}
+   */
+  get observer() {
+    let callback = () => this.updateGallery();
+    return new MutationObserver(callback);
+  }
+
+  /**
+   * go to item by id, or index
+   *
+   * @param {string} query
+   */
+  goToItem(query) {
+    let start = this.items[0] || {};
+    if (typeof query === "number" && query >= 0 && query < this.items.length) {
+      this.selected = this.items[query] || start;
+    } else {
+      let matches = this.items.filter(item => item.id === query);
+      this.selected = matches.length > 0 ? matches[0] : start;
+    }
+  }
+  updateGallery() {
+    let sources = [],
+      figures = this.querySelectorAll("figure");
+    figures.forEach(figure => {
+      let id = figure.getAttribute("id"),
+        img = figure.querySelector("img"),
+        sizing = figure.getAttribute("sizing"),
+        query = [1, 2, 3, 4, 5, 6].map(num => `h${num}:first-child`).join(","),
+        src =
+          img && img.getAttribute("src") ? img.getAttribute("src") : undefined,
+        srcset =
+          img && img.getAttribute("srcset")
+            ? img.getAttribute("srcset").split(",")
+            : undefined,
+        thumbset = srcset && srcset[0] ? srcset[0].split(" ") : undefined,
+        largeset =
+          srcset && srcset[srcset.length - 1]
+            ? srcset[srcset.length - 1].split(" ")
+            : undefined,
+        thumbnail = thumbset && thumbset[0] ? thumbset[0] : undefined,
+        large = largeset && largeset[0] ? largeset[0] : undefined,
+        details = figure.querySelector("figcaption")
+          ? figure.querySelector("figcaption").cloneNode(true)
+          : undefined,
+        alt =
+          img && img.getAttribute("alt") ? img.getAttribute("alt") : undefined,
+        figheading =
+          details && details.querySelector(query)
+            ? details.querySelector(query)
+            : undefined,
+        title = figheading.innerHTML;
+      if (figheading) figheading.remove();
+      sources.push({
+        alt: alt,
+        id: id,
+        src: src,
+        thumbnail: thumbnail,
+        large: large,
+        title: title,
+        details: details.innerHTML,
+        sizing: sizing
+      });
+    });
+    if (sources.length > 0 && (!this.sources || this.sources.length < 1))
+      this.sources = sources;
+  }
+
+  /**
+   * gets aspect ratio of an image and
+   * determine if aspect ratio is extra wide
+   *
+   * @param {array}
+   */
+  _getAnchorData() {
+    let hash =
+        window.location.hash !== null && window.location.hash !== ""
+          ? window.location.hash.replace("#", "")
+          : false,
+      data = hash ? hash.split("---") : [];
+    return {
+      id: data.length > 1 ? data[1] : -1,
+      gallery: data.length > 0 ? data[0] : -1,
+      zoom: scroll && data.length > 2 && data[2] === "zoom"
+    };
   }
 }
-window.customElements.define(LrndesignGallery.tag, LrndesignGallery);
+customElements.define("lrndesign-gallery", LrndesignGallery);
+export { LrndesignGallery };

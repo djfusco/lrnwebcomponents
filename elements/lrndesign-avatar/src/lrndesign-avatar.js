@@ -1,93 +1,74 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+/**
+ * Copyright 2020 The Pennsylvania State University
+ * @license Apache-2.0, see License.md for full text.
+ */
+import { html, css } from "lit-element";
 import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/paper-avatar/paper-avatar.js";
 /**
  * `lrndesign-avatar`
- * `Visualize a user account eitehr with an image, a label, or as abstract art.`
+ * Visualize a user account either with an image, icon, initials, or as abstract art.
+ *
+### Styling
+Custom property | Description | Default
+----------------|-------------|----------
+`--lrndesign-avatar-width` | Size (width and height) of the avatar image | 40px
+ * @lit-html
+ * @lit-element
  * @demo demo/index.html
  */
-class LrndesignAvatar extends PolymerElement {
-  constructor() {
-    super();
-    import("@lrnwebcomponents/paper-avatar/paper-avatar.js");
-  }
-  static get template() {
-    return html`
-      <style>
-        :host {
-          display: block;
-        }
-        paper-avatar {
-          --paper-avatar-width: var(--lrndesign-avatar-width);
-          --paper-avatar-height: var(--lrndesign-avatar-height);
-        }
-      </style>
-      <paper-avatar
-        label="[[label]]"
-        src="[[src]]"
-        two-chars="[[twoChars]]"
-        style$="background-color:[[hexColor]];"
-        jdenticon="[[jdenticon]]"
-      ></paper-avatar>
-    `;
-  }
+class LrndesignAvatar extends SimpleColors {
+  /* REQUIRED FOR TOOLING DO NOT TOUCH */
 
+  /**
+   * Store the tag name to make it easier to obtain directly.
+   * @notice function name must be here for tooling to operate correctly
+   */
   static get tag() {
     return "lrndesign-avatar";
   }
-  _getHexColor(color) {
-    let name = color.replace("-text", "");
-    let tmp = new SimpleColors();
-    if (tmp.colors[name]) {
-      return tmp.colors[name][6];
-    }
-    return "#000000";
+
+  // life cycle
+  constructor() {
+    super();
+    this.dark = false;
+    this.twoChars = false;
+    this.jdenticon = false;
+    this.label = "|";
   }
-  static get properties() {
-    return {
-      /**
-       * text to use for avatar
-       */
-      label: {
-        type: String,
-        value: "lrndesign-avatar"
-      },
-      /**
-       * link to an image, optional
-       */
-      src: {
-        type: String
-      },
-      /**
-       * Mode for presenting 1st two letters
-       */
-      twoChars: {
-        type: Boolean,
-        value: false
-      },
-      /**
-       * Class for the color
-       */
-      hexColor: {
-        type: String,
-        computed: "_getHexColor(color)"
-      },
-      /**
-       * Color class work to apply
-       */
-      color: {
-        type: String,
-        value: "blue",
-        reflectToAttribute: true
-      },
-      /**
-       * Form abstract art from hash of label
-       */
-      jdenticon: {
-        type: Boolean,
-        value: false
+
+  _getAccentColor() {
+    // legacy API bridge
+    if (this.colors && (!this.accentColor || this.accentColor === "grey")) {
+      let color = (this.color || "").replace("-text", "");
+      if (color && this.colors[color]) {
+        this.accentColor = color;
+      } else {
+        let str = this.label || this.icon,
+          char =
+            str && str.charCodeAt(0)
+              ? str.charCodeAt(0)
+              : Math.floor(Math.random() * 16),
+          colors = Object.keys(this.colors);
+        color = colors[(char % 16) + 1];
+        this.accentColor =
+          colors[(char % 16) + 1] ||
+          colors[Math.floor(Math.random() * this.colors.length)];
       }
-    };
+    }
+  }
+
+  updated(changedProperties) {
+    if (super.updated) {
+      super.updated(changedProperties);
+    }
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "color" || propName == "label" || propName == "icon") {
+        this._getAccentColor();
+      }
+    });
   }
 }
-window.customElements.define(LrndesignAvatar.tag, LrndesignAvatar);
+
+customElements.define(LrndesignAvatar.tag, LrndesignAvatar);
 export { LrndesignAvatar };

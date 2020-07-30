@@ -1,34 +1,18 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { pathFromUrl } from "@polymer/polymer/lib/utils/resolve-url.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
-import "@polymer/paper-styles/shadow.js";
 /**
  * `lrndesign-blockquote`
  * `A structured blockquote element`
- *
- * @PolymerElement
- * @polymer
- * @webcomponent
+ * @element lrndesign-blockquote
  * @demo demo/index.html
  */
-class LrndesignBlockquote extends SchemaBehaviors(PolymerElement) {
-  constructor() {
-    super();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        LrndesignBlockquote.haxProperties,
-        LrndesignBlockquote.tag,
-        this
-      );
-    });
-  }
-  static get template() {
-    return html`
-      <style>
+class LrndesignBlockquote extends SchemaBehaviors(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: inline-block;
           position: relative;
@@ -561,16 +545,23 @@ class LrndesignBlockquote extends SchemaBehaviors(PolymerElement) {
           -webkit-filter: grayscale(0);
           filter: none;
         }
-      </style>
-
+      `
+    ];
+  }
+  render() {
+    return html`
       <div id="wrap" class="mb-wrap">
-        <div id="thumb" class="mb-thumb"></div>
-        <blockquote cite$="[[sourceLink]]">
+        <div
+          id="thumb"
+          class="mb-thumb"
+          aria-describedby="${this.describedBy || ""}"
+        ></div>
+        <blockquote cite="${this.sourceLink}">
           <p><slot></slot></p>
         </blockquote>
         <div class="mb-attribution">
-          <p class="mb-author">[[author]]</p>
-          <cite><a href$="[[sourceLink]]">[[citation]]</a></cite>
+          <p class="mb-author">${this.author}</p>
+          <cite><a href="${this.sourceLink}">${this.citation}</a></cite>
         </div>
       </div>
     `;
@@ -579,76 +570,114 @@ class LrndesignBlockquote extends SchemaBehaviors(PolymerElement) {
   static get tag() {
     return "lrndesign-blockquote";
   }
-
+  constructor() {
+    super();
+    this.displayMode = "default";
+  }
   static get properties() {
     return {
       /**
        * Source being cited
        */
       citation: {
-        type: String,
-        notify: true
+        type: String
       },
       /**
        * Optional image to use
        */
       image: {
+        type: String
+      },
+      /**
+       * Aria-describedby data passed down to appropriate tag
+       */
+      describedBy: {
         type: String,
-        notify: true,
-        observer: "_imageChanged"
+        attribute: "described-by"
       },
       /**
        * Optional author of the quote
        */
       author: {
-        type: String,
-        notify: true
+        type: String
       },
       /**
        * Optional source that links to where the quote is from
        */
       sourceLink: {
         type: String,
-        notify: true
+        attribute: "source-link"
       },
       /**
        * Funny 1900s vision.
        */
       displayMode: {
         type: String,
-        reflectToAttribute: true,
-        notify: true,
-        value: "default",
-        observer: "_displayModeChanged"
+        reflect: true,
+        attribute: "display-mode"
       }
     };
   }
-  /**
-   * Notice display mode change activated so load the font
-   */
-  _imageChanged(newValue, oldValue) {
-    if (this.displayMode == "hypercard") {
-      this.$.wrap.style.cssText = "";
-      this.$.thumb.style.cssText = "";
-    } else if (this.displayMode == "poster") {
-      this.$.wrap.style.cssText =
-        "background: #444 url(" + newValue + ") no-repeat 140% 25%";
-      this.$.thumb.style.cssText = "";
-    } else {
-      this.$.wrap.style.cssText = "";
-      this.$.thumb.style.cssText =
-        "background: url(" + newValue + ") no-repeat center center";
-    }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      let notifiedProps = [
+        "author",
+        "image",
+        "citation",
+        "displayMode",
+        "sourceLink"
+      ];
+      if (notifiedProps.includes(propName)) {
+        // notify
+        let eventName = `${propName
+          .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, "$1-$2")
+          .toLowerCase()}-changed`;
+        this.dispatchEvent(
+          new CustomEvent(eventName, {
+            detail: {
+              value: this[propName]
+            }
+          })
+        );
+      }
+      if (propName == "displayMode") {
+        this._displayModeChanged(this[propName]);
+      }
+      if (propName == "image") {
+        this._imageChanged(this[propName]);
+      }
+    });
   }
   /**
    * Notice display mode change activated so load the font
    */
-  _displayModeChanged(newValue, oldValue) {
+  _imageChanged(newValue) {
+    if (this.displayMode == "hypercard") {
+      this.shadowRoot.querySelector("#wrap").style.cssText = "";
+      this.shadowRoot.querySelector("#thumb").style.cssText = "";
+    } else if (this.displayMode == "poster") {
+      this.shadowRoot.querySelector("#wrap").style.cssText =
+        "background: #444 url(" + newValue + ") no-repeat 140% 25%";
+      this.shadowRoot.querySelector("#thumb").style.cssText = "";
+    } else {
+      this.shadowRoot.querySelector("#wrap").style.cssText = "";
+      this.shadowRoot.querySelector("#thumb").style.cssText =
+        "background: url(" + newValue + ") no-repeat center center";
+    }
+  }
+  // simple path from a url modifier
+  pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf("/") + 1);
+  }
+  /**
+   * Notice display mode change activated so load the font
+   */
+  _displayModeChanged(newValue) {
     if (newValue == "hypercard") {
-      this.$.wrap.style.cssText = "";
-      this.$.thumb.style.cssText = "";
+      this.shadowRoot.querySelector("#wrap").style.cssText = "";
+      this.shadowRoot.querySelector("#thumb").style.cssText = "";
       let style = document.createElement("style");
-      let basePath = pathFromUrl(decodeURIComponent(import.meta.url));
+      let basePath = this.pathFromUrl(decodeURIComponent(import.meta.url));
       style.innerHTML = `@font-face {
         font-family: 'Chikarego';
         font-display: swap;
@@ -659,12 +688,12 @@ class LrndesignBlockquote extends SchemaBehaviors(PolymerElement) {
       }`;
       document.head.appendChild(style);
     } else if (newValue == "poster") {
-      this.$.wrap.style.cssText =
+      this.shadowRoot.querySelector("#wrap").style.cssText =
         "background: #444 url(" + this.image + ") no-repeat 140% 25%";
-      this.$.thumb.style.cssText = "";
+      this.shadowRoot.querySelector("#thumb").style.cssText = "";
     } else {
-      this.$.wrap.style.cssText = "";
-      this.$.thumb.style.cssText =
+      this.shadowRoot.querySelector("#wrap").style.cssText = "";
+      this.shadowRoot.querySelector("#thumb").style.cssText =
         "background: url(" + this.image + ") no-repeat center center";
     }
   }
@@ -686,11 +715,12 @@ class LrndesignBlockquote extends SchemaBehaviors(PolymerElement) {
             src: "image",
             author: "author",
             description: "",
-            citation: "citation"
+            citation: "citation",
+            ariaDescribedby: "describedBy"
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -786,7 +816,15 @@ class LrndesignBlockquote extends SchemaBehaviors(PolymerElement) {
             validationType: "url"
           }
         ],
-        advanced: []
+        advanced: [
+          {
+            property: "describedBy",
+            title: "aria-describedby",
+            description:
+              "Space-separated list of IDs for elements that describe the image.",
+            inputMethod: "textfield"
+          }
+        ]
       }
     };
   }

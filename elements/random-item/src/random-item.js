@@ -2,15 +2,15 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 /**
  * `random-item`
+ * @element random-item
  * `show a random item from a list of items`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @demo demo/index.html
  */
 class RandomItem extends HTMLElement {
@@ -46,9 +46,6 @@ class RandomItem extends HTMLElement {
     if (window.ShadyCSS) {
       window.ShadyCSS.styleElement(this);
     }
-
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(RandomItem.haxProperties, RandomItem.tag, this);
   }
 
   render() {

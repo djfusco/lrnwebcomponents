@@ -2,9 +2,7 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 import "@lrnwebcomponents/es-global-bridge/es-global-bridge.js";
 /**
@@ -12,11 +10,15 @@ import "@lrnwebcomponents/es-global-bridge/es-global-bridge.js";
  * `A wrapper to do data binding into aframe`
  *
  * @demo demo/index.html
+ * @element aframe-player
  */
-class AframePlayer extends SchemaBehaviors(PolymerElement) {
-  static get template() {
-    return html`
-      <style>
+class AframePlayer extends SchemaBehaviors(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           position: relative;
@@ -24,15 +26,19 @@ class AframePlayer extends SchemaBehaviors(PolymerElement) {
         .a-hidden {
           display: hidden;
         }
-      </style>
+      `
+    ];
+  }
+  render() {
+    return html`
       <a-scene
         id="scene"
         class="embedded"
         embedded
-        arjs$="[[ar]]"
-        style$="height:[[height]];width:[[width]];"
+        ?arjs="${this.ar}"
+        style="height:${this.height};width:${this.width};"
       >
-        <a-sky color\$="[[skyColor]]"></a-sky>
+        <a-sky color="${this.skyColor}"></a-sky>
         <a-marker-camera preset="hiro"></a-marker-camera>
       </a-scene>
     `;
@@ -41,84 +47,96 @@ class AframePlayer extends SchemaBehaviors(PolymerElement) {
   static get tag() {
     return "aframe-player";
   }
-
+  constructor() {
+    super();
+    this.course = "";
+    this.height = "480px";
+    this.width = "640px";
+    this.skyColor = "#DCDCDC";
+    this.ar = false;
+    this.x = "0";
+    this.y = "0";
+    this.z = "0";
+    this.position = {};
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (["x", "y", "z", "width", "height"].includes(propName)) {
+        this.position = this._computePosition(
+          this.x,
+          this.y,
+          this.z,
+          this.width,
+          this.height
+        );
+      }
+      if (propName == "position") {
+        this._positionChanged(this[propName]);
+      }
+    });
+  }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
       /**
        * Source to reference for the 3D object
        */
       source: {
-        type: String,
-        value: ""
+        type: String
       },
       /**
        * height of the element
        */
       height: {
-        type: String,
-        value: "480px"
+        type: String
       },
       /**
        * width of the element
        */
       width: {
-        type: String,
-        value: "640px"
+        type: String
       },
       /**
        * Color of the sky / background.
        */
       skyColor: {
         type: String,
-        value: "#DCDCDC"
+        attribute: "sky-color"
       },
       /**
        * If this is for augmented reality or not.
        */
       ar: {
-        type: Boolean,
-        value: false
+        type: Boolean
       },
       /**
        * x position for the AR element.
        */
       x: {
-        type: String,
-        value: "0"
+        type: String
       },
       /**
        * y position for the AR element.
        */
       y: {
-        type: String,
-        value: "0"
+        type: String
       },
       /**
        * z position for the AR element.
        */
       z: {
-        type: String,
-        value: "0"
+        type: String
       },
       /**
        * Generate a position object when coordinates change.
        */
       position: {
-        type: Object,
-        computed: "_computePosition(x, y, z, width, height)",
-        observer: "_positionChanged"
+        type: Object
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
-  /**
-   * highjack shadowDom
-   */
-  _attachDom(dom) {
-    this.appendChild(dom);
+  createRenderRoot() {
+    return this;
   }
   disconnectedCallback() {
     window.removeEventListener(
@@ -126,13 +144,6 @@ class AframePlayer extends SchemaBehaviors(PolymerElement) {
       this._aframeLoaded.bind(this)
     );
     super.disconnectedCallback();
-  }
-  constructor() {
-    super();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(AframePlayer.haxProperties, AframePlayer.tag, this);
-    });
   }
   static get haxProperties() {
     return {
@@ -152,7 +163,7 @@ class AframePlayer extends SchemaBehaviors(PolymerElement) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -243,11 +254,11 @@ class AframePlayer extends SchemaBehaviors(PolymerElement) {
 
   _aframeLoaded(el) {
     // ensure that this doesn't put full screen styles on the page!
-    this.$.scene.removeFullScreenStyles();
+    this.querySelector("#scene").removeFullScreenStyles();
     this.__entity = document.createElement("a-entity");
     this.__entity.setAttribute("gltf-model", "url(" + this.source + ")");
-    this._positionChanged();
-    this.$.scene.appendChild(this.__entity);
+    this._positionChanged(this.position);
+    this.querySelector("#scene").appendChild(this.__entity);
   }
 
   /**

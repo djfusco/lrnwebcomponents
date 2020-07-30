@@ -3,15 +3,15 @@
  * @license Apache-2.0, see License.md for full text.
  */
 
-export { Hexagon };
 /**
  * `hex-a-gon`
+ * @element hex-a-gon
  * `A simple CSS based hexagon`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @demo demo/hexagon.html
  */
 class Hexagon extends HTMLElement {
@@ -59,7 +59,6 @@ div:after {
 
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "hex-a-gon";
@@ -131,3 +130,4 @@ div:after {
   }
 }
 window.customElements.define(Hexagon.tag, Hexagon);
+export { Hexagon };

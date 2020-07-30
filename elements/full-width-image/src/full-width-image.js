@@ -2,8 +2,7 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 /**
  * `full-width-image`
  * `full width image that flows beyond boundaries`
@@ -11,36 +10,34 @@ import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js
  * @microcopy - language worth noting:
  *  - images are best used when stretched across content
  *
- * @customElement
- * @polymer
  * @demo demo/index.html
+ * @element full-width-image
  */
-class FullWidthImage extends PolymerElement {
+class FullWidthImage extends LitElement {
   /* REQUIRED FOR TOOLING DO NOT TOUCH */
 
   /**
-   * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
+   * convention
    */
   static get tag() {
     return "full-width-image";
   }
   /**
-   * life cycle, element is afixed to the DOM
+   * LitElement properties changed
    */
-  connectedCallback() {
-    super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(
-      FullWidthImage.haxProperties,
-      FullWidthImage.tag,
-      this
-    );
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "source") {
+        this._sourceChanged(this[propName]);
+      }
+    });
   }
-  // Observer source for changes
-  _sourceChanged(newValue, oldValue) {
+
+  _sourceChanged(newValue) {
     if (typeof newValue !== typeof undefined) {
-      this.$.image.style.backgroundImage = `url("${newValue}")`;
+      this.shadowRoot.querySelector(
+        "#image"
+      ).style.backgroundImage = `url("${newValue}")`;
     }
   }
 }

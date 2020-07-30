@@ -1,37 +1,18 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 /**
  * `wikipedia-query`
  * `Query and present information from wikipedia.`
- *
  * @demo demo/index.html
+ * @element wikipedia-query
  */
-class WikipediaQuery extends PolymerElement {
-  constructor() {
-    super();
-    import("@lrnwebcomponents/citation-element/citation-element.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        WikipediaQuery.haxProperties,
-        WikipediaQuery.tag,
-        this
-      );
-    });
-  }
+class WikipediaQuery extends LitElement {
   /**
-   * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
+   * LitElement constructable styles enhancement
    */
-  static get tag() {
-    return "wikipedia-query";
-  }
-  // render function
-  static get template() {
-    return html`
-      <style>
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           --wikipedia-query-body-height: 160px;
@@ -50,60 +31,105 @@ class WikipediaQuery extends PolymerElement {
           padding: 16px 8px;
           font-size: 12px;
         }
-      </style>
-      <iron-ajax
-        auto
-        url$="https://en.wikipedia.org/w/api.php?origin=*&amp;action=query&amp;titles=[[search]]&amp;prop=extracts&amp;format=json"
-        handle-as="json"
-        on-response="handleResponse"
-        debounce-duration="250"
-        last-response="{{searchResponse}}"
-      ></iron-ajax>
-      <h3 hidden$="[[!showTitle]]">[[search]] Wikipedia article</h3>
-      <div id="result" hidden$="[[!__rendercontent]]"></div>
-      <citation-element
-        hidden$="[[!__rendercontent]]"
-        creator="{Wikipedia contributors}"
-        scope="sibling"
-        license="by-sa"
-        title="[[search]] --- {Wikipedia}{,} The Free Encyclopedia"
-        source="https://en.wikipedia.org/w/index.php?title=[[search]]"
-        date="[[__now]]"
-      ></citation-element>
+      `
+    ];
+  }
+  constructor() {
+    super();
+    this.hideTitle = false;
+    let date = new Date(Date.now());
+    this.__now =
+      date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
+    setTimeout(() => {
+      import("@lrnwebcomponents/citation-element/citation-element.js");
+    }, 0);
+  }
+  /**
+   * Store the tag name to make it easier to obtain directly.
+   * @notice function name must be here for tooling to operate correctly
+   */
+  static get tag() {
+    return "wikipedia-query";
+  }
+  // LitElement render function
+  render() {
+    return html`
+      ${this.search
+        ? html`
+            <iron-ajax
+              auto
+              url="https://en.wikipedia.org/w/api.php?origin=*&amp;action=query&amp;titles=${this
+                .search}&amp;prop=extracts&amp;format=json"
+              handle-as="json"
+              @response="${this.handleResponse}"
+              debounce-duration="25"
+              @last-response-changed="${this.searchResponseChanged}"
+            ></iron-ajax>
+            <h3 .hidden="${this.hideTitle}">${this._title}</h3>
+            <div id="result"></div>
+            <citation-element
+              creator="{Wikipedia contributors}"
+              scope="sibling"
+              license="by-sa"
+              title="${this.search} --- {Wikipedia}{,} The Free Encyclopedia"
+              source="https://en.wikipedia.org/w/index.php?title=${this.search}"
+              date="${this.__now}"
+            ></citation-element>
+          `
+        : ``}
     `;
+  }
+  searchResponseChanged(e) {
+    this.searchResponse = e.detail.value;
+  }
+  /**
+   * LitElement properties updated
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "search") {
+        if (this.title) {
+          this._title = this.title;
+        } else {
+          this._title = this[propName].replace("_", " ") + " Wikipedia article";
+        }
+      }
+      if (propName == "title") {
+        if (this.title) {
+          this._title = this.title;
+        }
+      }
+    });
   }
   static get properties() {
     return {
+      title: {
+        type: String
+      },
+      __now: {
+        type: String
+      },
+      _title: {
+        type: String
+      },
       /**
-       * ShowTitle
+       * hideTitle
        */
-      showTitle: {
+      hideTitle: {
         type: Boolean,
-        value: true
+        attribute: "hide-title"
       },
       /**
        * Search string.
        */
       search: {
-        type: String,
-        value: "Polymer (library)"
-      },
-      /**
-       * Render the response as..
-       */
-      renderAs: {
-        type: String,
-        value: "content",
-        observer: "_renderAsUpdated"
-      },
-      /**
-       * Response to parse.
-       */
-      searchResponse: {
-        type: Object
+        type: String
       }
     };
   }
+  /**
+   * HAXproperties
+   */
   static get haxProperties() {
     return {
       canScale: true,
@@ -118,12 +144,17 @@ class WikipediaQuery extends PolymerElement {
         groups: ["Content", "Creative Commons"],
         handles: [
           {
+            type: "wikipedia",
+            type_exclusive: true,
+            title: "search"
+          },
+          {
             type: "content",
             title: "search"
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -137,8 +168,8 @@ class WikipediaQuery extends PolymerElement {
             required: true
           },
           {
-            property: "showTitle",
-            title: "Show title",
+            property: "hideTitle",
+            title: "Hide title",
             description: "Whether or not to render the title of the article.",
             inputMethod: "boolean",
             icon: "editor:title"
@@ -147,50 +178,37 @@ class WikipediaQuery extends PolymerElement {
         configure: [
           {
             property: "search",
-            title: "Search term",
+            title: "Article name",
             description: "Word to search wikipedia for.",
             inputMethod: "textfield",
             icon: "editor:title",
             required: true
+          },
+          {
+            property: "hideTitle",
+            title: "Hide title",
+            description: "Whether or not to render the title of the article.",
+            inputMethod: "boolean",
+            icon: "editor:title"
           }
         ]
       },
       saveOptions: {
-        wipeSlot: true
-      }
+        wipeSlot: true,
+        unsetAttributes: ["_title"]
+      },
+      demoSchema: [
+        {
+          tag: "wikipedia-query",
+          properties: {
+            hideTitle: false,
+            search: "Internet"
+          },
+          content: ""
+        }
+      ]
     };
   }
-  connectedCallback() {
-    super.connectedCallback();
-    let date = new Date(Date.now());
-    this.__now =
-      date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
-  }
-  /**
-   * Convert renderas into a variable.
-   */
-  _renderAsUpdated(newValue, oldValue) {
-    if (typeof newValue !== typeof undefined) {
-      this._resetRenderMethods();
-    }
-  }
-  /**
-   * Validate input method.
-   */
-  _validRenderMethods() {
-    var methods = ["content"];
-    return methods;
-  }
-  /**
-   * Reset all our meta attributes.
-   */
-  _resetRenderMethods() {
-    let methods = this._validRenderMethods();
-    for (var i = 0; i < methods.length; i++) {
-      this["__render" + methods[i]] = false;
-    }
-  }
-
   /**
    * Process response from wikipedia.
    */
@@ -200,7 +218,6 @@ class WikipediaQuery extends PolymerElement {
       typeof this.searchResponse !== typeof undefined &&
       this.searchResponse.query
     ) {
-      this[`__render${this.renderAs}`] = true;
       for (var key in this.searchResponse.query.pages) {
         // skip anything that's prototype object
         if (!this.searchResponse.query.pages.hasOwnProperty(key)) continue;

@@ -2,63 +2,89 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { RelativeHeadingLite } from "./lib/relative-heading-lite.js";
+import "@lrnwebcomponents/anchor-behaviors/anchor-behaviors.js";
+
 /**
  * `relative-heading`
- * `outputs the correct heading hierarchy based on parent&#39;s heading`
+ * `outputs the correct heading hierarchy based on parent heading`
  *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @polymer
  * @demo demo/index.html
+ * @demo demo/nolinks.html Disable Links
+ * @demo demo/rightalign.html Right-Align Links
+ * @element relative-heading
  */
-class RelativeHeading extends PolymerElement {
-  // render function
-  static get template() {
-    return html`
-      <style>
+class RelativeHeading extends RelativeHeadingLite {
+  //styles function
+  static get styles() {
+    return [
+      css`
         :host {
-          display: block;
+          display: flex;
+          flex-wrap: var(--relative-heading-wrap, wrap);
+          align-items: var(--relative-heading-align, center);
+          justify-content: flex-start;
         }
+
         :host([hidden]) {
           display: none;
         }
-        :host h1,
-        :host h2,
-        :host h3,
-        :host h4,
-        :host h5,
-        :host h6 {
-          @apply --relative-heading-style;
+
+        ::slotted(*) {
+          flex: 0 0 auto;
         }
-        :host h1 {
-          @apply --relative-heading-h1;
+
+        :host([link-align-right]) {
+          justify-content: space-between;
         }
-        :host h2 {
-          @apply --relative-heading-h2;
+
+        :host([link-align-right]) ::slotted(*) {
+          flex: 1 1 auto;
         }
-        :host h3 {
-          @apply --relative-heading-h3;
+
+        :host > paper-icon-button:not(:defined) {
+          opacity: 0;
         }
-        :host h4 {
-          @apply --relative-heading-h4;
+
+        :host > paper-icon-button {
+          flex: 0 0 auto;
         }
-        :host h5 {
-          @apply --relative-heading-h5;
+
+        paper-icon-button {
+          color: var(--relative-heading-button-color, #666);
+          background: var(--relative-heading-button-bg);
+          border: var(--relative-heading-button-border);
+          outline: var(--relative-heading-button-outline);
+          margin: var(--relative-heading-button-margin, 0 0 0 8px);
+          padding: var(--relative-heading-button-padding, 8px);
+          opacity: var(--relative-heading-button-opacity, 0);
+          transition: var(--relative-heading-button-transition, all 0.5s);
         }
-        :host h6 {
-          @apply --relative-heading-h6;
+
+        :host([link-align-right]) paper-icon-button,
+        :host(:not([link-align-right]):focus) paper-icon-button,
+        :host(:not([link-align-right]):focus-within) paper-icon-button,
+        :host(:not([link-align-right]):hover) paper-icon-button {
+          opacity: var(--relative-heading-button-active-opacity, 1);
         }
-      </style>
-      <h1 aria-live="polite" hidden="[[!__isLevel1]]">[[text]]</h1>
-      <h2 aria-live="polite" hidden="[[!__isLevel2]]">[[text]]</h2>
-      <h3 aria-live="polite" hidden="[[!__isLevel3]]">[[text]]</h3>
-      <h4 aria-live="polite" hidden="[[!__isLevel4]]">[[text]]</h4>
-      <h5 aria-live="polite" hidden="[[!__isLevel5]]">[[text]]</h5>
-      <h6 aria-live="polite" hidden="[[!__isLevel6]]">[[text]]</h6>
+
+        paper-icon-button:focus-within,
+        paper-icon-button:focus,
+        paper-icon-button:hover {
+          color: var(--relative-heading-button-focus-color, #000);
+          background: var(--relative-heading-button-focus-bg);
+          border: var(--relative-heading-button-focus-border);
+          outline: var(--relative-heading-button-focus-outline);
+          opacity: var(--relative-heading-button-focus-opacity, 1);
+        }
+      `
+    ];
+  }
+  // render function
+  render() {
+    return html`
+      ${this.template} ${this.button}
     `;
   }
 
@@ -89,117 +115,117 @@ class RelativeHeading extends PolymerElement {
         quick: [],
         configure: [
           {
-            property: "parentHeading",
-            description: "",
-            inputMethod: "array",
-            required: false,
-            icon: "icons:android"
+            property: "parent",
+            description: "Parent Heading's Resource ID",
+            inputMethod: "textfield",
+            required: false
           },
           {
-            property: "tag",
-            description: "",
-            inputMethod: "textfield",
-            required: false,
-            icon: "icons:android"
+            property: "disableLink",
+            description: "Disables link button feature.",
+            inputMethod: "boolean",
+            required: false
+          },
+          {
+            property: "linkAlignRight",
+            description: "Aligns copy link button to far right of heading.",
+            inputMethod: "boolean",
+            required: false
           }
         ],
-        advanced: []
+        advanced: [
+          {
+            property: "defaultLevel",
+            description: "Heading level if parent is not found.",
+            inputMethod: "number",
+            required: false
+          },
+          {
+            property: "copyMessage",
+            description:
+              "Overrides default text for copy link's toast message.",
+            inputMethod: "textfield",
+            required: false
+          },
+          {
+            property: "linkLabel",
+            description: "Overrides default label copy link button.",
+            inputMethod: "textfield",
+            required: false
+          },
+          {
+            property: "linkIcon",
+            description: "Overrides default icon copy link button.",
+            inputMethod: "iconpicker",
+            required: false
+          },
+          {
+            property: "closeLabel",
+            description:
+              "Overrides default label for copy link's toast's close button.",
+            inputMethod: "textfield",
+            required: false
+          },
+          {
+            property: "closeIcon",
+            description:
+              "Overrides default icon for copy link's toast's close button.",
+            inputMethod: "iconpicker",
+            required: false
+          }
+        ]
       }
     };
   }
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       /**
-       * The default heading level (1-6), eg., 1 for <h1>, if there  is no parent.
+       * overrides state manager's default icon for copy link's toast's close button
        */
-      defaultLevel: {
-        name: "defaultLevel",
-        type: "Number",
-        value: 1
+      closeIcon: {
+        type: String
       },
       /**
-       * The relative-heading's UUID.
+       * overrides state manager's default label for copy link's toast's close button
        */
-      id: {
-        name: "id",
-        type: "String",
-        value: null,
-        observer: "_updateChildren"
+      closeLabel: {
+        type: String
       },
       /**
-       * The parent relative-heading's UUID.
+       * overrides state manager's default message for copy link's toast
        */
-      parentId: {
-        name: "parentId",
-        type: "String",
-        value: null
+      copyMessage: {
+        type: String
       },
       /**
-       * The heading text.
+       * The relative-heading resource's UUID.
        */
-      text: {
-        name: "text",
-        type: "String",
-        value: null
+      disableLink: {
+        type: Boolean,
+        attribute: "disable-link"
       },
       /**
-       * The heading level (1-6), eg., 1 for <h1>
+       * label for copy link's button
        */
-      level: {
-        name: "level",
-        type: "Number",
-        reflectToAttribute: true,
-        computed: "_getLevel(parentId,defaultLevel)",
-        observer: "_updateChildren"
+      linkAlignRight: {
+        type: Boolean,
+        attribute: "link-align-right",
+        reflect: true
       },
       /**
-       * Is the heading an h1?
+       * icon for copy link's button
        */
-      __isLevel1: {
-        name: "__isLevel1",
-        type: "Boolean",
-        computed: "_isLevel(level,1)"
+      linkIcon: {
+        type: String
       },
       /**
-       * Is the heading an h2?
+       * label for copy link's button
        */
-      __isLevel2: {
-        name: "__isLevel2",
-        type: "Boolean",
-        computed: "_isLevel(level,2)"
-      },
-      /**
-       * Is the heading an h3?
-       */
-      __isLevel3: {
-        name: "__isLevel3",
-        type: "Boolean",
-        computed: "_isLevel(level,3)"
-      },
-      /**
-       * Is the heading an h4?
-       */
-      __isLevel4: {
-        name: "__isLevel4",
-        type: "Boolean",
-        computed: "_isLevel(level,4)"
-      },
-      /**
-       * Is the heading an h5?
-       */
-      __isLevel5: {
-        name: "__isLevel5",
-        type: "Boolean",
-        computed: "_isLevel(level,5)"
-      },
-      /**
-       * Is the heading an h6?
-       */
-      __isLevel6: {
-        name: "__isLevel6",
-        type: "Boolean",
-        computed: "_isLevel(level,6)"
+      linkLabel: {
+        type: String
       }
     };
   }
@@ -211,54 +237,57 @@ class RelativeHeading extends PolymerElement {
   static get tag() {
     return "relative-heading";
   }
+
   /**
-   * life cycle, element is afixed to the DOM
+   * Makes sure there is a utility ready and listening for elements.
    */
+  constructor() {
+    super();
+    this.linkAlignRight = false;
+    this.disableLink = false;
+    this.linkIcon = "link";
+    this.linkLabel = "Get link";
+    import("@polymer/iron-icons/iron-icons.js");
+    import("@polymer/paper-icon-button/paper-icon-button.js");
+  }
+
   connectedCallback() {
     super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(
-      RelativeHeading.haxProperties,
-      RelativeHeading.tag,
-      this
-    );
+    if (!this.disableLink) this.manager.useCopyLink();
   }
+
   /**
-   * update this level when the parent id changes
+   * gets whether heading is currently anchored
+   * @readonly
+   * @returns {boolean}
    */
-  _getLevel(parentId, defaultLevel) {
-    let root = this,
-      parent = document.querySelector("#" + parentId),
-      parentLvl =
-        parent !== null && parent.level !== undefined
-          ? parent.level
-          : defaultLevel - 1,
-      level = parentLvl < 6 ? parentLvl + 1 : 6;
-    return level;
+  get anchored() {
+    return window.AnchorBehaviors && window.AnchorBehaviors.getTarget
+      ? window.AnchorBehaviors.getTarget(this)
+      : false;
   }
-  _updateChildren() {
-    document
-      .querySelectorAll('relative-heading[parent-id="' + this.id + '"]')
-      .forEach(child => {
-        child.parentId = null;
-        child.parentId = this.id;
-      });
+
+  get button() {
+    console.log(this.disableLink);
+    return this.disableLink
+      ? html``
+      : html`
+          <paper-icon-button
+            controls="relative-heading-toast"
+            .aria-describedby="${this.id}"
+            .icon="${this.linkIcon}"
+            .title="${this.linkLabel}"
+            ?hidden="${this.disableLink}"
+            ?disabled="${this.disableLink}"
+            @click="${this._handleCopyClick}"
+          >
+          </paper-icon-button>
+        `;
   }
-  /**
-   * determines if the level matches a specific level
-   *
-   * @param {number} the heading level
-   * @param {number} the level it might match
-   * @returns {boolean} whether or not they match
-   */
-  _isLevel(level, testLevel) {
-    return level === testLevel;
+  _handleCopyClick() {
+    if (!this.disableLink && this.manager && this.manager.copyLink)
+      this.manager.copyLink(this);
   }
-  /**
-   * life cycle, element is removed from the DOM
-   * /
-  disconnectedCallback() {
-  }*/
 }
 window.customElements.define(RelativeHeading.tag, RelativeHeading);
 export { RelativeHeading };

@@ -3,19 +3,20 @@
  * @license Apache-2.0, see License.md for full text.
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import "@polymer/polymer/lib/elements/dom-repeat.js";
 import { IronMeta } from "@polymer/iron-meta/iron-meta.js";
 import "@polymer/iron-icon/iron-icon.js";
 import "@polymer/marked-element/marked-element.js";
 
-export { IconsetDemo };
 /**
  * `iconset-demo`
+ * @element iconset-demo
  * `iterates through an iconset array to generate a demo of all of the icons`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
@@ -96,12 +97,14 @@ class IconsetDemo extends PolymerElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       /**
        * all the iconsets
        */
       __iconList: {
         name: "__iconList",
-        type: "Array",
+        type: Array,
         value: []
       },
       /**
@@ -109,7 +112,7 @@ class IconsetDemo extends PolymerElement {
        */
       includeSets: {
         name: "includeSets",
-        type: "String",
+        type: String,
         value: null
       },
       /**
@@ -117,7 +120,7 @@ class IconsetDemo extends PolymerElement {
        */
       excludeSets: {
         name: "excludeSets",
-        type: "String",
+        type: String,
         value: null
       }
     };
@@ -133,10 +136,11 @@ class IconsetDemo extends PolymerElement {
   /**
    * life cycle, element is ready
    */
-  ready() {
-    super.ready();
+  connectedCallback() {
+    super.connectedCallback();
     const iconSets = new IronMeta({ type: "iconset" });
-    let temp = [];
+    let temp = [],
+      root = this;
 
     // need to access iconset imperatively now
     if (
@@ -159,7 +163,8 @@ class IconsetDemo extends PolymerElement {
         }
       });
     }
-    this.__iconList = temp;
+    this.set("__iconList", []);
+    this.set("__iconList", temp);
   }
   /**
    *  determines if a given iconset should be hidden
@@ -174,9 +179,6 @@ class IconsetDemo extends PolymerElement {
       excluded = esets.length.length > 0 && esets.includes(name);
     return !included || excluded;
   }
-  /**
-   * life cycle, element is removed from the DOM
-   */
-  //disconnectedCallback() {}
 }
 window.customElements.define(IconsetDemo.tag, IconsetDemo);
+export { IconsetDemo };

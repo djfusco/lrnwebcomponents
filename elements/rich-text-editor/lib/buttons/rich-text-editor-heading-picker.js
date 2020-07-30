@@ -12,7 +12,7 @@ import "@polymer/iron-icons/editor-icons.js";
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
  */
 class RichTextEditorHeadingPicker extends RichTextEditorPicker {
@@ -21,6 +21,7 @@ class RichTextEditorHeadingPicker extends RichTextEditorPicker {
     this.command = "formatBlock";
     this.icon = null;
     this.label = "Block format";
+    this.allowNull = true;
   }
 
   // properties available to the custom element for data binding
@@ -68,14 +69,13 @@ class RichTextEditorHeadingPicker extends RichTextEditorPicker {
 
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "rich-text-editor-heading-picker";
   }
 
   _getBlockOptions(blocks) {
-    let temp = [];
+    let temp = [[{ alt: this.label, value: null }]];
     blocks.forEach(function(block) {
       temp.push([
         {

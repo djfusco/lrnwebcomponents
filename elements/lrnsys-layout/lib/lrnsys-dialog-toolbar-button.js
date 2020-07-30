@@ -1,13 +1,11 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
-import "@polymer/paper-button/paper-button.js";
-import "@polymer/iron-icon/iron-icon.js";
-import "@polymer/iron-icons/iron-icons.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
-class LrnsysDialogToolbarButton extends PolymerElement {
-  static get template() {
-    return html`
-      <style>
+import { LitElement, html, css } from "lit-element/lit-element.js";
+class LrnsysDialogToolbarButton extends LitElement {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: inline-block;
         }
@@ -16,24 +14,43 @@ class LrnsysDialogToolbarButton extends PolymerElement {
           height: 16px;
           width: 16px;
         }
-      </style>
+      `
+    ];
+  }
+  /**
+   * LitElement render
+   */
+  render() {
+    return html`
       <paper-button
         raised
-        on-click="_onTap"
-        id$="[[id]]"
-        aria-label$="[[title]]"
+        @click="${this._onTap}"
+        id="${this.id}"
+        aria-label="${this.title}"
       >
-        <iron-icon icon="[[icon]]"></iron-icon> [[title]]
+        <iron-icon icon="${this.icon}"></iron-icon> ${this.title}
       </paper-button>
-      <paper-tooltip for$="[[id]]" animation-delay="200"
-        >[[title]]</paper-tooltip
+      <simple-tooltip for="${this.id}" animation-delay="0"
+        >${this.title}</simple-tooltip
       >
     `;
   }
   static get tag() {
     return "lrnsys-dialog-toolbar-button";
   }
-
+  /**
+   * HTMLElement
+   */
+  constructor() {
+    super();
+    import("@polymer/paper-button/paper-button.js");
+    import("@polymer/iron-icon/iron-icon.js");
+    import("@polymer/iron-icons/iron-icons.js");
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
+  }
+  /**
+   * LitElement / popular convention
+   */
   static get properties() {
     return {
       /**
@@ -60,13 +77,9 @@ class LrnsysDialogToolbarButton extends PolymerElement {
   /**
    * Ready lifecycle
    */
-  ready() {
-    super.ready();
+  firstUpdated(changedProperties) {
     this.dispatchEvent(
       new CustomEvent("button-initialized", {
-        bubbles: true,
-        cancelable: true,
-        composed: true,
         detail: { id: this.id }
       })
     );
@@ -76,15 +89,9 @@ class LrnsysDialogToolbarButton extends PolymerElement {
    * Button has been tapped.
    */
   _onTap(e) {
-    var normalizedEvent = dom(e);
-    var localTarget = normalizedEvent.localTarget;
-    var id = localTarget.getAttribute("id");
     this.dispatchEvent(
       new CustomEvent("dialog-toolbar-button-tapped", {
-        bubbles: true,
-        cancelable: true,
-        composed: true,
-        detail: { id: id }
+        detail: { id: e.target.getAttribute("id") }
       })
     );
   }

@@ -1,62 +1,89 @@
-import "../responsive-utility.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { ResponsiveUtility } from "../responsive-utility.js";
 /**
- * `responsive-utility-nehaviors`
- * `A simpler way to use responsive utility.`
+ * `responsive-utility-behaviors`
+ * A superclass to that custom elements can extend to automatically use ResponsiveUtility.
+ *
+ * @class ResponsiveUtilityBehaviors
+ * @see ResponsiveUtility
+ * @demo ../demo/index.html
  */
-export const ResponsiveUtilityBehaviors = function(SuperClass) {
+
+export const ResponsiveUtilityBehaviors = SuperClass => {
   return class extends SuperClass {
     static get properties() {
+      let props = {};
+      if (super.properties) {
+        props = super.properties;
+      }
       return {
+        ...props,
         /*
-         * parent size for responsive styling
+         * size for responsive styling: xs, sm, md, lg, xl
          */
         responsiveSize: {
           type: String,
-          value: "xs",
-          reflectToAttribute: true
+          attribute: "responsive-size",
+          reflect: true
         },
         /*
-         * acts like an element query instead of @media query
+         * width in pixels
          */
-        responsiveToParent: {
-          type: Boolean,
-          value: true
+        responsiveWidth: {
+          type: Number,
+          attribute: "responsive-width",
+          reflect: true
         },
         /*
          * Miniumum value for small breakpoint
          */
         sm: {
           type: Number,
-          value: 600
+          attribute: "sm"
         },
         /*
          * Miniumum value for medium breakpoint
          */
         md: {
           type: Number,
-          value: 900
+          attribute: "md"
         },
         /*
          * Miniumum value for large breakpoint
          */
-        md: {
+        lg: {
           type: Number,
-          value: 1200
+          attribute: "lg"
         },
         /**
          * Miniumum value for extra-large breakpoint
          */
-        md: {
+        xl: {
           type: Number,
-          value: 1500
+          attribute: "xl"
         }
       };
+    }
+
+    render() {
+      return html`
+        <slot></slot>
+      `;
+    }
+
+    constructor() {
+      super();
+      this.responsiveSize = "xs";
+      this.sm = 600;
+      this.md = 900;
+      this.lg = 1200;
+      this.xl = 1500;
     }
     /**
      * init the utility & register element
      */
-    connectedCallback() {
-      super.connectedCallback();
+    firstUpdated() {
+      super.firstUpdated();
       window.ResponsiveUtility.requestAvailability();
       this.dispatchEvent(
         new CustomEvent("responsive-element", {
@@ -64,13 +91,13 @@ export const ResponsiveUtilityBehaviors = function(SuperClass) {
           cancelable: true,
           composed: true,
           detail: {
+            attribute: "responsive-size",
+            custom: "responsive-width",
             element: this,
             sm: this.sm,
             md: this.md,
             lg: this.lg,
-            xl: this.xl,
-            responsiveToParent: this.responsiveToParent,
-            attribute: this.attribute
+            xl: this.xl
           }
         })
       );

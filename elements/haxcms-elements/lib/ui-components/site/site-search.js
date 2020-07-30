@@ -2,36 +2,25 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import "@polymer/iron-list/iron-list.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import "@lrnwebcomponents/simple-fields/lib/simple-fields-field.js";
+import "@polymer/iron-icons/iron-icons.js";
+import "@polymer/iron-icon/iron-icon.js";
 /**
  * `site-search`
  * `Searching HAXcms content using the auto-generated lunr search configuration`
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
-class SiteSearch extends PolymerElement {
+class SiteSearch extends LitElement {
   /**
-   * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
+   * LitElement constructable styles enhancement
    */
-  static get tag() {
-    return "site-search";
-  }
-  constructor() {
-    super();
-    import("@polymer/paper-input/paper-input.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/iron-icon/iron-icon.js");
-    import("@lrnwebcomponents/lunr-search/lunr-search.js");
-    import("@lrnwebcomponents/simple-datetime/simple-datetime.js");
-  }
-  // render function
-  static get template() {
-    return html`
-      <style>
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           font-size: 16px;
@@ -39,97 +28,142 @@ class SiteSearch extends PolymerElement {
           height: 55vh;
           width: 60vh;
         }
+        [hidden] {
+          display: none;
+        }
         .result {
           display: block;
-          background-color: #eeeeee;
-          color: #222222;
-          border: 1px solid black;
-          padding: 16px;
-          @apply --site-search-result;
+          background-color: var(--site-search-result-background-color, #eeeeee);
+          color: var(--site-search-result-color, #222222);
+          margin-bottom: 1.5rem;
+          padding-bottom: 0.5rem;
         }
         .result:hover,
         .result:focus {
-          background-color: #dddddd;
-          color: black;
+          background-color: var(
+            --site-search-result-background-color-hover,
+            #dddddd
+          );
           color: var(--site-search-link-color-hover, #000000);
-          text-decoration: underline;
-          @apply --site-search-result-hover;
+          text-decoration: none;
+          outline: 2px solid grey;
+          outline-offset: 4px;
         }
         .result .title {
           font-size: 28px;
           margin: 0 0 8px 0;
           line-height: 1;
-          @apply --site-search-link-text;
         }
         .result {
           color: var(--site-search-link-color, #444444);
           text-decoration: none;
+        }
+        simple-datetime {
+          color: var(--site-search-link-color, #444444);
         }
         .result .link-text {
           font-size: 12px;
           color: var(--site-search-link-text-color, #999999);
           font-style: italic;
           padding-left: 8px;
-          @apply --site-search-link-text;
+        }
+        .results-found-text {
+          margin-bottom: 1.5rem;
+          padding-bottom: 0.5rem;
         }
         #search {
           flex-grow: 2;
           margin-right: 4px;
-          --paper-input-container-input-color: var(
-            --site-search-text-color,
-            #000
-          );
-          --paper-input-container-shared-input-style_-_color: var(
-            --site-search-text-color,
-            #000
-          );
-          --paper-input-container-focus-color: var(
-            --site-search-line-color,
-            #000
-          );
-          --paper-input-container-color: var(
-            --site-search-placeholder-color,
-            #222
-          );
+          --simple-fields-accent-color: var(--site-search-text-color, #000);
           color: var(--site-search-placeholder-color, #222);
         }
-      </style>
-      <paper-input
+      `
+    ];
+  }
+  /**
+   * Store the tag name to make it easier to obtain directly.
+   */
+  static get tag() {
+    return "site-search";
+  }
+  constructor() {
+    super();
+    this.hideInput = false;
+    this.search = "";
+    this.showPath = false;
+    this.showDate = false;
+    this.__results = [];
+    setTimeout(() => {
+      import("@lrnwebcomponents/lunr-search/lunr-search.js");
+      import("@lrnwebcomponents/simple-datetime/simple-datetime.js");
+    }, 0);
+  }
+  // render function
+  render() {
+    return html`
+      <simple-fields-field
+        ?hidden="${this.hideInput}"
         id="search"
         always-float-label
         label="Search"
-        value="{{search}}"
+        type="text"
+        @value-changed="${this._searchValueChanged}"
       >
         <iron-icon icon="search" slot="prefix"></iron-icon>
-      </paper-input>
-      <template is="dom-if" if="[[search]]">
-        Found [[__results.length]] results.
-      </template>
-      <lunr-search
-        data-source="[[dataSource]]"
-        search="[[search]]"
-        results="{{__results}}"
-      ></lunr-search>
-      <iron-list items="[[__results]]">
-        <template>
-          <a class="result" href$="[[item.location]]">
+      </simple-fields-field>
+      ${this.search.length > 0
+        ? html`
+            <h1 class="results-found-text">
+              Found ${this.__results.length} results.
+            </h1>
+          `
+        : html``}
+      <lunr-search id="lunr"></lunr-search>
+
+      ${this.__results.map(
+        item => html`
+          <a
+            class="result"
+            .href="${item.location}"
+            @click="${this.selectionMade}"
+          >
             <div class="title">
-              [[item.title]]<span class="link-text" aria-hidden="true"
-                >([[item.location]])</span
+              ${item.title}<span
+                ?hidden="${!this.showPath}"
+                class="link-text"
+                aria-hidden="true"
+                >(${item.location})</span
               >
             </div>
-            <div class="date">
-              <simple-datetime
-                format="M jS"
-                timestamp="[[item.created]]"
-                unix
-              ></simple-datetime>
+            <div class="date" ?hidden="${!this.showDate}">
+              <simple-datetime format="M jS" .timestamp="${item.created}" unix
+                >${item.created}</simple-datetime
+              >
             </div>
-            <p>[[item.description]]..</p>
+            <p>${item.description}..</p>
           </a>
-        </template>
-      </iron-list>
+        `
+      )}
     `;
+  }
+  selectionMade(e) {
+    this.dispatchEvent(
+      new CustomEvent(`search-item-selected`, {
+        detail: {
+          value: e.detail
+        }
+      })
+    );
+  }
+  _searchValueChanged(e) {
+    this.search = e.detail.value;
+  }
+  __resultsChanged(e) {
+    if (e.detail.value) {
+      this.__results = [...e.detail.value];
+    } else {
+      this.__results = [];
+    }
   }
   /**
    * Mix in an opened status
@@ -137,16 +171,50 @@ class SiteSearch extends PolymerElement {
   static get properties() {
     return {
       dataSource: {
-        type: String
+        type: String,
+        attribute: "data-source"
+      },
+      showDate: {
+        type: Boolean,
+        attribute: "show-date"
+      },
+      showPath: {
+        type: Boolean,
+        attribute: "show-path"
+      },
+      hideInput: {
+        type: Boolean,
+        attribute: "hide-input"
       },
       search: {
-        type: String,
-        observer: "_searchChanged"
+        type: String
       },
       __results: {
         type: Array
       }
     };
+  }
+  /**
+   * LitElement life cycle - ready callback
+   */
+  firstUpdated(changedProperties) {
+    this.shadowRoot
+      .querySelector("#lunr")
+      .addEventListener("results-changed", this.__resultsChanged.bind(this));
+  }
+  /**
+   * LitElement life cycle - properties changed callback
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "search") {
+        this._searchChanged(this[propName], oldValue);
+        this.shadowRoot.querySelector("#lunr").search = this[propName];
+      }
+      if (propName == "dataSource" && this[propName]) {
+        this.shadowRoot.querySelector("#lunr").dataSource = this[propName];
+      }
+    });
   }
   /**
    * Notice search term changed and let's fire up some results

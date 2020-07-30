@@ -10,7 +10,9 @@
     "groups": ["Block"],
     "handles": [
       {
-        "type": "todo:read-the-docs-for-usage"
+        "type": "markdown",
+        "source": "source",
+        "src": "source"
       }
     ],
     "meta": {
@@ -43,5 +45,14 @@
       }
     ],
     "advanced": []
-  }
+  },
+  "demoSchema": [
+    {
+      "tag": "md-block",
+      "properties": {
+        "source": "https://raw.githubusercontent.com/elmsln/HAXcms/master/HAXDocs.md"
+      },
+      "content": ""
+    }
+  ]
 }

@@ -2,20 +2,15 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { html, css } from "lit-element/lit-element.js";
+
 import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 /**
  * `filtered-image`
  * `An image using an SVG filter. Can be used to make background images have more contrast with text.`
- *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @polymer
  * @demo demo/index.html
  * @demo demo/filters.html Filters
+ * @element filtered-image
  */
 class FilteredImage extends SimpleColors {
   /* REQUIRED FOR TOOLING DO NOT TOUCH */
@@ -28,16 +23,46 @@ class FilteredImage extends SimpleColors {
     return "filtered-image";
   }
   /**
-   * life cycle, element is afixed to the DOM
+   * HTMLElement
    */
-  connectedCallback() {
-    super.connectedCallback();
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(FilteredImage.haxProperties, FilteredImage.tag, this);
-    this._srcChanged();
+  constructor() {
+    super();
+    this.src = "";
+    this.alt = "";
+    this.height = "";
+    this.width = "";
+    this.color = "#ffffff";
+    this.strength = 1;
+    this.contrast = 0;
+  }
+  /**
+   * LitElement properties changed
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "src") {
+        this._srcChanged(this[propName]);
+      }
+      if (propName == "height") {
+        this._heightChanged(this[propName]);
+      }
+      if (propName == "width") {
+        this._widthChanged(this[propName]);
+      }
+      if (["src", "matrix"].includes(propName)) {
+        this.__id = this._getID(this.src, this.matrix);
+      }
+      if (["color", "contrast", "strength"].includes(propName)) {
+        this.__matrix = this._getMatrix(
+          this.color,
+          this.contrast,
+          this.strength
+        );
+      }
+    });
   }
   _heightChanged() {
-    let svg = this.$.svg,
+    let svg = this.shadowRoot.querySelector("#svg"),
       image = svg.querySelector("#image"),
       rect = svg.querySelector("#rect");
     svg.setAttribute("height", this.height);
@@ -45,18 +70,15 @@ class FilteredImage extends SimpleColors {
     rect.setAttribute("height", this.height);
   }
   _widthChanged() {
-    let svg = this.$.svg,
+    let svg = this.shadowRoot.querySelector("#svg"),
       image = svg.querySelector("#image"),
       rect = svg.querySelector("#rect");
     svg.setAttribute("width", this.width);
     image.setAttribute("width", this.width);
     rect.setAttribute("width", this.width);
   }
-  _getViewBox(height, width) {
-    return `0 0 ${width} ${height}`;
-  }
   _srcChanged() {
-    let svg = this.$.svg,
+    let svg = this.shadowRoot.querySelector("#svg"),
       image = svg.querySelector("#image");
     image.setAttribute("href", this.src);
     image.setAttribute("xlink:href", this.src);
@@ -68,7 +90,7 @@ class FilteredImage extends SimpleColors {
         [0, 0, 1, 0, 0],
         [0, 0, 0, 1, 0]
       ],
-      svg = this.$.svg,
+      svg = this.shadowRoot.querySelector("#svg"),
       matrix = svg.querySelector("#matrix"),
       rgba = null;
     if (color.startsWith("#") && color.length > 6) {
@@ -95,7 +117,6 @@ class FilteredImage extends SimpleColors {
       values[2][2] = parseInt(rgba[2] / 255);
       values[3][3] = values[3][3] || "1";
     }
-    //console.log(values);
 
     if (contrast !== 0) {
       values[0][3] = (values[0][0] * contrast) / 100;
@@ -103,18 +124,10 @@ class FilteredImage extends SimpleColors {
       values[2][3] = (values[2][2] * contrast) / 100;
     }
     if (strength !== 1) {
-      let adjust = function(val, strength) {
-        let diff = 1 - val,
-          pct = diff / 100,
-          adjustment = pct * (1 - strength);
-        return val + (1 - val) * 0.01 * (1 - strength);
-      };
       values[0][0] = values[0][0] + (1 - strength) * (1 - values[0][0]);
       values[1][1] = values[1][1] + (1 - strength) * (1 - values[1][1]);
       values[2][2] = values[2][2] + (1 - strength) * (1 - values[2][2]);
     }
-
-    console.log(values);
 
     matrix.setAttribute(
       "values",
@@ -126,10 +139,6 @@ class FilteredImage extends SimpleColors {
     let id = "svg" + Math.random();
     return id.replace(/0./g, "-");
   }
-  /**
-   * life cycle, element is removed from the DOM
-   */
-  //disconnectedCallback() {}
 }
 window.customElements.define(FilteredImage.tag, FilteredImage);
 export { FilteredImage };

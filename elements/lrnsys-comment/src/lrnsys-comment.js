@@ -3,7 +3,6 @@
  * @license Apache-2.0, see License.md for full text.
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
 import * as async from "@polymer/polymer/lib/utils/async.js";
 import "@polymer/paper-input/paper-textarea.js";
 import "@lrnwebcomponents/materializecss-styles/lib/colors.js";
@@ -24,7 +23,7 @@ class LrnsysComment extends PolymerElement {
   constructor() {
     super();
     import("@polymer/iron-icons/editor-icons.js");
-    import("@polymer/paper-tooltip/paper-tooltip.js");
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
     import("@polymer/marked-element/marked-element.js");
     import("@polymer/paper-badge/paper-badge.js");
     import("@lrnwebcomponents/moment-element/moment-element.js");
@@ -175,8 +174,8 @@ class LrnsysComment extends PolymerElement {
           font-weight: normal;
         }
         paper-badge {
-          right: 0px;
-          top: 0px;
+          display: flex;
+          float: right;
         }
         .like-icon-color {
           color: #2196f3;
@@ -202,12 +201,23 @@ class LrnsysComment extends PolymerElement {
               src="[[comment.relationships.author.data.avatar]]"
               class="float-left ferpa-protect"
             ></lrndesign-avatar>
-            <paper-tooltip
+            <simple-tooltip
               for="avatar"
               animation-delay="0"
               class="ferpa-protect"
-              >[[displayName]]</paper-tooltip
+              >[[displayName]]</simple-tooltip
             >
+            <template
+              is="dom-if"
+              if="[[comment.relationships.author.data.visual.icon]]"
+            >
+              <paper-badge
+                icon="[[comment.relationships.author.data.visual.icon]]"
+                for="papercard"
+                label="[[comment.relationships.author.data.visual.label]]"
+              >
+              </paper-badge>
+            </template>
           </div>
           <div class="comment-content">
             <div class="comment-body">
@@ -330,17 +340,6 @@ class LrnsysComment extends PolymerElement {
           </div>
         </div>
       </div>
-      <template
-        is="dom-if"
-        if="[[comment.relationships.author.data.visual.icon]]"
-      >
-        <paper-badge
-          icon="[[comment.relationships.author.data.visual.icon]]"
-          for="papercard"
-          label="[[comment.relationships.author.data.visual.label]]"
-        >
-        </paper-badge>
-      </template>
     `;
   }
 
@@ -389,19 +388,24 @@ class LrnsysComment extends PolymerElement {
    */
   connectedCallback() {
     super.connectedCallback();
-    this.$.bodyarea.addEventListener("click", this.bodyToggle.bind(this));
-    this.$.bodyarea.addEventListener("dblclick", this.bodyToggleOn.bind(this));
+    this.shadowRoot
+      .querySelector("#bodyarea")
+      .addEventListener("click", this.bodyToggle.bind(this));
+    this.shadowRoot
+      .querySelector("#bodyarea")
+      .addEventListener("dblclick", this.bodyToggleOn.bind(this));
   }
   /**
    * detached lifecycle
    */
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.$.bodyarea.removeEventListener("click", this.bodyToggle.bind(this));
-    this.$.bodyarea.removeEventListener(
-      "dblclick",
-      this.bodyToggleOn.bind(this)
-    );
+    this.shadowRoot
+      .querySelector("#bodyarea")
+      .removeEventListener("click", this.bodyToggle.bind(this));
+    this.shadowRoot
+      .querySelector("#bodyarea")
+      .removeEventListener("dblclick", this.bodyToggleOn.bind(this));
   }
 
   _generateName(name, visual) {
@@ -429,8 +433,7 @@ class LrnsysComment extends PolymerElement {
    */
   actionHandler(e) {
     // convert click handler into local dom object
-    var normalizedEvent = dom(e);
-    var target = normalizedEvent.localTarget;
+    var target = e.target;
     var comment = null;
     // ensure we have a comment ID to operate against
     if (target.dataCommentid != null && !target.disabled) {
@@ -446,7 +449,9 @@ class LrnsysComment extends PolymerElement {
           })
         );
       } else if (target.id == "like") {
-        this.$.like.classList.toggle("like-icon-color");
+        this.shadowRoot
+          .querySelector("#like")
+          .classList.toggle("like-icon-color");
         this.dispatchEvent(
           new CustomEvent("comment-like", {
             bubbles: true,
@@ -482,14 +487,16 @@ class LrnsysComment extends PolymerElement {
     if (typeof this.comment !== typeof undefined && this.comment.actions.edit) {
       async.microTask.run(() => {
         // show / hide the edit vs display area
-        this.$.renderedcomment.hidden = this.editform;
-        this.$.commenteditor.hidden = !this.editform;
+        this.shadowRoot.querySelector(
+          "#renderedcomment"
+        ).hidden = this.editform;
+        this.shadowRoot.querySelector("#commenteditor").hidden = !this.editform;
         // simple icon toggle
         if (this.editform) {
-          this.$.edit.icon = "save";
-          this.$.edit.alt = "Save";
-          this.$.reply.disabled = true;
-          this.$.editcomment.focus();
+          this.shadowRoot.querySelector("#edit").icon = "save";
+          this.shadowRoot.querySelector("#edit").alt = "Save";
+          this.shadowRoot.querySelector("#reply").disabled = true;
+          this.shadowRoot.querySelector("#editcomment").focus();
           this.dispatchEvent(
             new CustomEvent("comment-editing", {
               bubbles: true,
@@ -512,9 +519,9 @@ class LrnsysComment extends PolymerElement {
           } else {
             this.blockFirstState = false;
           }
-          this.$.edit.icon = "create";
-          this.$.edit.alt = "Edit";
-          this.$.reply.disabled = false;
+          this.shadowRoot.querySelector("#edit").icon = "create";
+          this.shadowRoot.querySelector("#edit").alt = "Edit";
+          this.shadowRoot.querySelector("#reply").disabled = false;
         }
       });
     }
@@ -523,14 +530,14 @@ class LrnsysComment extends PolymerElement {
    * Toggle the body field expanding to show the whole comment
    */
   bodyToggle(e) {
-    this.$.bodyarea.classList.remove("nowrap-me");
+    this.shadowRoot.querySelector("#bodyarea").classList.remove("nowrap-me");
   }
 
   /**
    * Toggle the body field expanding to show the whole comment
    */
   bodyToggleOn(e) {
-    this.$.bodyarea.classList.toggle("nowrap-me");
+    this.shadowRoot.querySelector("#bodyarea").classList.toggle("nowrap-me");
   }
 }
 window.customElements.define(LrnsysComment.tag, LrnsysComment);

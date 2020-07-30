@@ -3,33 +3,24 @@
  * @license Apache-2.0, see License.md for full text.
  */
 import { html } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { SimpleColorsPolymer } from "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 import { A11yBehaviors } from "@lrnwebcomponents/a11y-behaviors/a11y-behaviors.js";
 /**
  * `lrndesign-paperstack`
+ * @element lrndesign-paperstack
  * `Stack of papers visually`
  *
  * @demo demo/index.html
  */
-class LrndesignPaperstack extends A11yBehaviors(SimpleColors) {
+class LrndesignPaperstack extends A11yBehaviors(SimpleColorsPolymer) {
   constructor() {
     super();
     import("@polymer/iron-icon/iron-icon.js");
     import("@lrnwebcomponents/lrn-icons/lrn-icons.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        LrndesignPaperstack.haxProperties,
-        LrndesignPaperstack.tag,
-        this
-      );
-    });
   }
   static get template() {
     return html`
-      <style>
+      <style include="simple-colors-shared-styles-polymer">
         :host {
           display: block;
           font-size: 14px;
@@ -110,9 +101,9 @@ class LrndesignPaperstack extends A11yBehaviors(SimpleColors) {
         }
 
         iron-icon {
-          width: 90%;
-          height: 90%;
-          flex: 1 1 auto;
+          width: 40px;
+          height: 40px;
+          margin: 4px;
           color: var(--lrndesign-paperstack-bg);
         }
         .heading {
@@ -153,13 +144,15 @@ class LrndesignPaperstack extends A11yBehaviors(SimpleColors) {
     return "lrndesign-paperstack";
   }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Title
        */
       title: {
         type: String,
-        value: "Title"
+        value: ""
       },
       /**
        * icon
@@ -169,10 +162,6 @@ class LrndesignPaperstack extends A11yBehaviors(SimpleColors) {
         value: "lrn:assignment"
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   static get haxProperties() {
     return {
@@ -184,10 +173,10 @@ class LrndesignPaperstack extends A11yBehaviors(SimpleColors) {
         description: "A stack of papers",
         icon: "icons:content-copy",
         color: "grey",
-        groups: ["Video", "Media"],
+        groups: ["Content", "Layout"],
         handles: [],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {

@@ -1,93 +1,47 @@
 {
   /**
-   * The default heading level (1-6), eg., 1 for <h1>, if there  is no parent.
+   * overrides state manager's default icon for copy link's toast's close button
    */
-  "defaultLevel": {
-    "name": "defaultLevel",
-    "type": "Number",
-    "value": 1
+  "closeIcon": {
+    "type": "String"
   },
   /**
-   * The relative-heading's UUID.
+   * overrides state manager's default label for copy link's toast's close button
    */
-  "id": {
-    "name": "id",
-    "type": "String",
-    "value": null,
-    "observer": "_updateChildren"
+  "closeLabel": {
+    "type": "String"
   },
   /**
-   * The parent relative-heading's UUID.
+   * overrides state manager's default message for copy link's toast
    */
-  "parentId": {
-    "name": "parentId",
-    "type": "String",
-    "value": null
+  "copyMessage": {
+    "type": "String"
   },
   /**
-   * The heading text.
+   * The relative-heading resource's UUID.
    */
-  "text": {
-    "name": "text",
-    "type": "String",
-    "value": null
-  },
-  /**
-   * The heading level (1-6), eg., 1 for <h1>
-   */
-  "level": {
-    "name": "level",
-    "type": "Number",
-    "reflectToAttribute": true,
-    "computed": "_getLevel(parentId,defaultLevel)",
-    "observer": "_updateChildren"
-  },
-  /**
-   * Is the heading an h1?
-   */
-  "__isLevel1": {
-    "name": "__isLevel1",
+  "disableLink": {
     "type": "Boolean",
-    "computed": "_isLevel(level,1)"
+    "attribute": "disable-link"
   },
   /**
-   * Is the heading an h2?
+   * label for copy link's button
    */
-  "__isLevel2": {
-    "name": "__isLevel2",
+  "linkAlignRight": {
     "type": "Boolean",
-    "computed": "_isLevel(level,2)"
+    "attribute": "link-align-right",
+    "reflect": true
   },
   /**
-   * Is the heading an h3?
+   * icon for copy link's button
    */
-  "__isLevel3": {
-    "name": "__isLevel3",
-    "type": "Boolean",
-    "computed": "_isLevel(level,3)"
+  "linkIcon": {
+    "type": "String"
   },
   /**
-   * Is the heading an h4?
+   * label for copy link's button
    */
-  "__isLevel4": {
-    "name": "__isLevel4",
-    "type": "Boolean",
-    "computed": "_isLevel(level,4)"
-  },
-  /**
-   * Is the heading an h5?
-   */
-  "__isLevel5": {
-    "name": "__isLevel5",
-    "type": "Boolean",
-    "computed": "_isLevel(level,5)"
-  },
-  /**
-   * Is the heading an h6?
-   */
-  "__isLevel6": {
-    "name": "__isLevel6",
-    "type": "Boolean",
-    "computed": "_isLevel(level,6)"
+  "linkLabel": {
+    "type": "String"
   }
 }

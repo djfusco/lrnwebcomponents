@@ -4,6 +4,7 @@
  */
 /**
  * `json-outline-schema-item`
+ * @element json-outline-schema-item
  * `A single item inside of json outline schema's items array`
  *
  * @microcopy - language worth noting:
@@ -18,6 +19,7 @@ class JSONOutlineSchemaItem {
     this.id = "item-" + this.generateUUID();
     this.title = "New item";
     this.location = "";
+    this.slug = "";
     this.description = "";
     this.parent = "";
     this.metadata = {};

@@ -1,20 +1,12 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 /**
  * `simple-image`
+ * @element simple-image
  * `A minimalist image that modals and presents info cleanly.`
  * @demo demo/index.html
  */
 class SimpleImage extends SchemaBehaviors(PolymerElement) {
-  constructor() {
-    super();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(SimpleImage.haxProperties, SimpleImage.tag, this);
-    });
-  }
   static get template() {
     return html`
       <style>
@@ -180,10 +172,12 @@ class SimpleImage extends SchemaBehaviors(PolymerElement) {
                 icon="icons:fullscreen-exit"
                 class="close-modal modal--close"
               ></paper-icon-button>
-              <paper-tooltip for="closearea" position="bottom" offset="14">
+              <simple-tooltip for="closearea" position="bottom" offset="14">
                 close modal
-              </paper-tooltip>
-              <div class="content"><img src\$="[[src]]" alt\$="[[alt]]" /></div>
+              </simple-tooltip>
+              <div class="content">
+                <img loading="lazy" src\$="[[src]]" alt\$="[[alt]]" />
+              </div>
 
               <div class="meta">
                 <div class="credit">[[credit]]</div>
@@ -241,7 +235,9 @@ class SimpleImage extends SchemaBehaviors(PolymerElement) {
     return "simple-image";
   }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * image source
        */
@@ -267,10 +263,6 @@ class SimpleImage extends SchemaBehaviors(PolymerElement) {
         type: String
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   static get haxProperties() {
     return {
@@ -291,7 +283,7 @@ class SimpleImage extends SchemaBehaviors(PolymerElement) {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {

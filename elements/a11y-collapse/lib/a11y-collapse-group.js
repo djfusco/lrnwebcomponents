@@ -1,117 +1,229 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import "../a11y-collapse.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import { A11yCollapse } from "../a11y-collapse.js";
 /**
  * `a11y-collapse-group`
- * A group of a11y-collapse elements
- * @microcopy - the mental model for this element```
-<a11y-collapse-group 
-  global-options='{"prop": "value"}'     //Optional: An object that will automatica11y override and set properties for every a11y-collapse.
-  radio>                                 //Optional: radio. If true, only one item in the group can be expanded at a time.
-  <h2 slot="heading">Colors List</h2>    //Optional: Adds the slotted content above the group
-  <a11y-collapse>...</a11y-collapse>     //An a11y-collapse item. See documentation for the a11y-collapse
-</a11y-collapse-group>
+ * a group of `a11y-collapse` elements
+ * 
+### Styling
 
-CSS Mixins:
-  --a11y-collapse-group                    //sets CSS for the a11y-collapse-group
-  --a11y-collapse-group-heading            //sets CSS for the a11y-collapse-group heading
-```
+`<a11y-collapse-group>` provides the following custom properties
+for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--a11y-collapse-group-margin` | margin around the a11y-collapse-group | 15px 0
  *
- * @customElement
- * @polymer
- * @demo demo/accordion.html collapse groups
+ * @element a11y-collapse-group
+ * @extends A11yCollapse
+ * @see ../a11y-collapse.js
+ * @demo ./demo/group.html collapse groups
+ * @element a11y-collapse-group
  */
-
-class A11yCollapseGroup extends PolymerElement {
-  static get tag() {
-    return "a11y-collapse-group";
-  }
-  static get template() {
-    return html`
-      <style>
+class A11yCollapseGroup extends LitElement {
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           margin: var(--a11y-collapse-group-margin, 15px 0);
           --a11y-collapse-margin: 15px;
-
-          @apply --a11y-collapse-group;
         }
-        :host #heading {
+        :host([hidden]) {
+          display: none;
+        }
+        #heading {
           font-weight: bold;
-          @apply --a11y-collapse-group-heading;
         }
-        :host .wrapper {
+        .wrapper {
           border-radius: 0;
-          --a11y-collapse-margin: 0;
+          --a11y-collapse-margin: 0 0;
           --a11y-collapse-border-between: none;
         }
-      </style>
+      `
+    ];
+  }
+  render() {
+    return html`
       <div class="wrapper"><slot></slot></div>
     `;
   }
+  constructor() {
+    super();
+    this.globalOptions = {};
+    this.radio = false;
+    this.__items = [];
+    this.addEventListener("a11y-collapse-attached", e => {
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      this._attachItem(e.detail);
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    });
+    this.addEventListener("a11y-collapse-detached", e => {
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      this._detachItem(e.detail);
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    });
+    this.addEventListener("a11y-collapse-click", e => {
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      this.radioToggle(e.detail);
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    });
+    this.addEventListener("toggle", e => {
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      this.radioToggle(e.detail);
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    });
+  }
+  static get tag() {
+    return "a11y-collapse-group";
+  }
+
   static get properties() {
     return {
+      ...super.properties,
+      ...A11yCollapse.properties,
       /**
        * an array of globalProperties to override every a11y-collapse item
        * For example, {"icon": "arrow-drop-down"} would set every item's icon to "arrow-drop-down"
        */
       globalOptions: {
         type: Object,
-        value: {}
+        attribute: "global-options",
+        reflect: true
       },
       /**
-       * is every a11y-collapse item radio button?
+       * Acts like a radio button. (Items can only be expanded one at a time.)
        */
       radio: {
         type: Boolean,
-        value: false
+        attribute: "radio"
       },
       /**
        * is radio button
        */
       __items: {
-        type: Array,
-        value: []
+        type: Array
       }
     };
   }
-  constructor() {
-    super();
-    this.addEventListener("a11y-collapse-attached", function(e) {
-      this._attachItem(e.detail);
-    });
-    this.addEventListener("a11y-collapse-detached", function(e) {
-      this._detachItem(e.detail);
-    });
-    this.addEventListener("a11y-collapse-click", function(e) {
-      this.radioToggle(e.detail);
-    });
+  static get haxProperties() {
+    return {
+      canScale: false,
+      canPosition: true,
+      canEditSource: false,
+      gizmo: {
+        title: "Expand Collapse Group",
+        description: "A group of expand collapse elements.",
+        icon: "view-day",
+        color: "grey",
+        groups: ["Content", "Presentation", "Collapse"]
+      },
+      settings: {
+        quick: [
+          {
+            property: "radio",
+            title: "Expand only one",
+            description: "Only one item can be expanded.",
+            inputMethod: "boolean"
+          },
+          {
+            property: "disabled",
+            title: "Disabled",
+            description: "Disable items.",
+            inputMethod: "boolean"
+          }
+        ],
+        configure: [
+          {
+            property: "radio",
+            title: "Expand only one",
+            description: "Only one item can be expanded.",
+            inputMethod: "boolean"
+          },
+          {
+            property: "disabled",
+            title: "Disabled",
+            description: "Disable items.",
+            inputMethod: "boolean"
+          },
+          {
+            slot: "",
+            title: "Collapse Items",
+            description: "The collapse items.",
+            inputMethod: "code-editor"
+          }
+        ],
+        advanced: [
+          {
+            property: "hidden",
+            title: "Hidden",
+            inputMethod: "boolean"
+          }
+        ]
+      }
+    };
+  }
+
+  get items() {
+    return this.__items;
   }
 
   /**
-   * Removes a detached item from the _items array.
+   * Adds a11y-collapse item to __items array.
+   * @param {object} item an a11y-collapse item
    */
   _attachItem(item) {
-    for (let key in this.globalOptions) {
-      if (this.globalOptions.hasOwnProperty(key)) {
-        item._overrideProp(key, this.globalOptions[key]);
-      }
+    this.__items.push(item);
+    Object.keys(A11yCollapseGroup.properties || {}).forEach(propName =>
+      this._updateItem(item, propName)
+    );
+  }
+  /**
+   * Updates a11y-collapse item when properties change
+   */
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      this.__items.forEach(item => this._updateItem(item, propName, oldValue));
+    });
+  }
+  _updateItem(item, propName, oldValue = undefined) {
+    if (propName === "globalOptions" || propName === "__items") {
+      if (this.globalOptions !== {})
+        for (let key in this.globalOptions) {
+          if (this.globalOptions.hasOwnProperty(key)) {
+            item[key] = this.globalOptions[key];
+          }
+        }
+    } else if (propName === "radio" && this.radio) {
+      item.expanded = false;
+    } else {
+      if (this[propName] !== null || typeof this[propName] !== typeof undefined)
+        item[propName] = this[propName];
     }
-    this.push("__items", item);
-    this.notifyPath("__items");
   }
 
   /**
-   * Removes a detached item from the _items array.
+   * Removes a detached item from __items array.
+   * @param {object} item an a11y-collapse item
    */
   _detachItem(item) {
-    for (let i = 0; i < this.__items.length; i++) {
-      if (this.__items[i] === e.detail) this.splice("_items", i, 1);
+    if (this.__items && item) {
+      for (let i = 0; i < this.__items.length; i++) {
+        if (this.__items[i] === item) this.__items.splice(i, 1);
+      }
     }
   }
 
   /**
    * Toggles off all previous choices.
+   * @param {object} item an a11y-collapse item
    */
   radioToggle(item) {
     if (this.radio && item.expanded) {
@@ -122,13 +234,16 @@ class A11yCollapseGroup extends PolymerElement {
   }
 
   disconnectedCallback() {
-    this.removeEventListener("a11y-collapse-click", function(e) {
+    this.removeEventListener("a11y-collapse-click", e => {
+      e.stopPropagation();
       this.radioToggle(e.detail);
     });
-    this.removeEventListener("a11y-collapse-attached", function(e) {
+    this.removeEventListener("a11y-collapse-attached", e => {
+      e.stopPropagation();
       this.push("__items", e.detail);
     });
-    this.removeEventListener("a11y-collapse-detached", function(e) {
+    this.removeEventListener("a11y-collapse-detached", e => {
+      e.stopPropagation();
       this._detachItem(e.detail);
     });
     super.disconnectedCallback();

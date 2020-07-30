@@ -1,25 +1,24 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
-import "./hax-shared-styles.js";
-
-class HaxToolbarItem extends PolymerElement {
-  constructor() {
-    super();
-    import("@polymer/paper-button/paper-button.js");
-    import("@polymer/paper-tooltip/paper-tooltip.js");
-  }
-  static get template() {
-    return html`
-      <style include="hax-shared-styles">
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import "@polymer/paper-button/paper-button.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
+class HaxToolbarItem extends LitElement {
+  static get styles() {
+    return [
+      css`
         :host {
           display: flex;
           box-sizing: border-box;
           height: 36px;
           width: 36px;
         }
+        :host([large]),
         :host([mini]) {
           height: unset;
           width: unset;
+        }
+        :host([disabled]) {
+          pointer-events: none;
+          opacity: 0.5;
         }
         :host([menu]) {
           width: 100%;
@@ -47,35 +46,55 @@ class HaxToolbarItem extends PolymerElement {
         paper-button {
           display: flex;
           align-items: center;
-          background-color: var(--hax-color-bg-accent);
-          color: var(--hax-color-text);
           min-width: 0;
           margin: 0;
           text-transform: none;
           padding: 0;
           border-radius: 0;
           font-size: 12px;
-          transition: 0.3s all;
+          transition: 0.2s all, 0 height;
           height: 36px;
           width: 36px;
           min-width: unset;
-          @apply --hax-toolbar-item-container;
-          --paper-button-ink-color: var(--hax-color-accent1);
+          background-color: var(
+            --hax-contextual-action-color,
+            var(--simple-colors-default-theme-cyan-8, #007999)
+          );
+          color: var(
+            --hax-contextual-action-text-color,
+            var(--simple-colors-default-theme-grey-1, #fff)
+          );
+          --paper-button-ink-color: var(
+            --simple-colors-default-theme-cyan-8,
+            #007999
+          );
         }
-        paper-button:active,
-        paper-button:hover,
-        paper-button:focus {
-          color: var(--hax-color-text-active);
-          outline: 1px solid var(--hax-color-accent1);
+        :host(:not([disabled])) paper-button:active,
+        :host(:not([disabled])) paper-button:hover,
+        :host(:not([disabled])) paper-button:focus {
+          background-color: var(
+            --hax-contextual-action-hover-color,
+            var(--simple-colors-default-theme-cyan-7, #009dc7)
+          );
+          color: var(
+            --hax-contextual-action-text-color,
+            var(--simple-colors-default-theme-grey-1, #fff)
+          );
+          outline: 1px solid
+            var(
+              --hax-contextual-action-color,
+              var(--simple-colors-default-theme-cyan-8, #007999)
+            );
+          z-index: 2;
         }
         :host([default]) paper-button {
           background: black;
         }
-        :host([dark]) paper-button {
+        :host([dark]:not([disabled])) paper-button {
           background-color: var(--hax-color-text);
           color: var(--hax-color-bg-accent);
         }
-        :host([dark]) paper-button:hover {
+        :host([dark]:not([disabled])) paper-button:hover {
           background-color: var(--hax-color-bg-accent);
           color: var(--hax-color-text);
         }
@@ -89,68 +108,104 @@ class HaxToolbarItem extends PolymerElement {
           padding: 0;
           margin: 0;
         }
-        :host([mini]) iron-icon {
-          width: 16px;
-          height: 16px;
-        }
         :host([mini]) paper-button {
-          border-radius: 50%;
-          width: 18px;
-          height: 18px;
+          width: 28px;
+          height: 28px;
           padding: 1px;
-          border: 1px solid var(--hax-color-border-outline);
+          border: none;
         }
-        :host([mini]) paper-button:active,
-        :host([mini]) paper-button:hover,
-        :host([mini]) paper-button:focus {
+        :host([light]) paper-button {
+          background-color: #aaaaaa;
+          color: #ffffff;
+        }
+        :host([large]) paper-button {
+          border-radius: 0;
+          width: unset;
+          padding: 0px;
+          border: 0px;
+        }
+        :host([mini]:not([disabled])) paper-button:active,
+        :host([mini]:not([disabled])) paper-button:hover,
+        :host([mini]:not([disabled])) paper-button:focus {
           outline: unset;
-          border: 1px solid var(--hax-color-accent1);
+          border: 1px solid
+            var(--hax-color-accent1, --simple-colors-default-theme-light-blue-7);
         }
         :host([menu]) paper-button {
           padding: 0 8px;
           width: 100%;
           height: 36px;
         }
-        :host([menu]) paper-button:hover {
-          background-color: #d3d3d3;
+        :host([menu]:not([disabled])) paper-button:hover {
           color: #000000;
         }
         .flip-icon {
           transform: rotateY(180deg);
         }
-        paper-tooltip {
-          --paper-tooltip-background: #000000;
-          --paper-tooltip-opacity: 1;
-          --paper-tooltip-text-color: #ffffff;
-          --paper-tooltip-delay-in: 0;
-          --paper-tooltip: {
-            border-radius: 0;
-          }
+        simple-tooltip {
+          --simple-tooltip-background: #000000;
+          --simple-tooltip-opacity: 1;
+          --simple-tooltip-text-color: #ffffff;
+          --simple-tooltip-delay-in: 0;
+          --simple-tooltip-duration-in: 100ms;
+          --simple-tooltip-duration-out: 0;
+          --simple-tooltip-border-radius: 0;
+          --simple-tooltip-font-size: 14px;
         }
-      </style>
-
+      `
+    ];
+  }
+  render() {
+    return html`
       <paper-button
-        disabled="[[disabled]]"
-        id="buttoncontainer"
+        .disabled="${this.disabled}"
+        id="btn"
         tabindex="0"
-        title\$="[[tooltip]]"
+        .title="${this.tooltip}"
       >
-        <iron-icon id="button" icon="[[icon]]" hidden\$="[[!icon]]"></iron-icon>
-        <span id="label" hidden\$="[[!label]]">[[label]]</span> <slot></slot>
+        <iron-icon
+          icon="${this.icon}"
+          ?hidden="${this.icon == "" ? true : false}"
+        ></iron-icon>
+        <span id="label" ?hidden="${this.label == "" ? true : false}"
+          >${this.label}</span
+        >
+        <slot></slot>
       </paper-button>
-      <paper-tooltip
+      <simple-tooltip
+        for="btn"
+        ?hidden="${this.tooltip == "" ? true : false}"
         id="tooltip"
-        for\$="[[this]]"
         offset="10"
-        position="[[tooltipDirection]]"
-        animation-delay="0"
+        position="${this.tooltipDirection}"
       >
-        [[tooltip]]
-      </paper-tooltip>
+        ${this.tooltip}
+      </simple-tooltip>
     `;
   }
   static get tag() {
     return "hax-toolbar-item";
+  }
+  constructor() {
+    super();
+    this.corner = "";
+    this.large = false;
+    this.disabled = false;
+    this.dark = false;
+    this.menu = false;
+    this.mini = false;
+    this.icon = "";
+    this.label = "";
+    this.tooltip = "";
+    this.tooltipDirection = "top";
+    this.default = false;
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "height" && this.shadowRoot) {
+        this.shadowRoot.querySelector("#btn").style.height = this[propName];
+      }
+    });
   }
   static get properties() {
     return {
@@ -159,90 +214,76 @@ class HaxToolbarItem extends PolymerElement {
        */
       corner: {
         type: String,
-        reflectToAttribute: true,
-        value: ""
+        reflect: true
+      },
+      height: {
+        type: String
       },
       /**
        * disabled state
        */
       disabled: {
         type: Boolean,
-        value: false,
-        reflectToAttribute: true
+        reflect: true
       },
       /**
        * Inverted display mode
        */
       dark: {
         type: Boolean,
-        reflectToAttribute: true,
-        value: false
+        reflect: true
       },
       /**
        * Style to be presented in a menu
        */
       menu: {
         type: Boolean,
-        value: false,
-        reflectToAttribute: true
+        reflect: true
       },
       /**
        * Present smaller the normal but consistent
        */
       mini: {
         type: Boolean,
-        reflectToAttribute: true,
-        value: false
+        reflect: true
+      },
+      /**
+       * Present larger then normal but consistent
+       */
+      large: {
+        type: Boolean,
+        reflect: true
       },
       /**
        * Icon to represent this button, required.
        */
       icon: {
-        type: String,
-        value: false
+        type: String
       },
       /**
        * Text applied to the button
        */
       label: {
-        type: String,
-        value: false
+        type: String
       },
       /**
        * Hover tip text
        */
       tooltip: {
-        type: String,
-        value: "",
-        observer: "_tooltipChanged"
+        type: String
       },
       /**
        * Direction that the tooltip should flow
        */
       tooltipDirection: {
         type: String,
-        value: "top"
+        attribute: "tooltip-direction"
       },
       default: {
         type: Boolean,
-        value: false,
-        reflectToAttribute: true
+        reflect: true
       }
     };
-  }
-  /**
-   * Keep accessibility inline with tooltip
-   */
-  _tooltipChanged(newValue, oldValue) {
-    if (newValue == "" || newValue == null) {
-      this.shadowRoot
-        .querySelector("#tooltip")
-        .setAttribute("aria-hidden", "true");
-    } else {
-      this.shadowRoot
-        .querySelector("#tooltip")
-        .setAttribute("aria-hidden", "false");
-    }
   }
 }
 window.customElements.define(HaxToolbarItem.tag, HaxToolbarItem);

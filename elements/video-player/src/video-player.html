@@ -1,71 +1,58 @@
-<div style$="[[playerStyle]]">
-<template is="dom-if" if="[[isA11yMedia]]" restamp>
-  <a11y-media-player
-    accent-color$="[[accentColor]]"
-    audio-only$="[[audioOnly]]"
-    dark$="[[dark]]"
-    dark-transcript$="[[darkTranscript]]"
-    disable-interactive$="[[disableInteractive]]"
-    hide-timestamps$="[[hideTimestamps]]"
-    lang$="[[lang]]"
-    media-type$="[[sourceType]]"
-    preload$="[[preload]]"
-    media-title$="[[mediaTitle]]"
-    sources$="[[sourceData]]"
-    stand-alone$="[[__standAlone]]"
-    sticky-corner$="[[stickyCorner]]"
-    thumbnail-src$="[[thumbnailSrc]]"
-    tracks$="[[trackData]]"
-    crossorigin$="[[crossorigin]]"
-    youtube-id$="[[youtubeId]]"
-  >
-    <template id="sources" is="dom-repeat" items="[[sourceData]]" as="sd" restamp>
-      <source src$="[[sd.src]]" type$="[[sd.type]]" />
-    </template>
-    <template id="tracks" is="dom-repeat" items="[[trackData]]" as="track" restamp>
-      <track
-        src$="[[track.src]]"
-        kind$="[[track.kind]]"
-        label$="[[track.label]]"
-        srclang$="[[track.lang]]"
-      />
-    </template>
-    <slot name="caption"></slot>
-  </a11y-media-player>
-</template>
-<template is="dom-if" if="[[!isA11yMedia]]">
-  <template is="dom-if" if="[[sandboxed]]">
-    <div class="responsive-video-container" lang$="[[lang]]">
-      <webview
-        resource$="[[schemaResourceID]]-video"
-        src$="[[sourceData.0.src]]"
-        width$="[[width]]"
-        height$="[[height]]"
-        frameborder="0"
-      ></webview>
-    </div>
-  </template>
-  <template is="dom-if" if="[[!sandboxed]]">
-    <template is="dom-if" if="[[iframed]]">
-      <div class="responsive-video-container" lang$="[[lang]]">
-        <iframe
-          resource$="[[schemaResourceID]]-video"
-          src$="[[sourceData.0.src]]"
-          width$="[[width]]"
-          height$="[[height]]"
-          frameborder="0"
-          webkitallowfullscreen=""
-          mozallowfullscreen=""
-          allowfullscreen=""
-        ></iframe>
+${!this.isA11yMedia
+    ? html`
+      <div class="responsive-video-container" .lang="${this.lang || undefined}">
+        ${this.sandboxed ? html``: html`
+          <webview
+            resource="${this.schemaResourceID}-video"
+            .src="${this.sourceData && this.sourceData[0] && this.sourceData[0].src || undefined }"
+            .width="${this.width || undefined }"
+            .height="${this.height || undefined }"
+            frameborder="0">
+          </webview>`}
+        ${!(!this.sandboxed && this.iframed) ? html``: html`
+          <iframe
+            resource="${this.schemaResourceID}-video"
+            .src="${this.sourceData && this.sourceData[0] && this.sourceData[0].src || undefined }"
+            width="${this.width}"
+            height="${this.height}"
+            frameborder="0"
+            webkitallowfullscreen=""
+            mozallowfullscreen=""
+            allowfullscreen=""
+          ></iframe>
+        `}
       </div>
-    </template>
-  </template>
-  <div id="videocaption" class$="video-caption">
-    <p>
-      [[mediaTitle]]
-      <span class="media-type print-only">(embedded media)</span>
-    </p>
-    <slot name="caption"></slot>
-  </div>
-</template>
+      <div id="videocaption" class="video-caption">
+        <p>
+          ${this.mediaTitle}
+          <span class="media-type print-only">(embedded media)</span>
+        </p>
+        <slot name="caption"></slot>
+      </div>` 
+    : html`
+      <a11y-media-player
+        accent-color="${this.accentColor}"
+        ?audio-only="${this.audioOnly}"
+        ?dark="${this.dark}"
+        ?dark-transcript="${this.darkTranscript}"
+        ?disable-interactive="${this.disableInteractive}"
+        ?hide-timestamps="${this.hideTimestamps}"
+        ?hide-transcript="${this.hideTranscript}"
+        id="${this.playerId}"
+        lang="${this.lang || 'en'}"
+        ?linkable="${this.linkable}"
+        preload="${this.preload || 'metadata'}"
+        media-title="${this.mediaTitle || ''}"
+        .sources="${this.sourceProperties}"
+        ?stand-alone="${this.standAlone}"
+        sticky-corner="${this.stickyCorner || 'top-right'}"
+        .thumbnail-src="${this.thumbnailSrc}"
+        .tracks="${this.trackProperties}"
+        .crossorigin="${this.crossorigin || 'anonymous'}"
+        .width="${this.width}"
+        .height="${this.height}"
+        .youtubeId="${this.youtubeId || undefined}"
+        >
+        <slot></slot>
+      </a11y-media-player>`
+}

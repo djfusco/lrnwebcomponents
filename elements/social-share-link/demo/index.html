@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <title>SocialShareLink: social-share-link Demo</title>
-    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <script src="../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
-    <script src="../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
+    
+    <script src="../../../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
+    <script src="../../../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
     <script type="module">
       import '@polymer/iron-demo-helpers/demo-pages-shared-styles.js';
       import '@polymer/iron-demo-helpers/demo-snippet.js';
@@ -43,11 +43,18 @@
             type="Facebook">
           </social-share-link>
           <social-share-link 
-            text="Pin It!" 
+            message="Pin It!" 
             image="http://lorempixel.com/400/200/cats"
             mode="icon-only"
             type="Pinterest">
           </social-share-link>
+          <social-share-link 
+          url="https://btopro.com/" 
+          image="http://lorempixel.com/400/200/cats"
+          button-style
+          mode="icon-only"
+          type="LinkedIn">
+        </social-share-link>
         </template>
       </demo-snippet>
     </div>

@@ -3,31 +3,21 @@
  * @license Apache-2.0, see License.md for full text.
  */
 import { html } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { SimpleColorsPolymer } from "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 /**
 `lrndesign-panelcard`
 A LRN element
 
 * @demo demo/index.html
 */
-class LrndesignPanelcard extends SimpleColors {
+class LrndesignPanelcard extends SimpleColorsPolymer {
   constructor() {
     super();
     import("@polymer/paper-card/paper-card.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        LrndesignPanelcard.haxProperties,
-        LrndesignPanelcard.tag,
-        this
-      );
-    });
   }
   static get template() {
     return html`
-      <style>
+      <style include="simple-colors-shared-styles-polymer">
         :host {
           display: inline-block;
           position: relative;
@@ -81,7 +71,9 @@ class LrndesignPanelcard extends SimpleColors {
     return "lrndesign-panelcard";
   }
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Title of the panel
        */
@@ -107,10 +99,6 @@ class LrndesignPanelcard extends SimpleColors {
         reflectToAttribute: true
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
   static get haxProperties() {
     return {
@@ -130,7 +118,7 @@ class LrndesignPanelcard extends SimpleColors {
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {

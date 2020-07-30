@@ -1,10 +1,11 @@
 /**
- * Copyright 2018 The Pennsylvania State University
+ * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import "@lrnwebcomponents/jwt-login/jwt-login.js";
+import { LitElement, html } from "lit-element/lit-element.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
+import "@lrnwebcomponents/jwt-login/jwt-login.js";
 /**
  * `haxcms-backend-php`
  * `a simple element to check for and fetch JWTs`
@@ -14,49 +15,104 @@ import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-st
  * @microcopy - the mental model for this element
  * - jwt - a json web token which is an encrypted security token to talk
  */
-class HAXCMSBackendPHP extends PolymerElement {
+class HAXCMSBackendPHP extends LitElement {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "haxcms-backend-php";
   }
-  // render function
-  static get template() {
+  /**
+   * LitElement
+   */
+  render() {
     return html`
       <jwt-login
         id="jwt"
-        url="[[jwtLoginLocation]]"
-        url-logout="[[jwtLogoutLocation]]"
-        jwt="{{jwt}}"
+        jwt="${this.jwt}"
+        @jwt-changed="${this.jwtChanged}"
       ></jwt-login>
     `;
   }
+  jwtChanged(e) {
+    this.jwt = e.detail.value;
+    store.jwt = this.jwt;
+    if (store.cmsSiteEditor && store.cmsSiteEditor.instance) {
+      store.cmsSiteEditor.instance.jwt = this.jwt;
+    }
+    // support updates after the fact
+    if (
+      this.jwt != null &&
+      this.jwt != "null" &&
+      this.jwt != "" &&
+      typeof this.jwt == "string"
+    ) {
+      this.dynamicallyImportEditor();
+    }
+  }
+  /**
+   * LitElement life cycle - ready
+   */
+  firstUpdated(changedProperties) {
+    setTimeout(() => {
+      if (window.appSettings) {
+        let jwtlogin = this.shadowRoot.querySelector("#jwt");
+        jwtlogin.url = window.appSettings.login;
+        jwtlogin.refreshUrl = window.appSettings.refreshUrl;
+        jwtlogin.logoutUrl = window.appSettings.logout;
+        jwtlogin.redirectUrl = window.appSettings.redirectUrl;
+        // allow setting in session driven environments
+        // its not a real JWT but it drives the environment to operate correctly
+        if (window.appSettings.jwt) {
+          this.jwt = window.appSettings.jwt;
+        }
+      }
+      if (
+        this.jwt != null &&
+        this.jwt != "null" &&
+        this.jwt != "" &&
+        typeof this.jwt == "string"
+      ) {
+        this.dynamicallyImportEditor();
+      } else {
+        // other things will have to sort out the fact that while we
+        // DO have a dynamic backend, we didn't get a hit on the JWT
+        // meaning that we are in a dynamic environment but logged out
+        // at the moment (or viewing a site we don't have authorization to)
+        window.dispatchEvent(
+          new CustomEvent("haxcms-not-logged-in", {
+            bubbles: true,
+            composed: true,
+            cancelable: false,
+            detail: this
+          })
+        );
+      }
+    }, 500);
+  }
+  constructor() {
+    super();
+    this.__disposer = [];
+    // see up a tag to place RIGHT next to the site-builder itself
+    autorun(reaction => {
+      this.jwt = toJS(store.jwt);
+      this.__disposer.push(reaction);
+    });
+  }
+  /**
+   * Detatched life cycle
+   */
+  disconnectedCallback() {
+    for (var i in this.__disposer) {
+      this.__disposer[i].dispose();
+    }
+    super.disconnectedCallback();
+  }
+  /**
+   * LitElement / popular convention
+   */
   static get properties() {
     return {
-      /**
-       * Location of what endpoint to hit for
-       */
-      jwtLoginLocation: {
-        type: String,
-        value: function() {
-          if (window.appSettings) {
-            return window.appSettings.login;
-          }
-        }
-      },
-      /**
-       * Location of what endpoint to hit for logging out
-       */
-      jwtLogoutLocation: {
-        type: String,
-        value: function() {
-          if (window.appSettings) {
-            return window.appSettings.logout;
-          }
-        }
-      },
       /**
        * JSON Web token, it'll come from a global call if it's available
        */
@@ -66,77 +122,60 @@ class HAXCMSBackendPHP extends PolymerElement {
     };
   }
   /**
-   * created life cycle
+   * Import the editor
    */
-  constructor() {
-    super();
-    document.body.addEventListener("jwt-token", this._jwtTokenFired.bind(this));
-  }
-  /**
-   * detached life cycle
-   */
-  disconnectedCallback() {
-    document.body.removeEventListener(
-      "jwt-token",
-      this._jwtTokenFired.bind(this)
-    );
-    super.disconnectedCallback();
-  }
-  /**
-   * JWT token fired, let's capture it
-   */
-  _jwtTokenFired(e) {
-    this.jwt = e.detail;
-  }
-  /**
-   * Attached life cycle
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    if (this.jwt != null && typeof this.jwt == "string") {
-      // attempt to dynamically import the hax cms site editor
-      // which will appear to be injecting into the page
-      // but because of this approach it should be non-blocking
-      try {
-        import("@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-editor.js").then(
-          e => {
-            let haxCmsSiteEditorElement = document.createElement(
-              "haxcms-site-editor"
-            );
-            haxCmsSiteEditorElement.jwt = this.jwt;
-            haxCmsSiteEditorElement.saveNodePath =
+  dynamicallyImportEditor() {
+    // attempt to dynamically import the hax cms site editor
+    // which will appear to be injecting into the page
+    // but because of this approach it should be non-blocking
+    try {
+      import("@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-editor.js").then(
+        e => {
+          // if we don't have appSettings by this point
+          // it means we don't actually have a backend / directions
+          // this would be a published state or a state where
+          // there is no actual backend to bother confiring with
+          // possibly a user navigated to a site that doesn't
+          // have JWT credentials but isn't actually published
+          // we also need this here because PHP is the assumed
+          // fallback backend
+          if (window.appSettings) {
+            store.cmsSiteEditorAvailability();
+            store.cmsSiteEditor.instance.jwt = this.jwt;
+            store.jwt = this.jwt;
+            store.cmsSiteEditor.instance.saveNodePath =
               window.appSettings.saveNodePath;
-            haxCmsSiteEditorElement.saveManifestPath =
+            store.cmsSiteEditor.instance.saveManifestPath =
               window.appSettings.saveManifestPath;
-            haxCmsSiteEditorElement.saveOutlinePath =
+            store.cmsSiteEditor.instance.saveOutlinePath =
               window.appSettings.saveOutlinePath;
-            haxCmsSiteEditorElement.getNodeFieldsPath =
+            store.cmsSiteEditor.instance.getNodeFieldsPath =
               window.appSettings.getNodeFieldsPath;
-            haxCmsSiteEditorElement.getSiteFieldsPath =
+            store.cmsSiteEditor.instance.getSiteFieldsPath =
               window.appSettings.getSiteFieldsPath;
-            haxCmsSiteEditorElement.getFieldsToken =
-              window.appSettings.getFieldsToken;
-            haxCmsSiteEditorElement.publishSitePath =
+            store.cmsSiteEditor.instance.getFormToken =
+              window.appSettings.getFormToken;
+            store.cmsSiteEditor.instance.publishSitePath =
               window.appSettings.publishSitePath;
-            haxCmsSiteEditorElement.revertSitePath =
+            store.cmsSiteEditor.instance.syncSitePath =
+              window.appSettings.syncSitePath;
+            store.cmsSiteEditor.instance.revertSitePath =
               window.appSettings.revertSitePath;
-            haxCmsSiteEditorElement.createNodePath =
+            store.cmsSiteEditor.instance.createNodePath =
               window.appSettings.createNodePath;
-            haxCmsSiteEditorElement.deleteNodePath =
+            store.cmsSiteEditor.instance.deleteNodePath =
               window.appSettings.deleteNodePath;
-            haxCmsSiteEditorElement.appStore = window.appSettings.appStore;
-            store.cmsSiteEditor.instance.haxCmsSiteEditorElement = haxCmsSiteEditorElement;
-            store.cmsSiteEditor.instance.appendTarget.appendChild(
-              haxCmsSiteEditorElement
-            );
-          },
-          e => {
-            //import failed
+            store.cmsSiteEditor.instance.getUserDataPath =
+              window.appSettings.getUserDataPath;
+            store.cmsSiteEditor.instance.appStore = window.appSettings.appStore;
           }
-        );
-      } catch (err) {
-        // error in the event this is a double registration
-      }
+        },
+        e => {
+          //import failed
+        }
+      );
+    } catch (err) {
+      // error in the event this is a double registration
     }
   }
 }

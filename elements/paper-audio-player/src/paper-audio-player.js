@@ -5,9 +5,7 @@ import { mixinBehaviors } from "@polymer/polymer/lib/legacy/class.js";
 import "@polymer/paper-progress/paper-progress.js";
 import "@polymer/iron-icon/iron-icon.js";
 import "@polymer/paper-icon-button/paper-icon-button.js";
-import "@polymer/paper-ripple/paper-ripple.js";
-import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { SimpleColorsPolymer } from "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 import { SchemaBehaviors } from "@lrnwebcomponents/schema-behaviors/schema-behaviors.js";
 import "@polymer/iron-iconset-svg/iron-iconset-svg.js";
 import "./lib/paper-audio-icons.js";
@@ -47,22 +45,11 @@ Custom property                             | Description                       
 */
 class PaperAudioPlayer extends mixinBehaviors(
   [IronA11yKeysBehavior],
-  SchemaBehaviors(SimpleColors)
+  SchemaBehaviors(SimpleColorsPolymer)
 ) {
-  constructor() {
-    super();
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        PaperAudioPlayer.haxProperties,
-        PaperAudioPlayer.tag,
-        this
-      );
-    });
-  }
   static get template() {
     return html`
-      <style>
+      <style include="simple-colors-shared-styles-polymer">
         :host {
           display: block;
           box-sizing: border-box;
@@ -175,10 +162,6 @@ class PaperAudioPlayer extends mixinBehaviors(
           background-color: var(--paper-audio-player-color);
         }
 
-        paper-ripple {
-          color: var(--paper-audio-player-color);
-        }
-
         /* On hover */
 
         :host(:not(.cantplay)) #right:hover #replay {
@@ -286,7 +269,6 @@ class PaperAudioPlayer extends mixinBehaviors(
           ></audio>
           <!-- Progress bar -->
           <div id="progress" class="fit"></div>
-          <paper-ripple></paper-ripple>
           <!-- Secondary white title -->
           <div id="progress2" class="fit">
             <div id="title2" aria-hidden="true">[[title]]</div>
@@ -318,7 +300,9 @@ class PaperAudioPlayer extends mixinBehaviors(
   }
   // Define public properties
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       src: {
         type: String,
         observer: "_srcChanged"
@@ -360,10 +344,6 @@ class PaperAudioPlayer extends mixinBehaviors(
         value: 0
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
 
   static get keyBindings() {
@@ -396,7 +376,7 @@ class PaperAudioPlayer extends mixinBehaviors(
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -478,14 +458,21 @@ class PaperAudioPlayer extends mixinBehaviors(
   connectedCallback() {
     super.connectedCallback();
     afterNextRender(this, function() {
-      this.$.audio.addEventListener(
-        "loadedmetadata",
-        this._onCanPlay.bind(this)
-      );
-      this.$.audio.addEventListener("playing", this._onPlaying.bind(this));
-      this.$.audio.addEventListener("pause", this._onPause.bind(this));
-      this.$.audio.addEventListener("ended", this._onEnd.bind(this));
-      this.$.audio.addEventListener("error", this._onError.bind(this));
+      this.shadowRoot
+        .querySelector("#audio")
+        .addEventListener("loadedmetadata", this._onCanPlay.bind(this));
+      this.shadowRoot
+        .querySelector("#audio")
+        .addEventListener("playing", this._onPlaying.bind(this));
+      this.shadowRoot
+        .querySelector("#audio")
+        .addEventListener("pause", this._onPause.bind(this));
+      this.shadowRoot
+        .querySelector("#audio")
+        .addEventListener("ended", this._onEnd.bind(this));
+      this.shadowRoot
+        .querySelector("#audio")
+        .addEventListener("error", this._onError.bind(this));
     });
     this.setAttribute("tabindex", "0");
     this.setAttribute("role", "application");
@@ -497,14 +484,21 @@ class PaperAudioPlayer extends mixinBehaviors(
    */
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.$.audio.removeEventListener(
-      "loadedmetadata",
-      this._onCanPlay.bind(this)
-    );
-    this.$.audio.removeEventListener("playing", this._onPlaying.bind(this));
-    this.$.audio.removeEventListener("pause", this._onPause.bind(this));
-    this.$.audio.removeEventListener("ended", this._onEnd.bind(this));
-    this.$.audio.removeEventListener("error", this._onError.bind(this));
+    this.shadowRoot
+      .querySelector("#audio")
+      .removeEventListener("loadedmetadata", this._onCanPlay.bind(this));
+    this.shadowRoot
+      .querySelector("#audio")
+      .removeEventListener("playing", this._onPlaying.bind(this));
+    this.shadowRoot
+      .querySelector("#audio")
+      .removeEventListener("pause", this._onPause.bind(this));
+    this.shadowRoot
+      .querySelector("#audio")
+      .removeEventListener("ended", this._onEnd.bind(this));
+    this.shadowRoot
+      .querySelector("#audio")
+      .removeEventListener("error", this._onError.bind(this));
   }
   /**
    * ready life cycle
@@ -517,7 +511,7 @@ class PaperAudioPlayer extends mixinBehaviors(
     player.isPlaying = false;
     player.ended = false;
     player.error = false;
-    player.$.audio.currentTime = player.timeOffset; // apply the audio start time property
+    player.shadowRoot.querySelector("#audio").currentTime = player.timeOffset; // apply the audio start time property
   }
   // Play/Pause controls
   playPause(e) {
@@ -534,36 +528,37 @@ class PaperAudioPlayer extends mixinBehaviors(
       // If player can't be played, because audio wasn't pre-loaded
       // due to the preload="none" property set,
       // load the audio file at this point and start playing it immediately
-      player.$.audio.load();
+      player.shadowRoot.querySelector("#audio").load();
       player._play();
     }
   }
   _play() {
     var player = this;
-    player.$.audio.play();
+    player.shadowRoot.querySelector("#audio").play();
   }
   _pause() {
     var player = this;
-    player.$.audio.pause();
+    player.shadowRoot.querySelector("#audio").pause();
   }
   //
   // Restart audio
   restart(e) {
     if (!!e) e.preventDefault();
     var player = this;
-    player.$.audio.currentTime = 0;
+    player.shadowRoot.querySelector("#audio").currentTime = 0;
     if (!player.isPlaying) player._play();
   }
   // when audio file can be played in user's browser
   _onCanPlay() {
     var player = this;
     player.canBePlayed = true;
-    player.timeLeft = player.$.audio.duration;
+    player.timeLeft = player.shadowRoot.querySelector("#audio").duration;
 
     // If player has a Time Offset specified
     // style the progress bar and title accordingly
     if (player.timeOffset > 0) {
-      var percentagePlayed = player.timeOffset / player.$.audio.duration;
+      var percentagePlayed =
+        player.timeOffset / player.shadowRoot.querySelector("#audio").duration;
       player._updateVisualProgress(percentagePlayed);
     }
 
@@ -579,7 +574,7 @@ class PaperAudioPlayer extends mixinBehaviors(
     var player = this;
     player.ended = false;
     player.isPlaying = true;
-    player.$.replay.style = ""; // remove Replay inline styling
+    player.shadowRoot.querySelector("#replay").style = ""; // remove Replay inline styling
     player._startProgressTimer();
   }
   // Skip or reverse by pre-defined intervals
@@ -623,10 +618,16 @@ class PaperAudioPlayer extends mixinBehaviors(
 
     player.timer.sliderUpdateInterval = setInterval(function() {
       if (player.isPlaying) {
-        player.currentTime = player.$.audio.currentTime;
-        player.timeLeft = player.$.audio.duration - player.currentTime;
+        player.currentTime = player.shadowRoot.querySelector(
+          "#audio"
+        ).currentTime;
+        player.timeLeft =
+          player.shadowRoot.querySelector("#audio").duration -
+          player.currentTime;
 
-        var percentagePlayed = player.currentTime / player.$.audio.duration;
+        var percentagePlayed =
+          player.currentTime /
+          player.shadowRoot.querySelector("#audio").duration;
         player._updateVisualProgress(percentagePlayed);
       } else {
         clearInterval(player.timer.sliderUpdateInterval);
@@ -647,7 +648,7 @@ class PaperAudioPlayer extends mixinBehaviors(
     var player = this;
     player.ended = true;
     player.isPlaying = false;
-    player.$.replay.style.opacity = 1; // display Replay icon
+    player.shadowRoot.querySelector("#replay").style.opacity = 1; // display Replay icon
   }
 
   // on file load error
@@ -690,8 +691,8 @@ class PaperAudioPlayer extends mixinBehaviors(
       // player should first try to load the audio,
       // and when it's successfully loaded, recalculate the progress bar
     } else if (player.preload === "none") {
-      player.$.audio.load();
-      player.$.audio.addEventListener(
+      player.shadowRoot.querySelector("#audio").load();
+      player.shadowRoot.querySelector("#audio").addEventListener(
         "loadedmetadata",
         function() {
           player._updateProgressBar(e);
@@ -712,10 +713,14 @@ class PaperAudioPlayer extends mixinBehaviors(
   _updateProgressBar(e) {
     var player = this;
 
-    var x = e.detail.x - player.$.center.getBoundingClientRect().left;
+    var x =
+      e.detail.x -
+      player.shadowRoot.querySelector("#center").getBoundingClientRect().left;
     var r =
-      (x / player.$.center.getBoundingClientRect().width) *
-      player.$.audio.duration;
+      (x /
+        player.shadowRoot.querySelector("#center").getBoundingClientRect()
+          .width) *
+      player.shadowRoot.querySelector("#audio").duration;
 
     this._updatePlayPosition(r);
   }
@@ -726,9 +731,12 @@ class PaperAudioPlayer extends mixinBehaviors(
 
   _updatePlayPosition(newTime) {
     var player = this;
-    player.currentTime = player.$.audio.currentTime = newTime;
+    player.currentTime = player.shadowRoot.querySelector(
+      "#audio"
+    ).currentTime = newTime;
 
-    var percentagePlayed = player.currentTime / player.$.audio.duration;
+    var percentagePlayed =
+      player.currentTime / player.shadowRoot.querySelector("#audio").duration;
     player._updateVisualProgress(percentagePlayed);
   }
 
@@ -739,9 +747,12 @@ class PaperAudioPlayer extends mixinBehaviors(
   _updateVisualProgress(percentagePlayed) {
     var player = this;
 
-    player.$.progress.style.transform = "scaleX(" + percentagePlayed + ")";
-    player.$.progress2.style.width = percentagePlayed * 100 + "%";
-    player.$.title2.style.width = (1 / percentagePlayed) * 100 + "%";
+    player.shadowRoot.querySelector("#progress").style.transform =
+      "scaleX(" + percentagePlayed + ")";
+    player.shadowRoot.querySelector("#progress2").style.width =
+      percentagePlayed * 100 + "%";
+    player.shadowRoot.querySelector("#title2").style.width =
+      (1 / percentagePlayed) * 100 + "%";
   }
 
   //
@@ -763,11 +774,13 @@ class PaperAudioPlayer extends mixinBehaviors(
 
   _changeColor(newValue) {
     var player = this;
-    player.$.left.style.backgroundColor = newValue;
-    player.$.title.style.color = newValue;
-    player.$.duration.style.color = newValue;
-    player.$.progress.style.backgroundColor = newValue;
-    player.$.replay.style.color = newValue;
+    player.shadowRoot.querySelector("#left").style.backgroundColor = newValue;
+    player.shadowRoot.querySelector("#title").style.color = newValue;
+    player.shadowRoot.querySelector("#duration").style.color = newValue;
+    player.shadowRoot.querySelector(
+      "#progress"
+    ).style.backgroundColor = newValue;
+    player.shadowRoot.querySelector("#replay").style.color = newValue;
   }
 
   _hidePlayIcon(isPlaying, canBePlayed) {

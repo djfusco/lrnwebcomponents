@@ -1,6 +1,7 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 /**
  * `lrndesign-drawer`
+ * @element lrndesign-drawer
  * @demo demo/index.html
  */
 class LrndesignDrawer extends PolymerElement {
@@ -9,7 +10,7 @@ class LrndesignDrawer extends PolymerElement {
     import("@polymer/app-layout/app-header/app-header.js");
     import("@polymer/app-layout/app-drawer/app-drawer.js");
     import("@polymer/paper-icon-button/paper-icon-button.js");
-    import("@polymer/paper-tooltip/paper-tooltip.js");
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
   }
   static get template() {
     return html`
@@ -40,7 +41,7 @@ class LrndesignDrawer extends PolymerElement {
         alt="[[alt]]"
         id="flyoutdrawer"
       ></paper-icon-button>
-      <paper-tooltip for="flyoutdrawer">[[alt]]</paper-tooltip>
+      <simple-tooltip for="flyoutdrawer">[[alt]]</simple-tooltip>
     `;
   }
   static get tag() {

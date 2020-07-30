@@ -1,9 +1,11 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
-import "./hax-shared-styles.js";
+import {
+  HaxSchematizer,
+  HaxElementizer
+} from "@lrnwebcomponents/hax-body-behaviors/lib/HAXFields.js";
 /**
  * `hax-schema-form`
+ * @element hax-schema-form
  * `An element that can generate a form from HAXschema`
  * @demo demo/index.html
  * @microcopy - the mental model for this element
@@ -17,14 +19,18 @@ class HaxSchemaForm extends PolymerElement {
     import("@polymer/paper-tabs/paper-tabs.js");
     import("@polymer/paper-tabs/paper-tab.js");
     import("@polymer/paper-button/paper-button.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@lrnwebcomponents/eco-json-schema-form/eco-json-schema-form.js");
-    import("@lrnwebcomponents/eco-json-schema-form/lib/eco-json-schema-object.js");
+    import("@lrnwebcomponents/simple-fields/simple-fields.js");
+    import("@lrnwebcomponents/simple-fields/lib/simple-fields-form.js");
     import("@lrnwebcomponents/code-editor/code-editor.js");
+    import("@lrnwebcomponents/simple-fields/lib/simple-fields-field.js");
+    import("app-datepicker/app-datepicker.js");
+    import("@lrnwebcomponents/simple-picker/simple-picker.js");
+    import("@lrnwebcomponents/simple-icon-picker/simple-icon-picker.js");
+    import("@lrnwebcomponents/simple-colors/lib/simple-colors-picker.js");
   }
   static get template() {
     return html`
-      <style include="hax-shared-styles">
+      <style>
         :host {
           display: block;
           background-color: #ffffff;
@@ -40,13 +46,8 @@ class HaxSchemaForm extends PolymerElement {
           height: 100%;
         }
 
-        eco-json-schema-object {
+        simple-fields {
           width: 50%;
-        }
-        #form {
-          --eco-json-schema-object-form: {
-            display: block !important;
-          }
         }
 
         #modetabs {
@@ -60,7 +61,10 @@ class HaxSchemaForm extends PolymerElement {
           border-bottom: 1px solid var(--hax-color-border-outline);
           display: block;
           justify-content: space-evenly;
-          --paper-tabs-selection-bar-color: var(--hax-color-accent1);
+          --paper-tabs-selection-bar-color: var(
+            --hax-color-accent1,
+            --simple-colors-default-theme-light-blue-7
+          );
           --paper-tabs: {
             background: transparent;
           }
@@ -69,7 +73,10 @@ class HaxSchemaForm extends PolymerElement {
         #modetabs paper-tab {
           display: inline-flex;
           height: 100%;
-          --paper-tab-ink: var(--hax-color-accent1);
+          --paper-tab-ink: var(
+            --hax-color-accent1,
+            --simple-colors-default-theme-light-blue-7
+          );
           --paper-tab: {
             font-size: 16px;
           }
@@ -77,22 +84,12 @@ class HaxSchemaForm extends PolymerElement {
         #modetabs paper-tab paper-button {
           min-width: unset;
           width: 100%;
-          background-color: var(--hax-color-accent1);
-          color: var(--hax-color-accent1-text);
+          background-color: var(--hax-color-menu-heading-bg, #eeeeee);
+          color: var(--hax-color-menu-heading-color, black);
         }
-        eco-json-schema-object {
+        simple-fields {
           color: var(--hax-text-color);
-          --paper-input-container-focus-color: var(
-            --haxcms-site-listing-color-hover
-          );
           --simple-colors-picker-preview-size: 20px;
-          --eco-json-schema-object-form: {
-            -ms-flex: unset;
-            -webkit-flex: unset;
-            flex: unset;
-            -webkit-flex-basis: unset;
-            flex-basis: unset;
-          }
         }
       </style>
       <paper-tabs
@@ -108,11 +105,13 @@ class HaxSchemaForm extends PolymerElement {
         >
       </paper-tabs>
       <paper-card class="form-wrapper">
-        <eco-json-schema-object
+        <simple-fields
           id="form"
           schema="[[schema]]"
+          .schematizer="${HaxSchematizer}"
+          .elementizer="${HaxElementizer}"
           value="{{value}}"
-        ></eco-json-schema-object>
+        ></simple-fields>
       </paper-card>
     `;
   }
@@ -190,17 +189,6 @@ class HaxSchemaForm extends PolymerElement {
         }
       }
     };
-  }
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
-      import("@polymer/paper-input/paper-textarea.js");
-      import("app-datepicker/app-datepicker.js");
-      import("@lrnwebcomponents/simple-picker/simple-picker.js");
-      import("@lrnwebcomponents/simple-icon-picker/simple-icon-picker.js");
-      import("@lrnwebcomponents/simple-colors/lib/simple-colors-picker.js");
-      import("@lrnwebcomponents/paper-input-flagged/paper-input-flagged.js");
-    });
   }
   /**
    * Compute form key to use.

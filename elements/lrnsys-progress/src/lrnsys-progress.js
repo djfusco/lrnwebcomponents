@@ -4,11 +4,11 @@
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { pathFromUrl } from "@polymer/polymer/lib/utils/resolve-url.js";
 import "@polymer/paper-progress/paper-progress.js";
 import "./lib/lrnsys-progress-circle.js";
 /**
  * `lrnsys-progress`
+ * @element lrnsys-progress
  * `track progression as a circle and series of circles`
  *
  * @demo demo/index.html
@@ -20,6 +20,15 @@ import "./lib/lrnsys-progress-circle.js";
  *  - bar - the underlayed bar that's tracking overall progression
  */
 class LrnsysProgress extends PolymerElement {
+  constructor() {
+    super();
+    this.completeSound =
+      this.pathFromUrl(decodeURIComponent(import.meta.url)) +
+      "lib/assets/complete.mp3";
+    this.finishedSound =
+      this.pathFromUrl(decodeURIComponent(import.meta.url)) +
+      "lib/assets/finished.mp3";
+  }
   static get template() {
     return html`
       <style include="paper-material-styles">
@@ -125,7 +134,7 @@ class LrnsysProgress extends PolymerElement {
               icon="[[item.metadata.icon]]"
               icon-complete="[[item.metadata.iconComplete]]"
               data-url="[[item.metadata.dataUrl]]"
-              url="[[item.location]]"
+              url="[[item.slug]]"
               status="[[item.metadata.status]]"
               value="[[item.metadata.value]]"
               max="[[item.metadata.max]]"
@@ -167,6 +176,10 @@ class LrnsysProgress extends PolymerElement {
       this._statusChanged.bind(this)
     );
     super.disconnectedCallback();
+  }
+  // simple path from a url modifier
+  pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf("/") + 1);
   }
   static get properties() {
     return {
@@ -211,9 +224,6 @@ class LrnsysProgress extends PolymerElement {
        */
       completeSound: {
         type: String,
-        value:
-          pathFromUrl(decodeURIComponent(import.meta.url)) +
-          "lib/assets/complete.mp3",
         reflectToAttribute: true
       },
       /**
@@ -221,9 +231,6 @@ class LrnsysProgress extends PolymerElement {
        */
       finishedSound: {
         type: String,
-        value:
-          pathFromUrl(decodeURIComponent(import.meta.url)) +
-          "lib/assets/finished.mp3",
         reflectToAttribute: true
       },
       /**
@@ -409,8 +416,9 @@ class LrnsysProgress extends PolymerElement {
         typeof newValue[this.active].dataUrl !== typeof undefined &&
         !this.disableAjaxCalls
       ) {
-        this.$.ajax.url = newValue[this.active].dataUrl;
-        this.$.ajax.generateRequest();
+        this.shadowRoot.querySelector("#ajax").url =
+          newValue[this.active].dataUrl;
+        this.shadowRoot.querySelector("#ajax").generateRequest();
       } else {
         setTimeout(() => {
           newValue[this.active].metadata.status = "available";
@@ -542,8 +550,10 @@ class LrnsysProgress extends PolymerElement {
         typeof this.items[this.active].metadata.dataUrl !== typeof undefined &&
         !this.disableAjaxCalls
       ) {
-        this.$.ajax.url = this.items[this.active].metadata.dataUrl;
-        this.$.ajax.generateRequest();
+        this.shadowRoot.querySelector("#ajax").url = this.items[
+          this.active
+        ].metadata.dataUrl;
+        this.shadowRoot.querySelector("#ajax").generateRequest();
       } else {
         setTimeout(() => {
           this.items[this.active].metadata.status = "available";
@@ -625,7 +635,7 @@ class LrnsysProgress extends PolymerElement {
    */
   _overallPercentageCompute(items, active) {
     if (typeof items !== typeof undefined) {
-      this.$.progress.classList.add("transiting");
+      this.shadowRoot.querySelector("#progress").classList.add("transiting");
       return (active / (items.length - 1)) * 100;
     }
     return 0;

@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <title>UserAction: user-action Demo</title>
-    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <script src="../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
-    <script src="../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
+    
+    <script src="../../../node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js"></script>
+    <script src="../../../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
     <script type="module">
       import '@polymer/iron-demo-helpers/demo-pages-shared-styles.js';
       import '@polymer/iron-demo-helpers/demo-snippet.js';
@@ -25,7 +25,7 @@
       <h3>Basic user-action demo</h3>
       <demo-snippet>
         <template>
-          <user-action track="click">
+          <user-action track="click" every>
             <paper-button>This is user-action</paper-button>
           </user-action>
           <user-action track="keypress" every>

@@ -3,7 +3,6 @@
  * @license Apache-2.0, see License.md for full text.
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
 import "@polymer/paper-styles/paper-styles.js";
 import "@polymer/iron-flex-layout/iron-flex-layout.js";
 import { IronResizableBehavior } from "@polymer/iron-resizable-behavior/iron-resizable-behavior.js";
@@ -13,6 +12,7 @@ import { mixinBehaviors } from "@polymer/polymer/lib/legacy/class.js";
  * `Polymer-based web component displaying a circular progress bar.`
  *
  * @demo demo/index.html
+ * @element circle-progress
  */
 class CircleProgress extends mixinBehaviors(
   [IronResizableBehavior],
@@ -76,13 +76,15 @@ class CircleProgress extends mixinBehaviors(
   }
 
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       /**
        * Value of circular progress bar.
        */
       value: {
         name: "value",
-        type: "Number",
+        type: Number,
         value: 0
       },
 
@@ -91,7 +93,7 @@ class CircleProgress extends mixinBehaviors(
        */
       max: {
         name: "max",
-        type: "Number",
+        type: Number,
         value: 100
       },
 
@@ -100,7 +102,7 @@ class CircleProgress extends mixinBehaviors(
        */
       strokeWidth: {
         name: "strokeWidth",
-        type: "Number",
+        type: Number,
         value: 4
       },
 
@@ -109,62 +111,53 @@ class CircleProgress extends mixinBehaviors(
        */
       angle: {
         name: "angle",
-        type: "Number",
+        type: Number,
         value: -90
       },
 
       _cx: {
         name: "_cx",
-        type: "Number",
+        type: Number,
         value: null
       },
 
       _cy: {
         name: "_cy",
-        type: "Number",
+        type: Number,
         value: null
       },
 
       _radius: {
         name: "_radius",
-        type: "Number",
+        type: Number,
         computed: "_computeRadius(_cx, _cy, strokeWidth)"
       },
 
       _transform: {
         name: "_transform",
-        type: "String",
+        type: String,
         computed: "_computeTransform(angle, _cx, _cy)"
       },
 
       _dasharray: {
         name: "_dasharray",
-        type: "Number",
+        type: Number,
         computed: "_computeDashArray(_radius)"
       },
 
       _dashoffset: {
         name: "_dashoffset",
-        type: "Number",
+        type: Number,
         computed: "_computeDashOffset(value, max, _dasharray)"
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
-  connectedCallback() {
-    super.connectedCallback();
-    afterNextRender(this, function() {
+  constructor() {
+    super();
+    setTimeout(() => {
       this.addEventListener("iron-resize", this._onIronResize.bind(this));
-    });
+    }, 0);
   }
-  disconnectedCallback() {
-    this.removeEventListener("iron-resize", this._onIronResize.bind(this));
-    super.disconnectedCallback();
-  }
-
   _computeDashArray(radius) {
     return 2 * Math.PI * radius;
   }
@@ -185,7 +178,7 @@ class CircleProgress extends mixinBehaviors(
     if (this.offsetWidth && this.offsetHeight) {
       this._cx = this.offsetWidth / 2;
       this._cy = this.offsetHeight / 2;
-      this.$.circle.style.display = "block";
+      this.shadowRoot.querySelector("#circle").style.display = "block";
     }
   }
 }

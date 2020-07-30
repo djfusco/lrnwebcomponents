@@ -5,12 +5,13 @@
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 /**
  * `simple-timer`
+ * @element simple-timer
  * `Automated conversion of simple-timer/`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */

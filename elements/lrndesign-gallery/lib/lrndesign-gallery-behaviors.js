@@ -2,222 +2,306 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { html, css } from "lit-element/lit-element.js";
 import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
-import { ResponsiveUtility } from "@lrnwebcomponents/responsive-utility/responsive-utility.js";
 import "@polymer/iron-image/iron-image.js";
 import "@polymer/iron-icons/iron-icons.js";
-import "@polymer/paper-button/paper-button.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
-import "./lrndesign-gallery-shared-styles.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
 
-export { LrndesignGalleryBehaviors };
 /**
  * `lerndesign-gallery-behaviors`
- * `A set of properties for lerndesign-gallery components.`
+ * A set of properties for lerndesign-gallery components.
+ *
+ * @element lerndesign-gallery-behaviors
+ * @extends SimpleColors
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @extends SimpleColors
- * @customElement
- * @polymer
  */
 class LrndesignGalleryBehaviors extends SimpleColors {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "lrndesign-gallery-behaviors";
   }
 
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        :host {
+          display: block;
+          border-radius: var(--lrndesign-gallery-border-radius, 0px);
+          box-shadow: var(--lrndesign-gallery-box-shadow, unset);
+        }
+
+        :host([hidden]) {
+          display: none;
+        }
+        :host {
+          display: block;
+          --lrndesign-gallery-color: var(--simple-colors-default-theme-grey-12);
+          --lrndesign-gallery-background-color: var(
+            --simple-colors-default-theme-grey-1
+          );
+          --lrndesign-gallery-focus-color: var(
+            --simple-colors-default-theme-accent-9
+          );
+          --lrndesign-gallery-border-color: var(
+            --simple-colors-default-theme-grey-4
+          );
+          --lrndesign-gallery-thumbnail-outline: 1px solid
+            var(--simple-colors-default-theme-grey-12);
+
+          --lrndesign-gallery-dialog-color: var(
+            --simple-colors-default-theme-grey-12
+          );
+          --lrndesign-gallery-dialog-background-color: var(
+            --simple-colors-default-theme-grey-1
+          );
+          --lrndesign-gallery-dialog-titlebar-color: var(
+            --simple-colors-default-theme-grey-1
+          );
+          --lrndesign-gallery-dialog-titlebar-background-color: var(
+            --simple-colors-default-theme-accent-9
+          );
+          --lrndesign-gallery-dialog-header-color: var(
+            --simple-colors-default-theme-grey-12
+          );
+          --lrndesign-gallery-dialog-header-background-color: var(
+            --simple-colors-default-theme-grey-2
+          );
+          --lrndesign-gallery-carousel-next-bg: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0.7) 70%,
+            rgba(255, 255, 255, 0.9) 90%
+          );
+          --lrndesign-gallery-carousel-prev-bg: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0.9) 10%,
+            rgba(255, 255, 255, 0.7) 30%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0) 100%
+          );
+          --lrndesign-gallery-thumbnail-image: {
+            display: block;
+            border-radius: 3px;
+            border: 2px solid transparent;
+          }
+          --lrndesign-gallery-thumbnail-image-focus: {
+            opacity: 0.7;
+            border: 2px solid var(--lrndesign-gallery-focus-color);
+          }
+          --lrndesign-gallery-thumbnail-image-selected: {
+            opacity: 0.5;
+            cursor: default;
+          }
+        }
+        :host([dark]) {
+          --lrndesign-gallery-background-color: var(
+            --simple-colors-default-theme-grey-2
+          );
+          --lrndesign-gallery-border-color: var(
+            --simple-colors-default-theme-grey-1
+          );
+          --lrndesign-gallery-carousel-next-bg: linear-gradient(
+            to right,
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0.5) 50%,
+            rgba(0, 0, 0, 0.7) 70%,
+            rgba(0, 0, 0, 0.9) 90%
+          );
+          --lrndesign-gallery-carousel-prev-bg: linear-gradient(
+            to right,
+            rgba(0, 0, 0, 0.9) 10%,
+            rgba(0, 0, 0, 0.7) 30%,
+            rgba(0, 0, 0, 0.5) 50%,
+            rgba(0, 0, 0, 0) 100%
+          );
+        }
+        :host([hidden]) {
+          display: none;
+        }
+        .sr-only {
+          position: absolute;
+          left: -999999;
+          height: 0;
+          width: 0;
+          overflow: hidden;
+        }
+        .gallerythumb {
+          min-width: unset;
+          max-width: 100%;
+          padding: 0;
+          margin: 0;
+          display: inline-block;
+          transform: none !important;
+          position: static !important;
+          cursor: pointer;
+        }
+        lrndesign-gallery-zoom {
+          z-index: 2;
+        }
+        simple-tooltip {
+          z-index: 2;
+        }
+        .zoombg {
+          background-color: var(--lrndesign-gallery-dialog-background-color);
+          opacity: 0.25;
+        }
+        .zoombg,
+        .zoomicon {
+          position: absolute;
+          width: 24px;
+          height: 24px;
+          transition: opacity 0.5s ease-in-out;
+        }
+        lrndesign-gallery-zoom:focus-within .zoombg,
+        lrndesign-gallery-zoom:hover .zoombg {
+          opacity: 0;
+          transition: opacity 0.5s ease-in-out;
+        }
+        .zoomicon {
+          opacity: 0.75;
+          color: var(--lrndesign-gallery-color);
+          background-color: transparent;
+        }
+        lrndesign-gallery-zoom:focus-within .zoomicon,
+        lrndesign-gallery-zoom:hover .zoomicon {
+          opacity: 1;
+          transition: opacity 0.5s ease-in-out;
+        }
+        @media print {
+          #galleryscreen {
+            display: none !important;
+          }
+        }
+      `
+    ];
+  }
+
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
       /**
        * a named anchor for the gallery
        */
       anchorData: {
-        type: Object,
-        computed: "_getAnchorData()"
+        type: Object
       },
       /**
        * aspect ratio of media
        */
       aspectRatio: {
-        type: Number,
-        value: "1.33333333"
+        type: Number
       },
       /**
        * size for responsive CSS
        */
       extraWide: {
         type: Boolean,
-        value: false,
-        reflectToAttribute: true
+        reflect: true,
+        attribute: "extra-wide"
       },
       /**
        * gallery's unique id
        */
       galleryId: {
-        type: String,
-        value: null
+        type: String
       },
       /**
-       * size for responsive CSS
+       * gallery's title
+       */
+      galleryTitle: {
+        type: String,
+        reflect: true,
+        attribute: "gallery-title"
+      },
+      /**
+       * @deprecated Use @link{layout} instead
        */
       grid: {
-        type: Boolean,
-        value: false
+        type: Boolean
       },
       /**
-       * array of carousel/grid items
+       * layout type: currently masonry, carousel, and grid
        */
-      items: {
-        type: Array,
-        computed: "_itemsLoaded(sources,sizing)"
+      layout: {
+        type: String,
+        attribute: "layout"
       },
       /*
        * parent size for responsive styling
        */
       responsiveSize: {
         type: String,
-        value: "xs",
-        reflectToAttribute: true
+        reflect: true,
+        attribute: "responsive-size"
       },
       /*
-       * data for the selected item
+       * id of item
        */
       selected: {
-        type: Object,
-        value: {},
-        notify: true,
-        reflectToAttribute: true
+        type: Object
+      },
+      /*
+       * array of gallery items
+       */
+      sources: {
+        type: Array
       },
       /**
        * default sizing: fit screen by cropping (cover)
        * or with letterboxing (contain)
        */
       sizing: {
-        type: String,
-        value: "cover"
+        type: String
       },
       /**
-       * array of carousel/grid items
-       */
-      sources: {
-        type: Array,
-        value: [],
-        reflectToAttribute: false
-      },
-      /**
-       * gallery's title
+       * DEPRECATED gallery's title
        */
       title: {
-        type: String,
-        value: null
+        type: String
       }
     };
   }
 
-  /**
-   * life cycle, element is afixed to the DOM
-   */
-  connectedCallback() {
-    super.connectedCallback();
+  constructor() {
+    super();
+    this.aspectRatio = 1.33333333;
+    this.extraWide = false;
+    this.grid = false;
+    this.responsiveSize = "xs";
+    this.selected = {};
+    this.sizing = "cover";
+    this.sources = [];
+  }
+
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (
+        (propName == "galleryTitle" || propName == "title") &&
+        !this.galleryTitle
+      )
+        this.galleryTitle = this.title;
+    });
   }
 
   /**
-   * calls responsive-utility to get parent's responsive size
-   *
-   * @param {object} a set of responsive for options, eg: `{element: root, attribute: "responsive-size", relativeToParent: true}`
+   * Generate a UUID
    */
-  _addResponsiveUtility(options) {
-    let root = this;
-    window.ResponsiveUtility.requestAvailability();
-    window.dispatchEvent(
-      new CustomEvent("responsive-element", {
-        detail:
-          options !== undefined
-            ? options
-            : {
-                element: root,
-                attribute: "responsive-size",
-                relativeToParent: true
-              }
-      })
+  _generateUUID() {
+    return "ss-s-s-s-sss".replace(
+      /s/g,
+      Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1)
     );
-  }
-
-  /**
-   * gets aspect ratio of an image and
-   * determine if aspect ratio is extra wide
-   *
-   * @param {array}
-   */
-  _getAnchorData() {
-    let temp =
-        window.location.hash !== null && window.location.hash !== ""
-          ? window.location.hash.replace("#", "").split("---")
-          : [],
-      anchorGallery = temp.length > 0 ? temp[0] : -1,
-      selectedItemId = temp.length > 1 ? temp[1] : -1,
-      selectedItemIndex =
-        this.sources !== null
-          ? this.sources.findIndex(i => i.id === selectedItemId)
-          : 1,
-      selectedGallery = anchorGallery === this.galleryId,
-      zoom = scroll && temp.length > 2 && temp[2] === "zoom";
-    return {
-      selectedItemId: selectedItemId,
-      selectedItemIndex: selectedItemIndex > 0 ? selectedItemIndex : 0,
-      selectedGallery: selectedGallery,
-      zoom: zoom
-    };
-  }
-
-  /**
-   * get data for an item
-   *
-   * @param {object} a gallery item
-   * @param {number} the index of the item
-   * @returns {object} the reformatted gallery item
-   */
-  _getItemData(item, index, length) {
-    if (this.galleryId === null)
-      this.galleryId = "gallery-" + this._generateUUID();
-    let anchorData = this._getAnchorData(),
-      temp = {};
-    temp.details = item.details;
-    temp.index = index;
-    temp.id = this._selfOrDefault(item.id, this.galleryId + "-item-" + index);
-    temp.src = item.src;
-    temp.large = this._selfOrDefault(item.large, temp.src);
-    temp.thumbnail = this._selfOrDefault(item.thumbnail, temp.src);
-    temp.xofy = parseInt(index + 1) + " of " + length;
-    temp.next = index + 1 < length ? index + 1 : -1;
-    temp.prev = index - 1 > -1 ? index - 1 : -1;
-    temp.sizing = this._selfOrDefault(item.sizing, this.sizing);
-    temp.title = item.title;
-    temp.tooltip = this._selfOrDefault(
-      temp.title,
-      "Full-Sized Image",
-      " (Full-Sized)"
-    );
-    temp.heading = this._selfOrDefault(
-      temp.title,
-      "Full-Sized Image",
-      " (Full-Sized)"
-    );
-    temp.zoom = anchorData.zoom && anchorData.selectedItemId === temp.id;
-    temp.scroll =
-      anchorData.selectedGallery && anchorData.selectedItemId === temp.id;
-    temp.tooltip = this._selfOrDefault(item.title, "Zoom In", " Zoom");
-    if (anchorData.selectedItemIndex === index) {
-      this.set("selected", temp);
-    }
-    return temp;
   }
 
   /**
@@ -238,6 +322,22 @@ class LrndesignGalleryBehaviors extends SimpleColors {
     return parent.offsetTop;
   }
 
+  _itemChanged(query) {
+    /**
+     * Handles changes in selected item by firing an event to the gallery
+     *
+     * @event item-changed
+     */
+    this.dispatchEvent(
+      new CustomEvent("item-changed", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        detail: query
+      })
+    );
+  }
+
   /**
    * tallies the offsets (item and parent) and scrolls to the item
    *
@@ -251,114 +351,9 @@ class LrndesignGalleryBehaviors extends SimpleColors {
       behavior: "smooth"
     });
   }
-
-  /**
-   * returns true if an attribute is not null
-   *
-   * @param {object} the attribute to check
-   * @returns {boolean} attr !== undefined && attr !== null
-   */
-  _isAttrSet(attr = null) {
-    return attr !== null;
-  }
-
-  /**
-   * sets selected attribute of thumbnail
-   *
-   * @param {object} the selected item
-   * @param {object} the current item
-   * @returns {boolean} whether current item is selected
-   */
-  _isSelected(selected = {}, item = {}) {
-    return selected.id === item.id;
-  }
-
-  /**
-   * adds additional properties to gallery
-   *
-   * @param {array} array of sources
-   * @param {sizing} default sizing for the item
-   * @returns {array} formatted array of items
-   */
-  _itemsLoaded(sources, sizing) {
-    let root = this,
-      img = new Image(),
-      temp = [];
-    this.set("items", []);
-    if (this.galleryId === null) this.id = "gallery-" + this._generateUUID();
-    if (sources !== undefined && sources !== null && sources.length > 0) {
-      this._setAspectProperties(sources[0].src);
-      for (var i in sources) {
-        temp[i] = this._getItemData(sources[i], parseInt(i), sources.length);
-      }
-    }
-    return temp;
-  }
-
-  /**
-   * replaces an undefined value
-   *
-   * @param {object} the value check
-   * @param {object} the default value
-   * @param {object} the default value
-   * @returns {object} the updated value
-   */
-  _selfOrDefault(val1 = null, val2 = false, append = null) {
-    let val3 = val2;
-    if (val1 !== undefined && val1 !== null) {
-      if (append !== null) {
-        val3 = val1 + append;
-      } else {
-        val3 = val1;
-      }
-    }
-    return val3;
-  }
-
-  /**
-   * gets aspect ratio of an image and
-   * determine if aspect ratio is extra wide
-   *
-   * @param {array}
-   */
-  _setAspectProperties(imgSrc) {
-    if (imgSrc !== undefined && imgSrc !== null) {
-      let img = new Image();
-      img.src = imgSrc;
-      this.aspectRatio =
-        img.naturalWidth > 0 && img.naturalHeight > 0
-          ? img.naturalWidth / img.naturalHeight
-          : 1.33333333;
-      this.extraWide = this.aspectRatio > 2;
-    }
-  }
-
-  /**
-   * returns true if an attribute is set to a value
-   *
-   * @param {object} the attribute to check
-   * @param {object} the value to check
-   * @returns {boolean} attr === val
-   */
-
-  _testAttribute(attr = null, val = false) {
-    return attr === val;
-  }
-
-  /**
-   * Generate a UUID
-   */
-  _generateUUID() {
-    return "ss-s-s-s-sss".replace(/s/g, this._uuidPart);
-  }
-
-  _uuidPart() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
 }
 window.customElements.define(
   LrndesignGalleryBehaviors.tag,
   LrndesignGalleryBehaviors
 );
+export { LrndesignGalleryBehaviors };

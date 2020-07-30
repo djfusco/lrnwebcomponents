@@ -2,41 +2,26 @@
  * Copyright 2018 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 /**
-`magazine-cover`
-A Magazine cover element
-
-Example:
-  ```html
-  <magazine-cover image="demo/picture2.jpg" header="Sunset" action="Click, Breath, Relax" link="https://www.elmsln.org/">
-    A simple time, a simple life. America may be fast paced and brutal on health but in Canada, people enjoy sitting and watching the sunset. Learn how Canadians manage stress.
-  </magazine-cover>
-  ```
-
-* @demo demo/index.html
-*/
-class MagazineCover extends PolymerElement {
-  constructor() {
-    super();
-    import("@polymer/iron-image/iron-image.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/iron-icon/iron-icon.js");
-    import("@polymer/paper-button/paper-button.js");
-    afterNextRender(this, function() {
-      this.HAXWiring = new HAXWiring();
-      this.HAXWiring.setup(
-        MagazineCover.haxProperties,
-        MagazineCover.tag,
-        this
-      );
-    });
-  }
-  static get template() {
-    return html`
-      <style>
+ * `magazine-cover`
+ * `A Magazine cover element`
+ *  Example:
+ *  ```html
+ *  <magazine-cover image="demo/picture2.jpg" header="Sunset" action="Click, Breath, Relax" link="https://www.elmsln.org/">
+ *    A simple time, a simple life. America may be fast paced and brutal on health but in Canada, people enjoy sitting and watching the sunset. Learn how Canadians manage stress.
+ *  </magazine-cover>
+ *  ```
+ * @demo demo/index.html
+ * @element magazine-cover
+ */
+class MagazineCover extends LitElement {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: block;
           background-color: #222222;
@@ -59,7 +44,6 @@ class MagazineCover extends PolymerElement {
           width: 100%;
           height: 80vh;
           background-color: #222222;
-          @apply --magazine-cover-image;
         }
         #image:hover {
           opacity: 0.9;
@@ -152,33 +136,56 @@ class MagazineCover extends PolymerElement {
             padding: 16px;
           }
         }
-      </style>
+      `
+    ];
+  }
+  /**
+   * HTMLElement
+   */
+  constructor() {
+    super();
+    this.action = "Touch to learn more";
+    this.icon = "trending-flat";
+    this.link = "";
+    this.eventName = "";
+    this.eventData = {};
+    import("@polymer/iron-image/iron-image.js");
+    import("@polymer/iron-icons/iron-icons.js");
+    import("@polymer/iron-icon/iron-icon.js");
+    import("@polymer/paper-button/paper-button.js");
+  }
+  /**
+   * LitElement render
+   */
+  render() {
+    return html`
       <iron-image
-        src="[[image]]"
+        src="${this.image}"
         preload=""
         fade=""
         sizing="cover"
         id="image"
+        aria-describedby="${this.describedBy || ""}"
       ></iron-image>
       <div class="overlay">
-        <h2 id="header" hidden$="[[!header]]">[[header]]</h2>
-        <div id="subheader" hidden$="[[!subheader]]">[[subheader]]</div>
+        <h2 id="header" ?hidden="${!this.header}">${this.header}</h2>
+        <div id="subheader" ?hidden="${!this.subheader}">${this.subheader}</div>
         <div id="body">
-          <p hidden$="[[!text]]">[[text]]</p>
+          <p ?hidden="${!this.text}">${this.text}</p>
           <slot></slot>
         </div>
         <a
           tabindex="-1"
-          href$="[[link]]"
+          href="${this.link}"
           id="actionlink"
-          on-click="_linkTapped"
+          @click="${this._linkTapped}"
         >
           <paper-button raised="" id="action">
             <span id="label"
-              >[[action]]<iron-icon
+              >${this.action}<iron-icon
                 id="icon"
-                icon="[[icon]]"
-                hidden$="[[!icon]]"
+                icon="${this.icon}"
+                ?hidden="${!this.icon}"
               ></iron-icon
             ></span>
           </paper-button>
@@ -186,10 +193,15 @@ class MagazineCover extends PolymerElement {
       </div>
     `;
   }
-
+  /**
+   * convention
+   */
   static get tag() {
     return "magazine-cover";
   }
+  /**
+   * LitElement / popular convention
+   */
   static get properties() {
     return {
       /**
@@ -220,36 +232,40 @@ class MagazineCover extends PolymerElement {
        * Call to action
        */
       action: {
+        type: String
+      },
+      /**
+       * aria-describedby attribute
+       */
+      describedBy: {
         type: String,
-        value: "Touch to learn more"
+        attribute: "described-by"
       },
       /**
        * Call to action icon
        */
       icon: {
-        type: String,
-        value: "trending-flat"
+        type: String
       },
       /**
        * Link to go to on click.
        */
       link: {
-        type: String,
-        value: ""
+        type: String
       },
       /**
        * Optional event binding for the button press.
        */
       eventName: {
         type: String,
-        value: ""
+        attribute: "event-name"
       },
       /**
        * Optional event data to send along
        */
       eventData: {
         type: Object,
-        value: {}
+        attribute: "event-data"
       }
     };
   }
@@ -270,6 +286,9 @@ class MagazineCover extends PolymerElement {
       );
     }
   }
+  /**
+   * HAX
+   */
   static get haxProperties() {
     return {
       canScale: true,
@@ -281,7 +300,7 @@ class MagazineCover extends PolymerElement {
           "Present a full screen cover image with a call to action. Good for starting off a series of content",
         icon: "flip-to-front",
         color: "teal",
-        groups: ["Image", "Media", "Presentation"],
+        groups: ["Image", "Presentation"],
         handles: [
           {
             type: "image",
@@ -289,11 +308,12 @@ class MagazineCover extends PolymerElement {
             title: "header",
             caption: "subheader",
             citation: "subheader",
-            description: "text"
+            description: "text",
+            ariaDescribedby: "describedBy"
           }
         ],
         meta: {
-          author: "LRNWebComponents"
+          author: "ELMS:LN"
         }
       },
       settings: {
@@ -396,6 +416,13 @@ class MagazineCover extends PolymerElement {
           }
         ],
         advanced: [
+          {
+            property: "describedBy",
+            title: "aria-describedby",
+            description:
+              "Space-separated list of IDs for elements that describe the image.",
+            inputMethod: "textfield"
+          },
           {
             property: "event-name",
             title: "Event name",

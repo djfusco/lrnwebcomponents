@@ -13,7 +13,7 @@ import "../buttons/rich-text-editor-button-styles.js";
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @polymer
  */
 class RichTextEditorBreadcrumb extends PolymerElement {
@@ -76,7 +76,6 @@ class RichTextEditorBreadcrumb extends PolymerElement {
 
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "rich-text-editor-breadcrumb";
@@ -98,13 +97,16 @@ class RichTextEditorBreadcrumb extends PolymerElement {
 
   /**
    * life cycle, element is afixed to the DOM
+   * @returns {void}
    */
   connectedCallback() {
     super.connectedCallback();
-    this.__a11y = this.$.button;
+    this.__a11y = this.shadowRoot.querySelector("#button");
   }
   /**
    * Handles button tap;
+   * @param {event} e the button tab event
+   * @returns {void}
    */
   _buttonTap(e) {
     e.preventDefault();

@@ -31,7 +31,8 @@ window.MediaBehaviors.Video = {
    * Check source of the video, potentially correcting bad links.
    */
   cleanVideoSource(input, type) {
-    if (type != "local") {
+    // ensure we are NOT local and do a sanity check
+    if (type != "local" && typeof input === "string") {
       // strip off the ? modifier for youtube/vimeo so we can build ourselves
       var tmp = input.split("?");
       var v = "";
@@ -64,10 +65,8 @@ window.MediaBehaviors.Video = {
         return input.replace("youtube.com/watch", "youtube.com/embed/") + v;
       }
       // copy and paste from the URL
-      else if (input.indexOf("youtube-no-cookie.com/embed") != -1) {
-        return (
-          input.replace("youtube-no-cookie.com/embed", "youtube.com/embed/") + v
-        );
+      else if (input.indexOf("youtube-no-cookie.com/") != -1) {
+        return input.replace("youtube-no-cookie.com/", "youtube.com/") + v;
       }
       // weird share-ly style version
       else if (input.indexOf("youtu.be") != -1) {
@@ -181,11 +180,8 @@ export const MediaBehaviorsVideo = function(SuperClass) {
           return input.replace("youtube.com/watch", "youtube.com/embed/") + v;
         }
         // copy and paste from the URL
-        else if (input.indexOf("youtube-no-cookie.com/embed") != -1) {
-          return (
-            input.replace("youtube-no-cookie.com/embed", "youtube.com/embed/") +
-            v
-          );
+        else if (input.indexOf("youtube-no-cookie.com/") != -1) {
+          return input.replace("youtube-no-cookie.com/", "youtube.com/") + v;
         }
         // weird share-ly style version
         else if (input.indexOf("youtu.be") != -1) {

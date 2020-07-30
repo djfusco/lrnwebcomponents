@@ -1,56 +1,67 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import "@polymer/iron-a11y-keys/iron-a11y-keys.js";
+import "@lrnwebcomponents/hax-body/lib/hax-toolbar-item.js";
 /**
  * `hax-context-item-textop`
+ * @element hax-context-item-textop
  * `A single button in the hax context menus for consistency. This one uses the mousedown event becasue tap won't work in safari / firefox / IE while maintaining focus inside the contenteditable area (stupid, I know)`
  * @microcopy - the mental model for this element
  * - context - menu in the page the user can select an item from, this being 1 option in that list
  * - button - an item that expresses what interaction you will have with the content.
  */
-class HaxContextItemTextop extends PolymerElement {
-  constructor() {
-    super();
-    import("@lrnwebcomponents/hax-body/lib/hax-toolbar-item.js");
-    import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/iron-icons/editor-icons.js");
-    import("@polymer/iron-icons/device-icons.js");
-    import("@polymer/iron-icons/hardware-icons.js");
-    import("@polymer/iron-icons/social-icons.js");
-    import("@polymer/iron-icons/av-icons.js");
-    import("@polymer/iron-icons/image-icons.js");
-    import("@polymer/iron-icons/maps-icons.js");
-    import("@polymer/neon-animation/neon-animation.js");
-  }
-  static get template() {
-    return html`
-      <style>
+class HaxContextItemTextop extends LitElement {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: inline-flex;
           box-sizing: border-box;
-          height: 36px;
-          width: 36px;
         }
         :host([menu]) {
           display: flex;
           width: 100%;
         }
-      </style>
+      `
+    ];
+  }
+  constructor() {
+    super();
+    this.label = "";
+    this.action = false;
+    this.disabled = false;
+    this.light = false;
+    this.mini = false;
+    this.menu = false;
+    this.direction = "top";
+    this.icon = "editor:text-fields";
+    this.eventName = "button";
+    this.inputMethod = null;
+    this.propertyToBind = null;
+    this.slotToBind = null;
+    this.value = "";
+  }
+  render() {
+    return html`
       <iron-a11y-keys
         id="a11y"
-        target="[[target]]"
         keys="enter"
-        on-keys-pressed="_fireEvent"
+        @keys-pressed="${this._fireEvent}"
       ></iron-a11y-keys>
       <hax-toolbar-item
         id="button"
-        icon="[[icon]]"
-        hidden\$="[[!icon]]"
-        tooltip-direction="[[direction]]"
-        tooltip="[[label]]"
-        on-mousedown="_fireEvent"
-        mini="[[mini]]"
-        menu="[[menu]]"
-        light="[[light]]"
+        ?disabled="${this.disabled}"
+        icon="${this.icon}"
+        ?hidden="${!this.icon}"
+        tooltip-direction="${this.direction}"
+        tooltip="${this.label}"
+        @mousedown="${this._fireEvent}"
+        ?mini="${this.mini}"
+        ?action="${this.action}"
+        ?menu="${this.menu}"
+        ?light="${this.light}"
       >
         <slot></slot>
       </hax-toolbar-item>
@@ -62,17 +73,25 @@ class HaxContextItemTextop extends PolymerElement {
   static get properties() {
     return {
       /**
-       * target for the iron-a11y-keys element.
-       */
-      target: {
-        type: Object
-      },
-      /**
        * Light theme for toolbar item.
        */
       light: {
         type: Boolean,
         value: false
+      },
+      /**
+       * disabled state
+       */
+      disabled: {
+        type: Boolean,
+        reflect: true
+      },
+      /**
+       * an optional value to send along in the press. Allows for
+       * reusing events more easily
+       */
+      value: {
+        type: String
       },
       /**
        * Mini theme for making things small and round.
@@ -92,23 +111,24 @@ class HaxContextItemTextop extends PolymerElement {
        * Direction for the tooltip
        */
       direction: {
-        type: String,
-        value: "top"
+        type: String
       },
       /**
        * Icon for the button.
        */
       icon: {
         type: String,
-        value: "editor:text-fields",
-        reflectToAttribute: true
+        reflect: true
       },
       /**
        * Label for the button.
        */
       label: {
         type: String,
-        reflectToAttribute: true
+        reflect: true
+      },
+      action: {
+        type: Boolean
       },
       /**
        * Name of the event to bubble up as being tapped.
@@ -117,8 +137,8 @@ class HaxContextItemTextop extends PolymerElement {
        */
       eventName: {
         type: String,
-        value: "button",
-        reflectToAttribute: true
+        reflect: true,
+        attribute: "event-name"
       },
       /**
        * Method of input to display when activated. This is
@@ -126,31 +146,31 @@ class HaxContextItemTextop extends PolymerElement {
        */
       inputMethod: {
         type: String,
-        value: null,
-        reflectToAttribute: true
+        reflect: true,
+        attribute: "input-method"
       },
       /**
        * Optional slot to bind this value to.
        */
       propertyToBind: {
         type: String,
-        value: null,
-        reflectToAttribute: true
+        reflect: true,
+        attribute: "property-to-bind"
       },
       /**
        * Optional slot to bind this value to.
        */
       slotToBind: {
         type: String,
-        value: null,
-        reflectToAttribute: true
+        reflect: true,
+        attribute: "slot-to-bind"
       },
       /**
        * Optional description for this item.
        */
       description: {
         type: String,
-        reflectToAttribute: true
+        reflect: true
       }
     };
   }
@@ -158,26 +178,30 @@ class HaxContextItemTextop extends PolymerElement {
   /**
    * attached life cycle
    */
-  connectedCallback() {
-    super.connectedCallback();
+  firstUpdated(changedProperties) {
     // bind keyboard to button press
-    this.target = this.shadowRoot.querySelector("#button");
+    this.shadowRoot.querySelector(
+      "#a11y"
+    ).target = this.shadowRoot.querySelector("#button");
   }
   /**
    * Fire an event that includes the eventName of what was just pressed.
    */
   _fireEvent(e) {
-    this.dispatchEvent(
-      new CustomEvent("hax-context-item-selected", {
-        bubbles: true,
-        cancelable: true,
-        composed: true,
-        detail: {
-          target: this,
-          eventName: this.eventName
-        }
-      })
-    );
+    if (!this.disabled) {
+      this.dispatchEvent(
+        new CustomEvent("hax-context-item-selected", {
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+          detail: {
+            target: this,
+            eventName: this.eventName,
+            value: this.value
+          }
+        })
+      );
+    }
   }
 }
 window.customElements.define(HaxContextItemTextop.tag, HaxContextItemTextop);

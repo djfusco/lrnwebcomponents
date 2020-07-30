@@ -1,24 +1,24 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { afterNextRender } from "@polymer/polymer/lib/utils/render-status.js";
-import { microTask } from "@polymer/polymer/lib/utils/async.js";
+import { html, css } from "lit-element/lit-element.js";
+import { SimpleColors } from "@lrnwebcomponents/simple-colors/simple-colors.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
-import { autorun, toJS } from "mobx";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
+/**
+ * @deprecatedApply - required for @apply / invoking @apply css var convention
+ */
+import "@polymer/polymer/lib/elements/custom-style.js";
 /**
  * `simple-blog-post`
+ * @element simple-blog-post
  * `A simple blog and associated elements`
  */
-class SimpleBlogPost extends PolymerElement {
+class SimpleBlogPost extends SimpleColors {
   /**
-   * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
+   * LitElement constructable styles enhancement
    */
-  static get tag() {
-    return "simple-blog-post";
-  }
-  // render function
-  static get template() {
-    return html`
-      <style>
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
         :host {
           display: block;
           min-height: 80vh;
@@ -93,8 +93,27 @@ class SimpleBlogPost extends PolymerElement {
           -moz-box-sizing: border-box;
           box-sizing: border-box;
         }
-        site-active-title {
-          --site-active-title-heading: {
+        /**
+         * Hide the slotted content during edit mode
+         */
+        :host([edit-mode]) #slot {
+          display: none;
+        }
+      `
+    ];
+  }
+  /**
+   * Store the tag name to make it easier to obtain directly.
+   */
+  static get tag() {
+    return "simple-blog-post";
+  }
+  // render function
+  render() {
+    return html`
+      <custom-style>
+        <style>
+          site-active-title {
             font-weight: 700;
             font-style: normal;
             letter-spacing: -0.04em;
@@ -102,9 +121,7 @@ class SimpleBlogPost extends PolymerElement {
             line-height: 1.1;
             color: black;
           }
-        }
-        :host([has-image]) site-active-title {
-          --site-active-title-heading: {
+          :host([has-image]) site-active-title {
             font-weight: 700;
             font-style: normal;
             letter-spacing: -0.04em;
@@ -115,24 +132,20 @@ class SimpleBlogPost extends PolymerElement {
               0 0 1px rgba(0, 0, 0, 0.5);
             color: white;
           }
-        }
-        /**
-         * Hide the slotted content during edit mode
-         */
-        :host([edit-mode]) #slot {
-          display: none;
-        }
-      </style>
+        </style>
+      </custom-style>
       <main>
         <article>
           <div class="article-image">
-            <template is="dom-if" if="[[hasImage]]">
-              <div
-                id="image"
-                class="post-image-image"
-                style\$='background-image: url("[[image]]");'
-              ></div>
-            </template>
+            ${this.hasImage
+              ? html`
+                  <div
+                    id="image"
+                    class="post-image-image"
+                    style='background-image: url("${this.image}");'
+                  ></div>
+                `
+              : ``}
             <div class="post-meta">
               <site-active-title></site-active-title>
             </div>
@@ -144,24 +157,31 @@ class SimpleBlogPost extends PolymerElement {
       </main>
     `;
   }
-
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "hasImage") {
+        this._hasImageChanged(this[propName], oldValue);
+      }
+    });
+  }
   static get properties() {
     return {
+      ...super.properties,
       /**
        * calculate if we have a header image.
        */
       hasImage: {
         type: Boolean,
-        observer: "_hasImageChanged",
-        reflectToAttribute: true
+        reflect: true,
+        attribute: "has-image"
       },
       /**
        * editting state for the page
        */
       editMode: {
         type: Boolean,
-        reflectToAttribute: true,
-        value: false
+        reflect: true,
+        attribute: "edit-mode"
       },
       image: {
         type: String
@@ -174,9 +194,13 @@ class SimpleBlogPost extends PolymerElement {
    */
   constructor() {
     super();
+    this.editMode = false;
     import("@lrnwebcomponents/haxcms-elements/lib/ui-components/active-item/site-active-title.js");
+  }
+  connectedCallback() {
+    super.connectedCallback();
     this.__disposer = [];
-    afterNextRender(this, function() {
+    setTimeout(() => {
       window.addEventListener("scroll", this._scrollListener.bind(this));
       autorun(reaction => {
         const fields = toJS(store.activeItemFields);
@@ -186,9 +210,8 @@ class SimpleBlogPost extends PolymerElement {
         }
         this.__disposer.push(reaction);
       });
-    });
+    }, 0);
   }
-
   /**
    * Detatched life cycle
    */
@@ -222,14 +245,17 @@ class SimpleBlogPost extends PolymerElement {
    */
   _hasImageChanged(newValue, oldValue) {
     if (newValue) {
-      microTask.run(() => {
+      setTimeout(() => {
         let rect = this.shadowRoot
           .querySelector("#image")
           .getBoundingClientRect();
-        this.$.contentcontainer.style.paddingTop = rect.height + "px";
-      });
+        this.shadowRoot.querySelector("#contentcontainer").style.paddingTop =
+          rect.height + "px";
+      }, 0);
     } else {
-      this.$.contentcontainer.style.paddingTop = null;
+      this.shadowRoot.querySelector(
+        "#contentcontainer"
+      ).style.paddingTop = null;
     }
   }
 

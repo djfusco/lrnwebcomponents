@@ -3,29 +3,27 @@
  * @license Apache-2.0, see License.md for full text.
  */
 import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { pathFromUrl } from "@polymer/polymer/lib/utils/resolve-url.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
 import {
   encapScript,
   findTagsInHTML,
-  wipeSlot
-} from "@lrnwebcomponents/hax-body/lib/haxutils.js";
+  wipeSlot,
+  varExists
+} from "@lrnwebcomponents/utils/utils.js";
 import { microTask } from "@polymer/polymer/lib/utils/async.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
 import "@polymer/iron-ajax/iron-ajax.js";
-import { autorun, toJS } from "mobx";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
 /**
  * `site-render-item`
  * `Title of the active page in the site`
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
 class SiteRenderItem extends PolymerElement {
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "site-render-item";
@@ -80,13 +78,17 @@ class SiteRenderItem extends PolymerElement {
     if (itemId && render) {
       let item = store.findItem(itemId);
       // ensure it loads fresh
-      return item.location + "?" + Math.floor(Date.now() / 1000);
+      return item.slug + "?" + Math.floor(Date.now() / 1000);
     }
   }
   locationChanged(newValue) {
     if (newValue) {
-      this.$.content.generateRequest();
+      this.shadowRoot.querySelector("#content").generateRequest();
     }
+  }
+  // simple path from a url modifier
+  pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf("/") + 1);
   }
   /**
    * React to content being loaded from a page.
@@ -102,21 +104,26 @@ class SiteRenderItem extends PolymerElement {
         microTask.run(() => {
           setTimeout(() => {
             let frag = document.createRange().createContextualFragment(html);
-            dom(this).appendChild(frag);
+            this.appendChild(frag);
           }, 5);
         });
         // if there are, dynamically import them
-        if (this.manifest.metadata.dynamicElementLoader) {
+        if (
+          !window.WCAutoload &&
+          varExists(this.manifest, "metadata.node.dynamicElementLoader")
+        ) {
           let tagsFound = findTagsInHTML(html);
-          const basePath = pathFromUrl(decodeURIComponent(import.meta.url));
+          const basePath = this.pathFromUrl(
+            decodeURIComponent(import.meta.url)
+          );
           for (var i in tagsFound) {
             const tagName = tagsFound[i];
             if (
-              this.manifest.metadata.dynamicElementLoader[tagName] &&
+              this.manifest.metadata.node.dynamicElementLoader[tagName] &&
               !window.customElements.get(tagName)
             ) {
               import(`${basePath}../../../../../${
-                this.manifest.metadata.dynamicElementLoader[tagName]
+                this.manifest.metadata.node.dynamicElementLoader[tagName]
               }`)
                 .then(response => {
                   //console.log(tagName + ' dynamic import');

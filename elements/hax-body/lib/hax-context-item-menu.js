@@ -1,99 +1,121 @@
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { dom } from "@polymer/polymer/lib/legacy/polymer.dom.js";
-import "./hax-shared-styles.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import "@lrnwebcomponents/hax-body/lib/hax-toolbar-menu.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
+import "@polymer/paper-item/paper-item.js";
+import "@polymer/neon-animation/neon-animation.js";
 /**
  * `hax-context-item-menu`
  * `An icon / button that has support for multiple options via drop down.`
  * @microcopy - the mental model for this element
  * - panel - the flyout from left or right side that has elements that can be placed
  * - button - an item that expresses what interaction you will have with the content.
+ * @element hax-context-item-menu
  */
-class HaxContextItemMenu extends PolymerElement {
-  constructor() {
-    super();
-    import("@lrnwebcomponents/hax-body/lib/hax-toolbar-menu.js");
-    import("@polymer/paper-tooltip/paper-tooltip.js");
-    import("@polymer/paper-item/paper-item.js");
-    import("@polymer/neon-animation/neon-animation.js");
-  }
-  static get template() {
-    return html`
-      <style include="hax-shared-styles">
+class HaxContextItemMenu extends LitElement {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      css`
         :host {
           display: inline-flex;
-          height: 36px;
           box-sizing: border-box;
         }
-        :host hax-toolbar-menu ::slotted(*):hover {
-          background-color: var(--hax-color-bg-accent);
+        :host(mini) {
+          height: unset;
+          width: unset;
         }
-        :host hax-toolbar-menu ::slotted(*) {
-          height: 36px;
-        }
-      </style>
+      `
+    ];
+  }
+  constructor() {
+    super();
+    this._blockEvent = false;
+    this.selectedValue = 0;
+    this.action = false;
+    this.direction = "top";
+    this.icon = "editor:text-fields";
+    this.label = "editor:text-fields";
+  }
+  render() {
+    return html`
       <hax-toolbar-menu
         id="menu"
-        icon="[[icon]]"
-        tooltip="[[label]]"
-        tooltip-direction="[[direction]]"
-        selected="{{selectedValue}}"
-        reset-on-select="[[resetOnSelect]]"
+        ?mini="${this.mini}"
+        ?action="${this.action}"
+        .icon="${this.icon}"
+        .tooltip="${this.label}"
+        .tooltip-direction="${this.direction}"
+        @selected-changed="${this.selectedValueChanged}"
+        .selected="${this.selectedValue}"
       >
         <slot></slot>
       </hax-toolbar-menu>
     `;
   }
+  selectedValueChanged(e) {
+    this.selectedValue = e.detail;
+  }
   static get tag() {
     return "hax-context-item-menu";
   }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "selectedValue") {
+        // observer
+        this._selectedUpdated(this[propName], oldValue);
+        // notify
+        this.dispatchEvent(
+          new CustomEvent("selected-value-changed", {
+            detail: this[propName]
+          })
+        );
+      }
+    });
+  }
   static get properties() {
     return {
+      mini: {
+        type: Boolean,
+        reflect: true
+      },
+      action: {
+        type: Boolean
+      },
       /**
        * Internal flag to allow blocking the event firing if machine selects tag.
        */
       _blockEvent: {
-        type: Boolean,
-        value: false
-      },
-      /**
-       * Should we reset the selection after it is made
-       */
-      resetOnSelect: {
-        type: Boolean,
-        value: false
+        type: Boolean
       },
       /**
        * Value.
        */
       selectedValue: {
         type: Number,
-        reflectToAttribute: true,
-        notify: true,
-        value: 0,
-        observer: "_selectedUpdated"
+        reflect: true,
+        attribute: "selected-value"
       },
       /**
        * Direction for the tooltip
        */
       direction: {
-        type: String,
-        value: "top"
+        type: String
       },
       /**
        * Icon for the button.
        */
       icon: {
         type: String,
-        value: "editor:text-fields",
-        reflectToAttribute: true
+        reflect: true
       },
       /**
        * Label for the button.
        */
       label: {
         type: String,
-        value: "editor:text-fields",
-        reflectToAttribute: true
+        reflect: true
       },
       /**
        * Name of the event to bubble up as being tapped.
@@ -102,8 +124,7 @@ class HaxContextItemMenu extends PolymerElement {
        */
       eventName: {
         type: String,
-        value: "button",
-        reflectToAttribute: true
+        attribute: "event-name"
       }
     };
   }
@@ -117,7 +138,7 @@ class HaxContextItemMenu extends PolymerElement {
       typeof oldValue !== typeof undefined &&
       typeof oldValue !== typeof null
     ) {
-      let children = dom(this).children;
+      let children = this.children;
       var item = new Object();
       var j = 0;
       // check for tag match since we have to filter out text nodes
@@ -145,17 +166,21 @@ class HaxContextItemMenu extends PolymerElement {
         // avoids an annoying UX error where the menu stays open for
         // no reason.
         this.shadowRoot.querySelector("#menu").hideMenu();
-        this.dispatchEvent(
-          new CustomEvent("hax-context-item-selected", {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-            detail: {
-              target: item,
-              eventName: item.attributes.value.value
-            }
-          })
-        );
+        // only emit if we have an event name
+        if (this.eventName) {
+          this.dispatchEvent(
+            new CustomEvent("hax-context-item-selected", {
+              bubbles: true,
+              cancelable: true,
+              composed: true,
+              detail: {
+                target: item,
+                eventName: this.eventName,
+                value: item.attributes.value.value
+              }
+            })
+          );
+        }
       }
       // we only block 1 time if it's available
       if (this._blockEvent) {

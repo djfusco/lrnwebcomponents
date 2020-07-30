@@ -2,30 +2,32 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { HAXWiring } from "@lrnwebcomponents/hax-body-behaviors/lib/HAXWiring.js";
 /**
  * `random-item`
+ * @element random-item
  * `show a random item from a list of items`
  *
  * @microcopy - language worth noting:
  *  -
  *
- * @customElement
+
  * @demo demo/index.html
  */
 class RandomItem extends HTMLElement {
   // render function
-  get html() {
-    return `
-<style>:host {
-  display: block;
-}
+  render() {
+    return html`
+      <style>
+        :host {
+          display: block;
+        }
 
-:host([hidden]) {
-  display: none;
-}
-</style>
-${this.dataPoint}`;
+        :host([hidden]) {
+          display: none;
+        }
+      </style>
+      ${this.dataPoint}
+    `;
   }
 
   // haxProperty definition
@@ -37,7 +39,7 @@ ${this.dataPoint}`;
       gizmo: {
         title: "Random item",
         description: "Show a random item from a list of items",
-        icon: "communication:rss-feed",
+        icon: "places:casino",
         color: "red",
         groups: ["Item"],
         handles: [],
@@ -70,20 +72,18 @@ ${this.dataPoint}`;
   }
   // properties available to the custom element for data binding
   static get properties() {
-    let props = {
+    return {
+      ...super.properties,
+
       source: {
         name: "source",
-        type: "String"
+        type: String
       },
       field: {
         name: "field",
-        type: "String"
+        type: String
       }
     };
-    if (super.properties) {
-      props = Object.assign(props, super.properties);
-    }
-    return props;
   }
 
   /**
@@ -116,9 +116,6 @@ ${this.dataPoint}`;
     if (window.ShadyCSS) {
       window.ShadyCSS.styleElement(this);
     }
-
-    this.HAXWiring = new HAXWiring();
-    this.HAXWiring.setup(RandomItem.haxProperties, RandomItem.tag, this);
   }
 
   render() {

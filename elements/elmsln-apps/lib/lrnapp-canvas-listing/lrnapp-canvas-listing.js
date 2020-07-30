@@ -2,14 +2,16 @@ import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
 import "@vaadin/vaadin-grid/vaadin-grid.js";
 import "@polymer/polymer/lib/elements/dom-repeat.js";
 import "@vaadin/vaadin-grid/vaadin-grid.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
 import "@polymer/polymer/lib/elements/dom-if.js";
 import "@vaadin/vaadin-grid/vaadin-grid-column-group.js";
 import "@vaadin/vaadin-grid/vaadin-grid-filter.js";
+import "@polymer/paper-input/paper-input.js";
+import "../elmsln-base-deps.js";
 import "@vaadin/vaadin-grid/vaadin-grid-sorter.js";
 import "@vaadin/vaadin-grid/vaadin-grid-selection-column.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 import "@polymer/iron-image/iron-image.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
 import "@lrnwebcomponents/lrnsys-layout/lib/lrnsys-dialog.js";
 import "@lrnwebcomponents/elmsln-loading/elmsln-loading.js";
 import "@lrnwebcomponents/lrndesign-avatar/lrndesign-avatar.js";
@@ -370,8 +372,8 @@ class LrnappCanvasListing extends PolymerElement {
                   src$="{{user.picture}}"
                 ></lrndesign-avatar>
               </div>
-              <paper-tooltip for$="user-{{user.id}}"
-                >{{user.name}}</paper-tooltip
+              <simple-tooltip for$="user-{{user.id}}"
+                >{{user.name}}</simple-tooltip
               >
             </template>
           </template>
@@ -448,14 +450,14 @@ class LrnappCanvasListing extends PolymerElement {
    * Trigger the dialog box to opened and kick off request for data.
    */
   _triggerDialog(e) {
-    this.shadowRoot.querySelector("#details-dialog").toggleDialog();
+    this.querySelector("#details-dialog").toggleDialog();
     this.roster = false;
     this.activeCourse = this.canvasCourses[e.target.id];
-    this.shadowRoot.querySelector("#request").params[
+    this.querySelector("#request").params[
       "sis_course_id"
     ] = this.activeCourse.sis_course_id;
-    this.shadowRoot.querySelector("#request").generateRequest();
-    this.shadowRoot.querySelector("#loadingContent").style.display = "none";
+    this.querySelector("#request").generateRequest();
+    this.querySelector("#loadingContent").style.display = "none";
   }
   handleResponse() {
     this.elmslnCourses = this.queryResponse.data.elmslnCourses;
@@ -464,7 +466,13 @@ class LrnappCanvasListing extends PolymerElement {
   }
   handleRosterResponse() {
     this.roster = this.queryResponse.data;
-    this.shadowRoot.querySelector("#loadingContent").style.display = "block";
+    this.querySelector("#loadingContent").style.display = "block";
+  }
+  /**
+   * highjack shadowDom
+   */
+  _attachDom(dom) {
+    this.appendChild(dom);
   }
 }
 window.customElements.define(LrnappCanvasListing.tag, LrnappCanvasListing);

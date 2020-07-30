@@ -21,13 +21,9 @@ window.PouchDb.requestAvailability = () => {
 /**
  * `pouch-db`
  * `read and write localized data elements`
- *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
  * @polymer
  * @demo demo/index.html
+ * @element pouch-db
  */
 class PouchDb extends PolymerElement {
   // render function
@@ -49,9 +45,11 @@ class PouchDb extends PolymerElement {
   // properties available to the custom element for data binding
   static get properties() {
     return {
+      ...super.properties,
+
       title: {
         name: "title",
-        type: "String",
+        type: String,
         value: "pouch-db-default-value",
         reflectToAttribute: false,
         observer: false

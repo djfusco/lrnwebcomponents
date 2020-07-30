@@ -3,26 +3,28 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
-import { pathFromUrl } from "@polymer/polymer/lib/utils/resolve-url.js";
-import { ESGlobalBridge } from "@lrnwebcomponents/es-global-bridge/es-global-bridge.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
+import "@lrnwebcomponents/es-global-bridge/es-global-bridge.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 /**
  * `lunr-search`
  * `LunrJS search element`
- *
- * @microcopy - language worth noting:
- *  -
- *
- * @customElement
- * @polymer
  * @demo demo/index.html
+ * @element lunr-search
  */
-class LunrSearch extends PolymerElement {
+class LunrSearch extends LitElement {
   /* REQUIRED FOR TOOLING DO NOT TOUCH */
   constructor() {
     super();
-    const basePath = pathFromUrl(import.meta.url);
+    this.method = "GET";
+    this.noStopWords = false;
+    this.dataSource = null;
+    this.fields = [];
+    this.limit = 500;
+    this.__auto = false;
+    this.minScore = 0;
+    this.log = false;
+    const basePath = this.pathFromUrl(import.meta.url);
     const location = `${basePath}../../lunr/lunr.js`;
     window.addEventListener(
       "es-bridge-lunr-loaded",
@@ -36,6 +38,51 @@ class LunrSearch extends PolymerElement {
     ) {
       this.__lunrLoaded = true;
     }
+  }
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      let notifiedProps = ["data", "search", "results", "noStopWords"];
+      if (notifiedProps.includes(propName)) {
+        // notify
+        let eventName = `${propName
+          .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, "$1-$2")
+          .toLowerCase()}-changed`;
+        this.dispatchEvent(
+          new CustomEvent(eventName, {
+            detail: {
+              value: this[propName]
+            }
+          })
+        );
+      }
+      // only request data when we actually have a data source
+      if (propName == "dataSource" && this[propName]) {
+        this.__auto = true;
+      }
+      if (["data", "search", "index", "minScore", "limit"].includes(propName)) {
+        this.results = this.searched(
+          this.data,
+          this.search,
+          this.index,
+          this.minScore,
+          this.limit
+        );
+      }
+      if (
+        ["data", "fields", "noStopWords", "__lunrLoaded"].includes(propName)
+      ) {
+        this.index = this._createIndex(
+          this.data,
+          this.fields,
+          this.noStopWords,
+          this.__lunrLoaded
+        );
+      }
+    });
+  }
+  // simple path from a url modifier
+  pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf("/") + 1);
   }
   disconnectedCallback() {
     window.removeEventListener(
@@ -56,8 +103,14 @@ class LunrSearch extends PolymerElement {
     return "lunr-search";
   }
   _dataResponse(e) {
-    this.set("data", e.detail.response);
-    this.notifyPath("data.*");
+    // must get a real response
+    if (e && e.detail && e.detail.response) {
+      try {
+        this.data = [...e.detail.response];
+      } catch (e) {
+        console.warn(e);
+      }
+    }
   }
   /**
     Filters your input data
@@ -90,7 +143,7 @@ class LunrSearch extends PolymerElement {
             data,
             this.fields,
             true,
-            index
+            this.__lunrLoaded
           );
         }
         searched = this.indexNoStopWords.search(search);

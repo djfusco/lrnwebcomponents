@@ -6,13 +6,15 @@ import "@polymer/iron-icons/hardware-icons.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 import "@polymer/paper-icon-button/paper-icon-button.js";
 import "@polymer/paper-styles/color.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
 import "@polymer/app-route/app-location.js";
 import "@polymer/app-route/app-route.js";
 import "@lrnwebcomponents/grid-plate/grid-plate.js";
 import "@lrnwebcomponents/responsive-grid/lib/responsive-grid-row.js";
 import "@lrnwebcomponents/responsive-grid/lib/responsive-grid-col.js";
 import "@lrnwebcomponents/materializecss-styles/materializecss-styles.js";
+import "@lrnwebcomponents/simple-modal/simple-modal.js";
+import "../elmsln-base-deps.js";
 import { afterNextRender } from "@polymer/polymer/lib/utils/render-status";
 /**
  * `lrnapp-book`
@@ -36,8 +38,9 @@ class MoocContent extends PolymerElement {
         font-size: 16px;
         box-sizing: content-box;
       }
-      :host([loading]) #content {
-        opacity: .2;
+      #content[data-loading] {
+        opacity: .2 !important;
+        pointer-events: none;
       }
       #content {
         opacity: 1;
@@ -106,7 +109,7 @@ class MoocContent extends PolymerElement {
             <responsive-grid-col xl="8" lg="8" md="9" sm="7" xs="12">
               <a id="main-content" class="scrollspy" data-scrollspy="scrollspy"></a>
               <div class="column">
-                <div id="content"><slot name="content"></slot></div>
+                <div id="content" data-loading$="[[loading]]"><slot name="content"></slot></div>
               </div>
             </responsive-grid-col>
           </responsive-grid-row>
@@ -230,8 +233,7 @@ class MoocContent extends PolymerElement {
        */
       _loading: {
         type: Boolean,
-        observer: "_contentLoading",
-        value: false
+        observer: "_contentLoading"
       },
       /**
        * loading pegged to the ajax call running
@@ -319,6 +321,9 @@ class MoocContent extends PolymerElement {
         // fire drupal behaviors.. this is evil. Polymer is invoking Drupal behaviors..
         if (window.Drupal) {
           window.Drupal.attachBehaviors(document, window.Drupal.settings);
+        }
+        if (window.WCAutoload) {
+          window.WCAutoload.process();
         }
         // first time this fires let's get the outline block in the background
         if (

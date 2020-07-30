@@ -2,96 +2,157 @@
  * Copyright 2019 The Pennsylvania State University
  * @license Apache-2.0, see License.md for full text.
  */
-import { html, PolymerElement } from "@polymer/polymer/polymer-element.js";
+import { LitElement, html, css } from "lit-element/lit-element.js";
 import { store } from "@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-store.js";
-import { autorun, toJS } from "mobx";
-import "@polymer/paper-button/paper-button.js";
+import { autorun, toJS } from "mobx/lib/mobx.module.js";
+import { HAXCMSThemeParts } from "../../core/utils/HAXCMSThemeParts";
+/**
+ * @deprecatedApply - required for @apply / invoking @apply css var convention
+ */
+import "@polymer/polymer/lib/elements/custom-style.js";
 /**
  * `site-menu-button`
  * `Menu button based on the hierarchy`
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
-class SiteMenuButton extends PolymerElement {
+class SiteMenuButton extends HAXCMSThemeParts(LitElement) {
+  /**
+   * LitElement constructable styles enhancement
+   */
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        :host {
+          display: block;
+          font-size: 16px;
+        }
+        :host([disabled]) {
+          pointer-events: none;
+          opacity: 0.3;
+        }
+        a {
+          display: block;
+          color: var(--site-menu-button-link-color);
+          text-decoration: var(--site-menu-button-link-decoration, underline);
+        }
+        paper-button {
+          display: flex;
+          transition: 0.2s color linear;
+          min-width: unset;
+        }
+        paper-button:hover,
+        paper-button:focus,
+        paper-button:active {
+          color: var(--site-menu-button-button-hover-color, inherit);
+          outline: 2px solid var(--site-menu-button-button-hover-color, inherit);
+          outline-offset: 2px;
+          background-color: var(
+            --site-menu-button-button-hover-background-color,
+            inherit
+          );
+        }
+        paper-button:hover iron-icon,
+        paper-button:focus iron-icon,
+        paper-button:active iron-icon {
+          --iron-icon-fill-color: var(
+            --site-menu-button-button-hover-color,
+            black
+          );
+        }
+        iron-icon {
+          display: block;
+          font-size: 16px;
+          --iron-icon-width: var(--site-menu-button-icon-width, 32px);
+          --iron-icon-height: var(--site-menu-button-icon-height, 32px);
+          --iron-icon-fill-color: var(
+            --site-menu-button-icon-fill-color,
+            black
+          );
+        }
+        simple-tooltip {
+          --simple-tooltip-background: var(
+            --haxcms-tooltip-background-color,
+            #000000
+          );
+          --simple-tooltip-opacity: 1;
+          --simple-tooltip-text-color: var(--haxcms-tooltip-color, #ffffff);
+          --simple-tooltip-delay-in: 0;
+          --simple-tooltip-border-radius: 0;
+        }
+      `
+    ];
+  }
   /**
    * Store the tag name to make it easier to obtain directly.
-   * @notice function name must be here for tooling to operate correctly
    */
   static get tag() {
     return "site-menu-button";
   }
   constructor() {
     super();
+    this.hideLabel = false;
+    this.__disposer = this.__disposer ? this.__disposer : [];
+    autorun(reaction => {
+      this.activeRouterManifestIndex = toJS(store.activeRouterManifestIndex);
+      this.__disposer.push(reaction);
+    });
+    autorun(reaction => {
+      this.routerManifest = toJS(store.routerManifest);
+      this.__disposer.push(reaction);
+    });
+    autorun(reaction => {
+      this.editMode = toJS(store.editMode);
+      this.__disposer.push(reaction);
+    });
     import("@polymer/iron-icon/iron-icon.js");
     import("@polymer/iron-icons/iron-icons.js");
-    import("@polymer/paper-tooltip/paper-tooltip.js");
+    import("@lrnwebcomponents/simple-tooltip/simple-tooltip.js");
+    import("@polymer/paper-button/paper-button.js");
   }
   // render function
-  static get template() {
+  render() {
     return html`
-      <style>
-        :host {
-          display: block;
-          font-size: 16px;
-          transition: 0.3s all ease-in-out;
-        }
-        :host([disabled]) {
-          pointer-event: none;
-          opacity: 0.3;
-        }
-        a {
-          color: black;
-          text-decoration: underline;
-          @apply --site-menu-button-link;
-        }
-        paper-button {
-          transition: 0.3s all ease-in-out;
-          min-width: unset;
-          @apply --site-menu-button-button;
-        }
-        paper-button:hover,
-        paper-button:focus,
-        paper-button:active {
-          @apply --site-menu-button-button-hover;
-        }
-        iron-icon {
-          display: block;
-          font-size: 16px;
-          @apply --site-menu-button-icon;
-        }
-        paper-tooltip {
-          --paper-tooltip-background: var(
-            --site-menu-button-tooltip-bg,
-            #000000
-          );
-          --paper-tooltip-opacity: 1;
-          --paper-tooltip-text-color: var(
-            --site-menu-button-tooltip-text,
-            #ffffff
-          );
-          --paper-tooltip-delay-in: 0;
-          --paper-tooltip: {
-            border-radius: 0;
+      <custom-style>
+        <style>
+          paper-button {
+            @apply --site-menu-button-button;
           }
-        }
-      </style>
-      <a tabindex="-1" href$="[[link]]" disabled$="[[disabled]]">
+        </style>
+      </custom-style>
+      <a
+        tabindex="-1"
+        ?disabled="${this.disabled}"
+        aria-label="${this.label}"
+        .part="${this.editMode ? `edit-mode-active` : ``}"
+      >
         <paper-button
           id="menulink"
           noink
-          disabled="[[disabled]]"
-          raised="[[raised]]"
+          ?disabled="${this.disabled}"
+          ?raised="${this.raised}"
+          aria-label="${this.label}"
+          .part="${this.editMode ? `edit-mode-active` : ``}"
         >
           <slot name="prefix"></slot>
-          <iron-icon icon="[[icon]]"></iron-icon>
+          <iron-icon icon="${this.icon}"></iron-icon>
           <slot name="suffix"></slot>
         </paper-button>
       </a>
-      <paper-tooltip for="menulink" offset="8" position="[[position]]">
-        [[label]]
-      </paper-tooltip>
+      ${!this.hideLabel
+        ? html`
+            <simple-tooltip
+              for="menulink"
+              offset="8"
+              .position="${this.position}"
+            >
+              ${this.label}
+            </simple-tooltip>
+          `
+        : ``}
     `;
   }
   /**
@@ -99,32 +160,39 @@ class SiteMenuButton extends PolymerElement {
    */
   static get properties() {
     return {
+      ...super.properties,
       type: {
         type: String,
-        observer: "_typeChanged",
-        reflectToAttribute: true
+        reflect: true
       },
       /**
        * acitvely selected item
        */
-      activeManifestIndex: {
+      activeRouterManifestIndex: {
         type: String
       },
       routerManifest: {
         type: Object
       },
       link: {
-        type: String,
-        computed: "pageLink(type, activeManifestIndex, routerManifest.items)"
+        type: String
+      },
+      editMode: {
+        type: Boolean,
+        reflect: true,
+        attribute: "edit-mode"
       },
       disabled: {
         type: Boolean,
-        reflectToAttribute: true,
-        computed:
-          "pageLinkStatus(type, activeManifestIndex, routerManifest.items)"
+        reflect: true,
+        attribute: "disabled"
       },
       label: {
         type: String
+      },
+      hideLabel: {
+        type: Boolean,
+        attribute: "hide-label"
       },
       icon: {
         type: String
@@ -137,11 +205,72 @@ class SiteMenuButton extends PolymerElement {
       }
     };
   }
+  updated(changedProperties) {
+    if (super.updated) {
+      super.updated(changedProperties);
+    }
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName == "type") {
+        this._typeChanged(this[propName], oldValue);
+      }
+      if (propName == "link") {
+        this._linkChanged(this[propName]);
+      }
+      if (propName == "label") {
+        this.dispatchEvent(
+          new CustomEvent(`${propName}-changed`, {
+            detail: {
+              value: this[propName]
+            }
+          })
+        );
+      }
+      if (
+        ["type", "activeRouterManifestIndex", "routerManifest"].includes(
+          propName
+        ) &&
+        this.routerManifest
+      ) {
+        this.link = this.pageLink(
+          this.type,
+          this.activeRouterManifestIndex,
+          this.routerManifest.items
+        );
+        this.label = this.pageLinkLabel(
+          this.type,
+          this.activeRouterManifestIndex,
+          this.routerManifest.items
+        );
+      }
+      if (
+        [
+          "type",
+          "activeRouterManifestIndex",
+          "routerManifest",
+          "editMode",
+          "link"
+        ].includes(propName) &&
+        this.routerManifest
+      ) {
+        this.disabled = this.pageLinkStatus(
+          this.type,
+          this.activeRouterManifestIndex,
+          this.routerManifest.items,
+          this.editMode,
+          this.link
+        );
+      }
+    });
+  }
+  _linkChanged(newValue) {
+    if (newValue == null) {
+      this.shadowRoot.querySelector("a").removeAttribute("href");
+    } else {
+      this.shadowRoot.querySelector("a").setAttribute("href", newValue);
+    }
+  }
   _typeChanged(newValue) {
     if (newValue === "prev") {
-      if (!this.label) {
-        this.label = "Previous page";
-      }
       if (!this.icon) {
         this.icon = "icons:chevron-left";
       }
@@ -149,9 +278,6 @@ class SiteMenuButton extends PolymerElement {
         this.position = "right";
       }
     } else if (newValue === "next") {
-      if (!this.label) {
-        this.label = "Next page";
-      }
       if (!this.icon) {
         this.icon = "icons:chevron-right";
       }
@@ -161,23 +287,25 @@ class SiteMenuButton extends PolymerElement {
     }
     // @todo add support for up and down as far as children and parent relationships
     else {
-      this.label = "";
       this.icon = "";
       this.direction = "";
     }
   }
-  pageLink(type, activeManifestIndex, items) {
+  pageLink(type, activeRouterManifestIndex, items) {
     if (type === "prev" && items) {
-      if (activeManifestIndex > 0 && items[activeManifestIndex - 1]) {
-        return items[activeManifestIndex - 1].location;
+      if (
+        activeRouterManifestIndex > 0 &&
+        items[activeRouterManifestIndex - 1]
+      ) {
+        return items[activeRouterManifestIndex - 1].slug;
       }
       return null;
     } else if (type === "next" && items) {
       if (
-        activeManifestIndex < items.length - 1 &&
-        items[activeManifestIndex + 1]
+        activeRouterManifestIndex < items.length - 1 &&
+        items[activeRouterManifestIndex + 1]
       ) {
-        return items[activeManifestIndex + 1].location;
+        return items[activeRouterManifestIndex + 1].slug;
       }
       return null;
     }
@@ -186,36 +314,51 @@ class SiteMenuButton extends PolymerElement {
       return null;
     }
   }
-  pageLinkStatus(type, activeManifestIndex, items) {
+  /**
+   * true is disabled
+   */
+  pageLinkStatus(type, activeRouterManifestIndex, items, editMode, link) {
+    if (editMode || link == null) {
+      return true;
+    }
     if (type === "prev") {
-      if (activeManifestIndex === 0 || activeManifestIndex === -1) {
+      if (activeRouterManifestIndex === 0 || activeRouterManifestIndex === -1) {
         return true;
       }
-      return false;
     } else if (type === "next" && items) {
-      if (activeManifestIndex >= items.length - 1) {
+      if (activeRouterManifestIndex >= items.length - 1) {
         return true;
       }
-      return false;
     }
-    // @todo add support for up and down as far as children and parent relationships
-    else {
-      return false;
-    }
+    return false;
   }
-  connectedCallback() {
-    super.connectedCallback();
-    this.__disposer = autorun(() => {
-      this.routerManifest = toJS(store.routerManifest);
-    });
-    this.__disposer2 = autorun(() => {
-      this.activeManifestIndex = toJS(store.activeManifestIndex);
-    });
+  pageLinkLabel(type, activeRouterManifestIndex, items) {
+    if (type === "prev" && items) {
+      if (
+        activeRouterManifestIndex === 0 ||
+        activeRouterManifestIndex === -1 ||
+        !items[activeRouterManifestIndex - 1]
+      ) {
+        return "";
+      } else {
+        return items[activeRouterManifestIndex - 1].title;
+      }
+    } else if (type === "next" && items) {
+      if (
+        activeRouterManifestIndex >= items.length - 1 ||
+        !items[activeRouterManifestIndex + 1]
+      ) {
+        return "";
+      } else {
+        return items[activeRouterManifestIndex + 1].title;
+      }
+    }
   }
   disconnectedCallback() {
+    for (var i in this.__disposer) {
+      this.__disposer[i].dispose();
+    }
     super.disconnectedCallback();
-    this.__disposer();
-    this.__disposer2();
   }
 }
 window.customElements.define(SiteMenuButton.tag, SiteMenuButton);

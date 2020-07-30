@@ -15,19 +15,20 @@ import "@polymer/paper-card/paper-card.js";
 import "@polymer/iron-ajax/iron-ajax.js";
 import "@polymer/iron-list/iron-list.js";
 import "@polymer/iron-swipeable-container/iron-swipeable-container.js";
-import "@polymer/paper-tooltip/paper-tooltip.js";
+import "@lrnwebcomponents/simple-tooltip/simple-tooltip.js";
 import "@polymer/paper-progress/paper-progress.js";
 import "@polymer/app-layout/app-toolbar/app-toolbar.js";
 import "@polymer/app-layout/app-header/app-header.js";
 import "@lrnwebcomponents/item-overlay-ops/item-overlay-ops.js";
 import "@lrnwebcomponents/lrnsys-outline/lrnsys-outline.js";
-import "@lrnwebcomponents/simple-colors/simple-colors.js";
+import "@lrnwebcomponents/simple-colors/lib/simple-colors-polymer.js";
 import "@lrnwebcomponents/simple-modal/simple-modal.js";
 import "@lrnwebcomponents/editable-list/editable-list.js";
 import "./lib/sortable-list.js";
 import { pagemap } from "./lib/pagemap.js";
 /**
  * `outline-designer`
+ * @element outline-designer
  * `tools to modify and visualize JSON Outline Schema for editing`
  *
  * @microcopy - language worth noting:
@@ -39,7 +40,7 @@ step down the hierarchy
 mode vs resolution (3 levels)
 
  *
- * @customElement
+
  * @polymer
  * @demo demo/index.html
  */
@@ -57,15 +58,19 @@ class OutlineDesigner extends PolymerElement {
    */
   connectedCallback() {
     super.connectedCallback();
-    this.$.ironlist.addEventListener(
-      "item-overlay-op-changed",
-      this._overlayOpChanged.bind(this)
-    );
-    this.$.ironlist.addEventListener(
-      "item-overlay-option-selected",
-      this._overlayOpSelected.bind(this)
-    );
-    pagemap(this.$.minimaparea, {
+    this.shadowRoot
+      .querySelector("#ironlist")
+      .addEventListener(
+        "item-overlay-op-changed",
+        this._overlayOpChanged.bind(this)
+      );
+    this.shadowRoot
+      .querySelector("#ironlist")
+      .addEventListener(
+        "item-overlay-option-selected",
+        this._overlayOpSelected.bind(this)
+      );
+    pagemap(this.shadowRoot.querySelector("#minimaparea"), {
       viewport: null,
       styles: {
         "ul,ol,li": "rgba(0, 0, 0, 0.08)",
@@ -84,14 +89,18 @@ class OutlineDesigner extends PolymerElement {
    */
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.$.ironlist.removeEventListener(
-      "item-overlay-op-changed",
-      this._overlayOpChanged.bind(this)
-    );
-    this.$.ironlist.removeEventListener(
-      "item-overlay-option-selected",
-      this._overlayOpSelected.bind(this)
-    );
+    this.shadowRoot
+      .querySelector("#ironlist")
+      .removeEventListener(
+        "item-overlay-op-changed",
+        this._overlayOpChanged.bind(this)
+      );
+    this.shadowRoot
+      .querySelector("#ironlist")
+      .removeEventListener(
+        "item-overlay-option-selected",
+        this._overlayOpSelected.bind(this)
+      );
   }
   _toggleMiniMap(e) {
     this.miniMap = !this.miniMap;
@@ -100,11 +109,15 @@ class OutlineDesigner extends PolymerElement {
   _miniMapChanged(newValue, oldValue) {
     if (typeof newValue !== typeof undefined) {
       if (newValue) {
-        this.$.minimap.icon = "device:gps-fixed";
-        this.$.minimaparea.classList.add("show-minimap");
+        this.shadowRoot.querySelector("#minimap").icon = "device:gps-fixed";
+        this.shadowRoot
+          .querySelector("#minimaparea")
+          .classList.add("show-minimap");
       } else {
-        this.$.minimap.icon = "device:gps-off";
-        this.$.minimaparea.classList.remove("show-minimap");
+        this.shadowRoot.querySelector("#minimap").icon = "device:gps-off";
+        this.shadowRoot
+          .querySelector("#minimaparea")
+          .classList.remove("show-minimap");
       }
     }
   }
@@ -117,7 +130,7 @@ class OutlineDesigner extends PolymerElement {
         this.viewMode = "outline";
         break;
       case "outline":
-        this.outlineData = this.$.outline.getData();
+        this.outlineData = this.shadowRoot.querySelector("#outline").getData();
         this.viewMode = "tree";
         break;
       case "tree":
@@ -165,7 +178,7 @@ class OutlineDesigner extends PolymerElement {
       if (this.selectedView === 0) {
         async.microTask.run(() => {
           setTimeout(() => {
-            this.$.ironlist.dispatchEvent(
+            this.shadowRoot.querySelector("#ironlist").dispatchEvent(
               new CustomEvent("iron-resize", {
                 bubbles: true,
                 cancelable: true,
@@ -241,13 +254,13 @@ class OutlineDesigner extends PolymerElement {
     if (typeof newValue !== typeof undefined) {
       switch (newValue) {
         case "cards":
-          this.$.viewmode.classList.add("rotate-90");
+          this.shadowRoot.querySelector("#viewmode").classList.add("rotate-90");
           this.selectedView = 0;
           this.viewModeIcon = "icons:view-module";
           this.viewModeLabel = "Card view";
           async.microTask.run(() => {
             setTimeout(() => {
-              this.$.ironlist.dispatchEvent(
+              this.shadowRoot.querySelector("#ironlist").dispatchEvent(
                 new CustomEvent("iron-resize", {
                   bubbles: true,
                   cancelable: true,
@@ -260,19 +273,23 @@ class OutlineDesigner extends PolymerElement {
           });
           break;
         case "outline":
-          this.$.viewmode.classList.remove("rotate-90");
+          this.shadowRoot
+            .querySelector("#viewmode")
+            .classList.remove("rotate-90");
           this.selectedView = 1;
           this.viewModeIcon = "icons:view-list";
           this.viewModeLabel = "Outline view";
           break;
         case "tree":
-          this.$.viewmode.classList.add("rotate-90");
+          this.shadowRoot.querySelector("#viewmode").classList.add("rotate-90");
           this.selectedView = 2;
           this.viewModeIcon = "social:share";
           this.viewModeLabel = "Tree view";
           break;
         case "drag":
-          this.$.viewmode.classList.remove("rotate-90");
+          this.shadowRoot
+            .querySelector("#viewmode")
+            .classList.remove("rotate-90");
           this.selectedView = 3;
           this.viewModeIcon = "icons:touch-app";
           this.viewModeLabel = "Draggable cards";
